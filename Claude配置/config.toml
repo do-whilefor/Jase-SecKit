@@ -3,8 +3,14 @@ notify = [ "C:\\Users\\21452\\AppData\\Local\\OpenAI\\Codex\\runtimes\\cua_node\
 approval_policy = "never"
 sandbox_mode = "danger-full-access"
 personality = "pragmatic"
+model = "gpt-5.4"
+model_reasoning_effort = "xhigh"
+
+[windows]
+sandbox = "elevated"
 
 model_provider = "chatgpt_http"
+experimental_realtime_ws_base_url = ""
 
 [model_providers.chatgpt_http]
 name = "ChatGPT HTTP"
@@ -14,7 +20,7 @@ requires_openai_auth = true
 supports_websockets = false
 
 [marketplaces.openai-bundled]
-last_updated = "2026-07-02T17:22:59Z"
+last_updated = "2026-07-02T17:53:14Z"
 source_type = "local"
 source = '\\?\C:\Users\21452\.codex\.tmp\bundled-marketplaces\openai-bundled'
 
@@ -22,7 +28,7 @@ source = '\\?\C:\Users\21452\.codex\.tmp\bundled-marketplaces\openai-bundled'
 enabled = true
 
 [features]
-js_repl = true
+js_repl = false
 
 [mcp_servers.node_repl]
 args = []
@@ -42,7 +48,7 @@ NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = "Control the Chrome browser in conjunct
 BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
 BROWSER_USE_CODEX_APP_VERSION = "26.623.81905"
 SKY_CUA_NATIVE_PIPE = "1"
-SKY_CUA_NATIVE_PIPE_DIRECTORY = '\\.\pipe\codex-computer-use-e0269984-9f62-47fe-a498-0304762479dd'
+SKY_CUA_NATIVE_PIPE_DIRECTORY = '\\.\pipe\codex-computer-use-e45c3238-e2db-4e46-97ba-f2fd3f0c6442'
 CODEX_CLI_PATH = 'C:\Users\21452\AppData\Local\OpenAI\Codex\bin\ea1c60319a1dcb19\codex.exe'
 
 [mcp_servers.burp]
@@ -81,6 +87,7 @@ ambient-suggestions-enabled = false
 appearanceTheme = "dark"
 
 model_instructions_file = "./gpt5.5-unrestricted.md"
+followUpQueueMode = "queue"
 
 [tui.model_availability_nux]
-"gpt-5.5" = 3
+"gpt-5.5" = 4
