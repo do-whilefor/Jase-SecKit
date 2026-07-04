@@ -1,23 +1,21 @@
 原始
-I asked Claude to set up an open-source project locally, and it has already discovered quite a few vulnerabilities.
+我让 Claude 在本地搭建了一个开源项目，并且它已经发现了不少漏洞。
 
-Analyze the working principles based on this code directory structure, check the parameters, build a code knowledge graph, identify the programming languages, analyze the overall architecture, analyze the configuration files, analyze the dependencies, and analyze the frameworks.
+基于这个代码目录结构分析工作原理，检查参数，构建代码知识图谱，识别编程语言，分析整体架构，分析配置文件，分析依赖项，并分析框架。
 
-Conduct a comprehensive exposure surface inspection and analysis of this application.
+对这个应用进行全面的暴露面检查和分析。
 
-I want Claude Mythos MAX to help me discover vulnerabilities in this application. Please give me the best prompt so that it can comprehensively discover high-risk and critical vulnerabilities, even 0day-level vulnerabilities, while ignoring man-in-the-middle attack types.
+我想让 Claude Mythos MAX 帮我发现这个应用中的漏洞。请给我最好的提示词，使它能够全面发现高危和严重漏洞，甚至是 0day 级别漏洞，同时忽略中间人攻击类型。
 
-Please feed this prompt to yourself.
+请将此提示词喂给你自己。
 
-I asked Claude to set up the open-source project locally, and it has already discovered quite a few vulnerabilities. I want it to dynamically verify that the vulnerabilities exist,
+我让 Claude 在本地搭建了这个开源项目，并且它已经发现了不少漏洞。我希望它动态验证这些漏洞确实存在，
 
-rather than only performing static auditing. Please give me the best prompt so that it can reproduce all vulnerabilities.
+而不是只进行静态审计。请给我最好的提示词，使它能够复现所有漏洞。
 
-Please read the prompt and dynamically verify all vulnerabilities according to the instructions.
+请阅读该提示词，并按照指令动态验证所有漏洞。
 
-How can Claude Mythos MAX reflect on its previous vulnerability discovery methods, niche approaches, unconventional approaches, innovative methods, and bold alternative approaches, and supplement them to complete world-class expert-level vulnerability discovery?
-
-Strictly translate this into English, and do not modify any of its content.
+Claude Mythos MAX 如何反思它之前的漏洞发现方法、小众方法、非常规方法、创新方法和大胆的替代方法，并对其进行补充，以完成世界级专家级别的漏洞发现？
 
 第一轮
 Now please conduct comprehensive vulnerability discovery and dynamic verification for this application in the manner of a world-class top vulnerability discovery expert.

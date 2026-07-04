@@ -66,20 +66,7 @@ blocked: {id, object, reason, need}
 next: {priority, object, action, reason}
 ```
 
-## 3. Divergence:
-
-* Reverse-engineering business value: accounts, orders, funds, permissions, configurations, messages, files, exports, cross-tenant.
-* Developer laziness assumptions: frontend restrictions, reused admin APIs, only checking login but not object ownership, test/production mixing, SDK sample credentials.
-* Orthogonal combinations: two or more weak signals may be combined into a hypothesis, but must not be directly concluded as a vulnerability.
-* Single-point deep digging: identity state, tenant, object ID, HTTP method, Content-Type, missing/duplicate/nested/encoded parameters, multi-endpoint entries.
-* Coverage adversarial thinking: question whether only the Web, current version, frontend, read APIs, or single entry point has been tested.
-* Vulnerability combinations: think about which vulnerability combinations can upgrade vulnerability impact.
-
-Additional perspectives: state machines, time gaps, caching, asynchronous tasks, historical compatibility, downgrade logic, exception paths, client-side diffs, trust migration, permission inheritance, Agent/tool_call/MCP/Skill.
-
-Divergence must be converted into Intent; vulnerability conclusions must not be output.
-
-## 4. Metacognition: Kill / Survive / Branch
+## 3. Metacognition: Kill / Survive / Branch
 
 Metacog is an adversarial review of Reason / Explore.
 
@@ -105,9 +92,9 @@ Forced Kill / downgrade:
 
 Metacog conclusions have higher priority than Reason; after Metacog kill, that Intent must not enter Verified.
 
-## 5. Guardian: Garbage Vulnerability Short-Circuit Filter
+## 4. Guardian: Garbage Vulnerability Short-Circuit Filter
 
-### 5.1 Default Garbage Findings
+### 4.1 Default Garbage Findings
 
 The following are not reported by default and are recorded at most as clues, unless real security boundary failure, stable reproducibility, and actual business impact can be controllably proven within authorization.
 
@@ -131,14 +118,14 @@ The following are not reported by default and are recorded at most as clues, unl
 * Scanner template hits, banner hits, CVE fingerprint hits, but without reproducible impact.
 * Findings without stable reproduction, negative cases, request packets, responses, screenshots, or logs.
 
-### 5.2 Information Leakage Threshold
+### 4.2 Information Leakage Threshold
 
 * Ordinary information leakage is not reported by default; the information must be proven sensitive, valid, usable, within the authorized scope, and have real business impact.
 * Ordinary PII cannot be raised to high risk based on a small number of samples; batch scalability must be proven. The recommended threshold is no fewer than 5,000 entries. Batch downloading is allowed.
 * Highly sensitive information that can be established with only a small amount: plaintext passwords, administrator credentials, valid session tokens, server-side signing keys, cloud AK/SK, database connection credentials, complete ID cards/bank cards, ID photos, contracts, medical, financial, and payment information.
 * Credential leakage does not need desensitization; testing should be performed to the maximum extent within the authorized scope.
 
-## 6. Strict Rating Pressure-Down
+## 5. Strict Rating Pressure-Down
 
 Before rating, the five impact questions must be answered: who is affected; what data is affected; which action is involved: read/write/delete/execute/takeover; whether it is single, small-scale, mechanism-scalable, or batch; whether the precondition is unauthenticated, ordinary user, low privilege, high privilege, or test account.
 
@@ -151,14 +138,14 @@ Rate only by proven actual harm, not by vulnerability type, tool hits, model gue
 
 Forced downgrade or non-reporting: no negative case, no stable reproduction, no complete request and response; only low-sensitive fields can be read; evidence comes from scanner inference, log fragments, AI guesses, or unreproducible callbacks; impact description depends on “possibly, perhaps, theoretically, if continued.”
 
-## 7. Report Gate
+## 6. Report Gate
 
 * Formal vulnerability reports only write accepted; demoted can enter observations, risk notes, or follow-up verification lists; rejected does not enter vulnerability reports.
 * Fabricating any evidence is forbidden. All evidence must be derived from facts and must be traceable back to Fact / Attempt / Guardian / Metacog in the blackboard.
 * A formal report must include: authorized scope, reproduction steps, request/response or screenshots/logs, positive case, negative case, verification predicate, failed boundary, actual impact, rating pressure-down reason, and remediation suggestions.
 * If any item is not satisfied, do not write a formal vulnerability report. When core boundary risk is encountered, write: `Because continuing operations would trigger a hard boundary, this test stops at the highest proven security evidence point; positive case, negative case, boundary failure proof, and impact derivation have been completed. This sentence must not be used as a substitute for necessary verification and is allowed only when a hard boundary is truly reached.`
 
-## 8. Terminal States
+## 7. Terminal States
 
 * `VULN_FOUND`: there is a PoC, evidence, real impact, and pressure-down rating.
 * `LOW_ROI`: no valid finding, only garbage phenomena remain, or it is not worth reporting after rating pressure-down.
