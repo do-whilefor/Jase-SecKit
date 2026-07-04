@@ -93,20 +93,26 @@ Metacog conclusions have higher priority than Reason. After Metacog kills an Int
 ## 4. Guardian: Junk Vulnerability Short-Circuit Filter
 
 ### 4.1 Default Junk Findings
-
-The following are not reported by default and may at most be recorded as leads, unless real security-boundary failure can be controllably proven within the authorized scope, with stable reproducibility and actual business impact.
-
-* Weak configurations, missing security response headers, CORS, CSP, HSTS, and missing Cookie attributes;
-* Server Header, version numbers, framework fingerprints, ordinary error stacks, and ordinary TLS ratings;
-* robots, sitemap, directory indexing, sourcemaps, JS paths, frontend routes, Swagger/GraphQL paths, comments, and field names;
-* APIs that exist but cannot be accessed without authorization, cannot be abused for privilege bypass, or cannot perform sensitive actions;
-* Frontend-only bypasses where backend authentication, object ownership, tenant isolation, or permission checks do not fail;
-* Self-XSS, open redirects without impact, clickjacking without impact, CSRF without impact, and uploads without impact;
-* Public appid values, tracking keys, map keys, client-side keys, and API keys without privileges;
-* Small amounts of test data, public data, desensitized data, one’s own data, or low-sensitivity fragments;
-* Keys, tokens, JWTs, or signature parameters whose validity cannot be proven;
-* Scanner hits, banner hits, or CVE fingerprint hits without reproducible impact;
-* Findings without requests, responses, screenshots, logs, state changes, or stable reproduction.
+* The following are not reported by default and may at most be recorded as leads, unless real security-boundary failure can be controllably proven within the authorized scope, with stable reproducibility and actual business impact.
+* The mere absence of CORS, security response headers, CSP, HSTS, X-Frame-Options, X-Content-Type-Options, SameSite, HttpOnly, or Secure attributes.
+* Server headers, version numbers, middleware fingerprints, framework names, ordinary error stacks, common SSL/TLS ratings, certificate information, or weak cryptography warnings.
+* robots.txt, sitemap, directory listing, favicon hash, or Wappalyzer identification results.
+* Sourcemaps, JavaScript files, frontend routes, API paths, GraphQL/Swagger paths, comments, TODOs, test paths, field names, enum values, or internal system names.
+* Existing interfaces, hidden interfaces, accessible OPTIONS methods, or 401/403/404 responses, where unauthorized access, privilege escalation, or sensitive actions cannot be performed.
+* Frontend-only bypasses where backend authentication, object ownership, tenant isolation, or permission checks do not fail.
+* Self-XSS, or issues that only affect the user’s own nickname, avatar, profile, rich text, Markdown, or other non-sensitive personal content.
+* Standalone open redirects that cannot be chained to account takeover, token leakage, or sensitive actions.
+* Clickjacking with only theoretical risk and no actual triggering of sensitive operations.
+* CSRF that only logs the user out, modifies the user’s own non-sensitive information, or has no actual business impact.
+* Missing rate limiting without controllable proof that it can cause real damage.
+* Successful upload of a disguised image that cannot be executed, cannot be parsed by the browser as a script, cannot be linked to a high-risk business object, and cannot bypass permissions.
+* Publicly accessible or controllable files, URLs, or keys that contain no sensitive content, involve no parsing or execution, have no business reference, cause no permission bypass, and do not indicate a boundary failure.
+* Public app IDs, analytics keys, map keys, client-side keys, or API keys without permissions.
+* Small amounts of test data, public data, desensitized data, or the user’s own data.
+* A single phone number fragment, name fragment, order number fragment, or internal ID, where no sensitive combined fields are present.
+* Keys, tokens, JWTs, or signature parameters whose validity cannot be proven.
+* Scanner template hits, banner matches, or CVE fingerprint matches without reproducible impact.
+* Findings without stable reproduction, request packets, responses, screenshots, or logs.
 
 ### 4.2 Information Disclosure Threshold
 
