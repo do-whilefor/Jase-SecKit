@@ -40,38 +40,30 @@ Roles:
 * Metacog: refutes Reason / Explore and outputs Kill / Survive / Branch.
 * Guardian: filters garbage findings, broken chains, and inflated ratings.
 
-## 2. Blackboard: Tested Records
+## 2. Blackboard: State Records
 
-All test states must be written into `state/blackboard.md`, and model memory must not be relied upon.
+All test states must be written to `state/blackboard.md`. Do not rely on model memory.
 
-The blackboard records only information necessary for resuming tests and avoiding repeated verification:
+The blackboard should only record information needed to resume testing and avoid duplicate verification. Do not write full reasoning, report drafts, or long review logs.
 
-* Tested objects;
-* Identities used;
-* Methods performed;
-* Results obtained;
-* Evidence paths;
-* Whether continuation is still needed.
+Required records:
 
-Blackboard invariants:
+* Tested object;
+* Identity used;
+* One-sentence result;
+* Evidence path;
+* Current status;
+* Next step or reopen condition.
 
-* Each record must have object, method, result, and evidence path; failed items must include the failure reason.
-* The blackboard only records state and is not responsible for full reasoning; full judgment is still completed by garbage-finding filtering, rating pressure-down, and the report gate.
-
-Minimum object:
+Recommended structure:
 
 ```yaml
 scope: {targets, identities, note}
-tested: {id, object, identity, method, result, evidence_path, status}
-finding: {id, object, summary, evidence_path, status, next}
+tested: {id, object, identity, result, evidence_path, status}
+findings: {id, object, summary, evidence_path, status, next}
+closed: {id, object, reason, reopen_if, evidence_path}
 blocked: {id, object, reason, need}
 next: {priority, object, action, reason}
-```
-
-Allowed states only:
-
-```text
-untested / tested / candidate / verified / rejected / blocked
 ```
 
 ## 3. Divergence:

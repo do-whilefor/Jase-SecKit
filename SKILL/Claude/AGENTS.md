@@ -34,34 +34,28 @@
 - Metacog：反驳 Reason / Explore，输出 Kill / Survive / Branch。
 - Guardian：过滤垃圾洞、断链、夸大评级。
 
-## 2. 黑板：已测记录
+## 2. 黑板：状态记录
+
 所有测试状态写入 `state/blackboard.md`，不得依赖模型记忆。
 
-黑板只记录恢复测试和避免重复验证所必需的信息：
-* 测过的对象；
-* 使用的身份；
-* 做过的方法；
-* 得到的结果；
-* 证据路径；
-* 是否还需要继续。
+黑板只记录恢复测试和避免重复验证所需的信息，不写完整推理、不写报告正文、不堆长篇审查过程。
 
-黑板不变量：
-* 每条记录必须有对象、方法、结果和证据路径；失败项必须写失败原因。
-* 黑板只做状态记录，不负责完整推理；完整判断仍由垃圾洞过滤、等级回压和报告门完成。
+必须记录：
+- 测过的对象；
+- 使用的身份；
+- 一句话结果；
+- 证据路径；
+- 当前状态；
+- 下一步或重开条件。
 
-最小对象：
+推荐结构：
 ```yaml
 scope: {targets, identities, note}
-tested: {id, object, identity, method, result, evidence_path, status}
-finding: {id, object, summary, evidence_path, status, next}
+tested: {id, object, identity, result, evidence_path, status}
+findings: {id, object, summary, evidence_path, status, next}
+closed: {id, object, reason, reopen_if, evidence_path}
 blocked: {id, object, reason, need}
 next: {priority, object, action, reason}
-```
-
-状态只允许：
-```text
-untested / tested / candidate / verified / rejected / blocked
-```
 
 ## 3. 发散：
 - 业务价值逆向：账号、订单、资金、权限、配置、消息、文件、导出、跨租户。

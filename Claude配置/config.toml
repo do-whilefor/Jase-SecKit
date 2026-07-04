@@ -3,14 +3,11 @@ notify = [ "C:\\Users\\21452\\AppData\\Local\\OpenAI\\Codex\\runtimes\\cua_node\
 approval_policy = "never"
 sandbox_mode = "danger-full-access"
 personality = "pragmatic"
-model = "gpt-5.4"
+
+model = "gpt-5.5"
 model_reasoning_effort = "xhigh"
 
-[windows]
-sandbox = "elevated"
-
 model_provider = "chatgpt_http"
-experimental_realtime_ws_base_url = ""
 
 [model_providers.chatgpt_http]
 name = "ChatGPT HTTP"
@@ -18,6 +15,9 @@ base_url = "https://chatgpt.com/backend-api/codex"
 wire_api = "responses"
 requires_openai_auth = true
 supports_websockets = false
+
+[windows]
+sandbox = "elevated"
 
 [marketplaces.openai-bundled]
 last_updated = "2026-07-02T17:53:14Z"
