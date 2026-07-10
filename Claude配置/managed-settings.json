@@ -16,5 +16,5 @@
     "MAX_MCP_OUTPUT_TOKENS": "12000"
   },
   "cleanupPeriodDays": 7,
-  "autoUpdatesChannel": "stable",
+  "autoUpdatesChannel": "stable"
 }
