@@ -33,7 +33,7 @@ git pull --rebase origin main
 git push origin main
 
 git status
----
+
 
 ## 如果需要确认 GitHub 是否与本地一致：
 cd ~/文档/skills
@@ -53,4 +53,4 @@ else
 fi
 
 git status --short
----
+
