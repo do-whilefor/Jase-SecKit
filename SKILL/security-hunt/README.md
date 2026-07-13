@@ -1,19 +1,19 @@
 # Security Hunt
 
-A lightweight vulnerability-research plugin with one user-facing command, 7 AI-routed internal Skills, 32 Profiles, 32 References, and one unified validation and evidence framework.
+A lightweight, single-entry Claude Code Skill for authorized vulnerability research. It contains one discoverable Skill, 7 AI-routed internal modules, 32 Profiles, 32 References, and one unified validation and evidence framework.
 
-The original 89 PDFs and 528 HackerOne entries are not copied into the plugin. Transferable methods, representative cases, and source indexes are compressed into the References to keep the Skill directory small.
+The original 89 PDFs and 528 HackerOne entries are not copied into this package. Transferable methods, representative cases, and source indexes are compressed into the References to keep the Skill small and progressively loaded.
 
 ## Installation
 
-For global use:
+Global installation:
 
 ```bash
 rm -rf ~/.claude/skills/security-hunt
 cp -r security-hunt ~/.claude/skills/
 ```
 
-For project-local use:
+Project-local installation:
 
 ```bash
 rm -rf .claude/skills/security-hunt
@@ -21,39 +21,27 @@ mkdir -p .claude/skills
 cp -r security-hunt .claude/skills/
 ```
 
-Reload the current Claude Code session:
-
-```text
-/reload-plugins
-```
-
-Restart Claude Code if the root command does not appear immediately.
-
-Optional validation:
-
-```bash
-claude plugin validate ~/.claude/skills/security-hunt --strict
-```
+Start a new Claude Code session after installation if the Skill is not discovered in the current session.
 
 ## Usage
 
-Use only:
+Use the single entry point:
 
 ```text
 /security-hunt
 ```
 
-You can include the task on the same line:
+The task may be supplied on the same line:
 
 ```text
 /security-hunt Test the file upload, preview, export, and download chain for the current target
 ```
 
-The root Skill infers the relevant security boundary and loads the smallest useful set of internal Skills. The 7 internal Skills are AI-only and are not intended as user-facing slash commands.
+The root Skill infers the earliest security-relevant semantic divergence, loads one primary internal module, and adds another only when evidence crosses a boundary. Internal modules are ordinary Markdown references, not peer Skills or user-facing slash commands.
 
-## Internal Skills
+## Internal Modules
 
-| Internal Skill | Profiles | Scope |
+| Module | Profiles | Scope |
 |---|---:|---|
 | `input` | 6 | Inputs reinterpreted across files, objects, browsers, logs, and protocol fields. |
 | `normalize` | 6 | Meaning differences across characters, paths, parameters, HTTP messages, URLs, proxies, and origins. |
@@ -115,17 +103,15 @@ The root Skill infers the relevant security boundary and loads the smallest usef
 
 ```text
 security-hunt/
-├── SKILL.md                 # only user-facing entry: /security-hunt
-├── .claude-plugin/
-│   └── plugin.json
-├── skills/                  # 7 AI-only internal Skills
-│   ├── input/SKILL.md
-│   ├── normalize/SKILL.md
-│   ├── identity/SKILL.md
-│   ├── channels/SKILL.md
-│   ├── state/SKILL.md
-│   ├── crypto/SKILL.md
-│   └── system/SKILL.md
+├── SKILL.md                 # only discoverable Skill: /security-hunt
+├── modules/                 # 7 internal routing modules, loaded as references
+│   ├── input.md
+│   ├── normalize.md
+│   ├── identity.md
+│   ├── channels.md
+│   ├── state.md
+│   ├── crypto.md
+│   └── system.md
 ├── profiles/                # 32 testing Profiles
 ├── references/              # 32 case-and-mechanism References
 └── framework/
@@ -135,9 +121,9 @@ security-hunt/
 ## Design Constraints
 
 - Keep `/security-hunt` as the only user-facing entry point.
-- Let Claude select internal Skills; do not ask the user to choose a category.
-- Do not turn the 32 knowledge modules into 32 peer-level Skills.
-- Do not copy original PDFs, evaluation JSON, index CSV files, manifests, or intermediate artifacts.
-- Do not duplicate validation, evidence, state, or reporting rules across multiple Skills.
+- Keep exactly one discoverable `SKILL.md`; internal routing modules remain ordinary Markdown files.
+- Let Claude select the primary module from the earliest security-relevant semantic divergence; do not ask the user to choose a category.
+- Do not turn the 32 knowledge modules into peer-level Skills.
+- Do not duplicate validation, evidence, state, or reporting rules across modules.
 - Do not present tool findings, theoretical chains, or anomalous responses as established vulnerabilities.
 - Keep Profiles and References one-to-one, with short and stable names.

@@ -1,22 +1,19 @@
----
-name: State & Races
-description: Preconditions, ordering, versions, and atomicity in business workflows, security policies, and concurrent transactions. Use for authorized testing of business state machines, races and TOCTOU, and mandatory policy bypass.
-user-invocable: false
-allowed-tools: Read Grep Glob Bash
----
-
 # State & Races
 
 ## Goal
 
 Reconstruct the real state machine and verify that the server enforces preconditions, unique transition paths, counts, versions, ordering, and atomicity.
 
+## Primary Boundary
+
+Use this module as primary when the failure concerns legal transitions, ordering, replay, counts, versions, atomicity, or enforcement of a mandatory policy. For tokens, use `identity/tokens` when the issue is subject, purpose, audience, session, or lifecycle binding; use `race` when the issue is concurrent use, one-time consumption, or transaction atomicity.
+
 ## Loading Order
 
-1. Read `${CLAUDE_PLUGIN_ROOT}/framework/verify-evidence.md` first.
+1. Read `${CLAUDE_SKILL_DIR}/framework/verify-evidence.md` first.
 2. Choose one or two Profiles based on the entry point, component, and anomaly; do not load every Profile in the group at once.
 3. After forming a testable hypothesis, read the matching Reference for additional cases and variants.
-4. When a chain crosses boundaries, load material from other groups according to the Profile’s “Combination Paths.”
+4. When a chain crosses boundaries, load only the additional module, Profile, and Reference required by the Profile’s “Combination Paths.”
 
 ## Routing
 
@@ -26,7 +23,7 @@ Reconstruct the real state machine and verify that the server enforces precondit
 | Check-then-use; balance/quota deduction; one-time tokens | `race` | Races & TOCTOU |
 | Forced VPN/Tor egress; TLS/certificate validation; zero-trust proxies | `policy-bypass` | Mandatory Policy Bypass |
 
-Profile paths are `${CLAUDE_PLUGIN_ROOT}/profiles/<name>.md`; Reference paths are `${CLAUDE_PLUGIN_ROOT}/references/<name>.md`.
+Profile paths are `${CLAUDE_SKILL_DIR}/profiles/<name>.md`; Reference paths are `${CLAUDE_SKILL_DIR}/references/<name>.md`.
 
 ## Workflow
 

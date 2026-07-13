@@ -1,22 +1,23 @@
----
-name: System Boundaries
-description: Low-level values, system calls, file-object identity, resource complexity, sandboxes, and privileged IPC boundaries. Use for authorized testing of values and lifetimes, system calls and options, file-object identity, algorithmic complexity, sandboxes and containers, and privileged IPC.
-user-invocable: false
-allowed-tools: Read Grep Glob Bash
----
-
 # System Boundaries
 
 ## Goal
 
 Trace low-privilege input to the real system object, system call, resource cost, isolation boundary, or privileged service, then determine whether the resulting capability exceeds the design.
 
+## Primary Boundary
+
+Use this module as primary when the decisive failure depends on a real system object, system call, native value, resource cost, isolation boundary, or privileged IPC service. Prefer `input/file-chain` for cross-stage reinterpretation, `normalize/path` for canonicalization differences, and `state/race` for timing-window failures. Use `fs-identity` when validation and use refer to different inode, handle, descriptor, or filesystem object.
+
+## Compatibility
+
+Effective validation may require the target operating system, compiler/runtime, sanitizer or tracer, container runtime, IPC tooling, and the real privilege context. Keep the result `blocked` when platform-specific behavior cannot be reproduced or observed.
+
 ## Loading Order
 
-1. Read `${CLAUDE_PLUGIN_ROOT}/framework/verify-evidence.md` first.
+1. Read `${CLAUDE_SKILL_DIR}/framework/verify-evidence.md` first.
 2. Choose one or two Profiles based on the entry point, component, and anomaly; do not load every Profile in the group at once.
 3. After forming a testable hypothesis, read the matching Reference for additional cases and variants.
-4. When a chain crosses boundaries, load material from other groups according to the Profile’s “Combination Paths.”
+4. When a chain crosses boundaries, load only the additional module, Profile, and Reference required by the Profile’s “Combination Paths.”
 
 ## Routing
 
@@ -29,7 +30,7 @@ Trace low-privilege input to the real system object, system call, resource cost,
 | Containers/Pods; restricted shells; browser/plugin sandboxes | `sandbox` | Sandboxes & Containers |
 | D-Bus; Unix sockets; Windows Named Pipes/COM | `privileged-ipc` | Privileged IPC |
 
-Profile paths are `${CLAUDE_PLUGIN_ROOT}/profiles/<name>.md`; Reference paths are `${CLAUDE_PLUGIN_ROOT}/references/<name>.md`.
+Profile paths are `${CLAUDE_SKILL_DIR}/profiles/<name>.md`; Reference paths are `${CLAUDE_SKILL_DIR}/references/<name>.md`.
 
 ## Workflow
 

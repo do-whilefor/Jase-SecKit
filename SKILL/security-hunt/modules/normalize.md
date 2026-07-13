@@ -1,22 +1,19 @@
----
-name: Normalization
-description: Validation and execution layers derive different meanings from characters, paths, parameters, HTTP messages, URLs, or proxy identity. Use for authorized testing of Unicode normalization, path canonicalization, parameter parsing, HTTP boundaries, URLs and addresses, and proxy/origin handling.
-user-invocable: false
-allowed-tools: Read Grep Glob Bash
----
-
 # Normalization
 
 ## Goal
 
 Compare the values seen by validation, proxy, framework, and final execution layers, and determine whether they resolve to the same subject, object, and target.
 
+## Primary Boundary
+
+Use this module as primary when two layers derive different meanings from the same representation. `params` requires a concrete parser, binder, or precedence disagreement; the mere presence of REST, forms, or JSON is not enough. Use `url-address` when URL parsing, DNS, redirects, or the final connection target diverge. Use `proxy-origin` when a proxy and application disagree about external host, scheme, origin, tenant, or trusted client identity.
+
 ## Loading Order
 
-1. Read `${CLAUDE_PLUGIN_ROOT}/framework/verify-evidence.md` first.
+1. Read `${CLAUDE_SKILL_DIR}/framework/verify-evidence.md` first.
 2. Choose one or two Profiles based on the entry point, component, and anomaly; do not load every Profile in the group at once.
 3. After forming a testable hypothesis, read the matching Reference for additional cases and variants.
-4. When a chain crosses boundaries, load material from other groups according to the Profile’s “Combination Paths.”
+4. When a chain crosses boundaries, load only the additional module, Profile, and Reference required by the Profile’s “Combination Paths.”
 
 ## Routing
 
@@ -29,7 +26,7 @@ Compare the values seen by validation, proxy, framework, and final execution lay
 | Webhooks/callbacks; URL previews; remote imports | `url-address` | URLs & Addresses |
 | Reverse proxies; password-reset links; SSO callbacks | `proxy-origin` | Proxies & Origins |
 
-Profile paths are `${CLAUDE_PLUGIN_ROOT}/profiles/<name>.md`; Reference paths are `${CLAUDE_PLUGIN_ROOT}/references/<name>.md`.
+Profile paths are `${CLAUDE_SKILL_DIR}/profiles/<name>.md`; Reference paths are `${CLAUDE_SKILL_DIR}/references/<name>.md`.
 
 ## Workflow
 

@@ -1,22 +1,19 @@
----
-name: Channels & APIs
-description: Operation-level authorization and state isolation across windows, long-lived connections, caches, GraphQL, and shared protocol state. Use for authorized testing of cross-origin channels, cache variants, GraphQL/WS authorization, and shared protocol state.
-user-invocable: false
-allowed-tools: Read Grep Glob Bash
----
-
 # Channels & APIs
 
 ## Goal
 
 Decompose “the connection is established” into authorization for each message, operation, field, object, and tenant, then check whether shared state is reused across subjects.
 
+## Primary Boundary
+
+Use this module as primary when authorization or isolation fails across messages, operations, connections, caches, or shared protocol state. Use `cache-variant` when an attacker-created response is reused because the cache key omits a varying dimension. Use `shared-state` when mutable protocol state is polluted and affects later independent requests, sessions, or consumers.
+
 ## Loading Order
 
-1. Read `${CLAUDE_PLUGIN_ROOT}/framework/verify-evidence.md` first.
+1. Read `${CLAUDE_SKILL_DIR}/framework/verify-evidence.md` first.
 2. Choose one or two Profiles based on the entry point, component, and anomaly; do not load every Profile in the group at once.
 3. After forming a testable hypothesis, read the matching Reference for additional cases and variants.
-4. When a chain crosses boundaries, load material from other groups according to the Profile’s “Combination Paths.”
+4. When a chain crosses boundaries, load only the additional module, Profile, and Reference required by the Profile’s “Combination Paths.”
 
 ## Routing
 
@@ -27,7 +24,7 @@ Decompose “the connection is established” into authorization for each messag
 | GraphQL Query/Mutation; field-level resolvers; subscriptions | `graphql-ws` | GraphQL/WS Authorization |
 | DNS caches; cookie/session stores; proxy caches | `shared-state` | Shared Protocol State |
 
-Profile paths are `${CLAUDE_PLUGIN_ROOT}/profiles/<name>.md`; Reference paths are `${CLAUDE_PLUGIN_ROOT}/references/<name>.md`.
+Profile paths are `${CLAUDE_SKILL_DIR}/profiles/<name>.md`; Reference paths are `${CLAUDE_SKILL_DIR}/references/<name>.md`.
 
 ## Workflow
 

@@ -1,22 +1,19 @@
----
-name: Input Chains
-description: Inputs are reinterpreted as they move across files, objects, browsers, logs, or protocol components. Use for authorized testing of file processing chains, objects and types, browser parsing, prototype pollution, terminal escapes, and protocol field injection.
-user-invocable: false
-allowed-tools: Read Grep Glob Bash
----
-
 # Input Chains
 
 ## Goal
 
 Trace semantic changes as the same input crosses multiple consumers, and locate where upstream treats it as data while downstream treats it as control content.
 
+## Primary Boundary
+
+Use this module as primary when the same attacker-controlled value is reinterpreted across processing stages or components. Prefer `normalize/path` when canonicalization alone changes the resolved target, and prefer `system/fs-identity` when a validated path and the filesystem object ultimately opened are different.
+
 ## Loading Order
 
-1. Read `${CLAUDE_PLUGIN_ROOT}/framework/verify-evidence.md` first.
+1. Read `${CLAUDE_SKILL_DIR}/framework/verify-evidence.md` first.
 2. Choose one or two Profiles based on the entry point, component, and anomaly; do not load every Profile in the group at once.
 3. After forming a testable hypothesis, read the matching Reference for additional cases and variants.
-4. When a chain crosses boundaries, load material from other groups according to the Profile’s “Combination Paths.”
+4. When a chain crosses boundaries, load only the additional module, Profile, and Reference required by the Profile’s “Combination Paths.”
 
 ## Routing
 
@@ -29,7 +26,7 @@ Trace semantic changes as the same input crosses multiple consumers, and locate 
 | Audit logs; SSH/operations platforms; CI output | `terminal-escape` | Terminal Escapes |
 | HTTP headers/cookies; download filenames; MIME/email | `field-injection` | Protocol Field Injection |
 
-Profile paths are `${CLAUDE_PLUGIN_ROOT}/profiles/<name>.md`; Reference paths are `${CLAUDE_PLUGIN_ROOT}/references/<name>.md`.
+Profile paths are `${CLAUDE_SKILL_DIR}/profiles/<name>.md`; Reference paths are `${CLAUDE_SKILL_DIR}/references/<name>.md`.
 
 ## Workflow
 

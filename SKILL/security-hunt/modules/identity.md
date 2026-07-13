@@ -1,22 +1,19 @@
----
-name: Identity State
-description: Subject and lifecycle mismatches in login, token, session, subdomain, and account-binding flows. Use for authorized testing of OAuth/SSO, token lifecycles, authentication state, and subdomain trust.
-user-invocable: false
-allowed-tools: Read Grep Glob Bash
----
-
 # Identity State
 
 ## Goal
 
 Check that authentication material remains bound to the initiating subject, current session, target account, client, action, and one lifecycle.
 
+## Primary Boundary
+
+Use this module as primary when the failure concerns who an artifact belongs to, what action or account it authorizes, or when it should expire or be invalidated. For SAML, use `crypto/xml-signature` as primary when the signed node and the node consumed by business logic differ. For one-time artifacts, use `state/race` as primary when the failure is atomicity, concurrent consumption, or count enforcement rather than identity binding.
+
 ## Loading Order
 
-1. Read `${CLAUDE_PLUGIN_ROOT}/framework/verify-evidence.md` first.
+1. Read `${CLAUDE_SKILL_DIR}/framework/verify-evidence.md` first.
 2. Choose one or two Profiles based on the entry point, component, and anomaly; do not load every Profile in the group at once.
 3. After forming a testable hypothesis, read the matching Reference for additional cases and variants.
-4. When a chain crosses boundaries, load material from other groups according to the Profile’s “Combination Paths.”
+4. When a chain crosses boundaries, load only the additional module, Profile, and Reference required by the Profile’s “Combination Paths.”
 
 ## Routing
 
@@ -27,7 +24,7 @@ Check that authentication material remains bound to the initiating subject, curr
 | Login/MFA; device trust; step-up confirmation for sensitive actions | `auth-state` | Authentication State |
 | Multi-subdomain organizations; broad-domain cookies; SSO callbacks | `subdomain-trust` | Subdomain Trust |
 
-Profile paths are `${CLAUDE_PLUGIN_ROOT}/profiles/<name>.md`; Reference paths are `${CLAUDE_PLUGIN_ROOT}/references/<name>.md`.
+Profile paths are `${CLAUDE_SKILL_DIR}/profiles/<name>.md`; Reference paths are `${CLAUDE_SKILL_DIR}/references/<name>.md`.
 
 ## Workflow
 
