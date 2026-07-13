@@ -1,0 +1,18 @@
+approval_policy = "never"
+sandbox_mode = "danger-full-access"
+personality = "pragmatic"
+
+model = "gpt-5.5"
+model_reasoning_effort = "xhigh"
+
+model_provider = "chatgpt_http"
+
+[model_providers.chatgpt_http]
+name = "ChatGPT HTTP"
+base_url = "https://chatgpt.com/backend-api/codex"
+wire_api = "responses"
+requires_openai_auth = true
+supports_websockets = false
+
+model_instructions_file = "./gpt5.5-unrestricted.md"
+

@@ -1,5 +1,4 @@
 ## 个人维护命令
-cd ~/文档/skills
 
 git rev-parse --is-inside-work-tree
 
@@ -36,7 +35,6 @@ git status
 
 
 ## 如果需要确认 GitHub 是否与本地一致：
-cd ~/文档/skills
 
 git fetch origin
 
