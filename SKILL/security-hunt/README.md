@@ -4,25 +4,6 @@ A lightweight, single-entry Claude Code Skill for authorized vulnerability resea
 
 The original 89 PDFs and 528 HackerOne entries are not copied into this package. Transferable methods, representative cases, and source indexes are compressed into the References to keep the Skill small and progressively loaded.
 
-## Installation
-
-Global installation:
-
-```bash
-rm -rf ~/.claude/skills/security-hunt
-cp -r security-hunt ~/.claude/skills/
-```
-
-Project-local installation:
-
-```bash
-rm -rf .claude/skills/security-hunt
-mkdir -p .claude/skills
-cp -r security-hunt .claude/skills/
-```
-
-Start a new Claude Code session after installation if the Skill is not discovered in the current session.
-
 ## Usage
 
 Use the single entry point:
