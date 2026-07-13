@@ -1,10 +1,14 @@
 <div align="center">
 
-# JaseSkills
+# 🛡️ JaseSkills
 
-面向授权安全测试的 AI 漏洞挖掘 Skill 集合
+### AI 驱动的漏洞挖掘与授权安全测试 Skill 集合
+
+`Pentest` · `Security Research` · `Dynamic Validation` · `Claude Code Skills`
 
 </div>
+
+---
 
 JaseSkills 是一套面向 AI 辅助渗透测试与漏洞研究的安全 Skill 项目。
 
@@ -24,8 +28,11 @@ JaseSkills 是一套面向 AI 辅助渗透测试与漏洞研究的安全 Skill �
 
 适用于授权渗透测试、SRC 漏洞挖掘、安全研究及 AI 安全能力构建。
 
-## 个人维护命令
+---
 
+## 🔧 个人维护命令
+
+```bash
 git rev-parse --is-inside-work-tree
 
 git branch --show-current
@@ -58,10 +65,11 @@ git pull --rebase origin main
 git push origin main
 
 git status
+```
 
+## 🔍 检查本地是否与 GitHub 同步
 
-## 如果需要确认 GitHub 是否与本地一致：
-
+```bash
 git fetch origin
 
 LOCAL_HASH=$(git rev-parse HEAD)
@@ -77,4 +85,5 @@ else
 fi
 
 git status --short
+```
 
