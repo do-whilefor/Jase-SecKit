@@ -4,6 +4,8 @@
 
 ### AI 驱动的漏洞挖掘与授权安全测试 Skill 集合
 
+面向授权安全测试、AI 辅助渗透测试与漏洞研究的可复用 Security Skills 集合。
+
 `Pentest` · `Security Research` · `Dynamic Validation` · `Claude Code Skills`
 
 </div>
