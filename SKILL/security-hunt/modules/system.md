@@ -10,14 +10,13 @@ Use this module as primary when the decisive failure depends on a real system ob
 
 ## Compatibility
 
-Effective validation may require the target operating system, compiler/runtime, sanitizer or tracer, container runtime, IPC tooling, and the real privilege context. Keep the result `blocked` when platform-specific behavior cannot be reproduced or observed.
+Effective validation may require the target operating system, compiler/runtime, sanitizer or tracer, container runtime, IPC tooling, and real privilege context. Use `blocked` only under the framework rule after viable platform and observation alternatives have been tried.
 
 ## Loading Order
 
 1. Read `${CLAUDE_SKILL_DIR}/framework/verify-evidence.md` first.
-2. Choose one or two Profiles based on the entry point, component, and anomaly; do not load every Profile in the group at once.
-3. After forming a testable hypothesis, read the matching Reference for additional cases and variants.
-4. When a chain crosses boundaries, load only the additional module, Profile, and Reference required by the Profile’s “Combination Paths.”
+2. Load the Profiles needed for the concrete hypothesis; keep plausible adjacent and combination paths queued, and add them whenever evidence, gaps, or downstream consumers require it.
+3. Establish a baseline before reading matching References for additional variants. Progressive loading limits context use, not testing breadth or depth.
 
 ## Routing
 
@@ -47,4 +46,4 @@ Profile paths are `${CLAUDE_SKILL_DIR}/profiles/<name>.md`; Reference paths are 
 
 ## Output
 
-For each round, record only: Profile used, target object, testing identity, hypothesis, baseline, variant, independent verification, evidence path, current status, and next step or combination path. Mark a finding `confirmed` only when it meets the evidence threshold in the unified framework.
+Record each round with the complete status, blackboard, evidence, impact-validation, severity-gate, blind-spot, and closure rules in `${CLAUDE_SKILL_DIR}/framework/verify-evidence.md`; do not replace them with a reduced local schema.
