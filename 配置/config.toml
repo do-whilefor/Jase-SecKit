@@ -2,9 +2,6 @@ approval_policy = "never"
 sandbox_mode = "danger-full-access"
 personality = "pragmatic"
 
-model = "gpt-5.5"
-model_reasoning_effort = "xhigh"
-
 model_provider = "chatgpt_http"
 
 [model_providers.chatgpt_http]
