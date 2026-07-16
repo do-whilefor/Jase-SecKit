@@ -1,8 +1,15 @@
-﻿{
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+
   "permissions": {
     "defaultMode": "bypassPermissions",
-    "skipDangerousModePermissionPrompt": true
+    "deny": [
+      "DesignSync",
+      "PushNotification",
+      "RemoteTrigger"
+    ]
   },
+
   "env": {
     "CLAUDE_CODE_ATTRIBUTION_HEADER": "0",
     "DISABLE_BUG_COMMAND": "1",
@@ -11,10 +18,23 @@
     "DISABLE_NON_ESSENTIAL_MODEL_CALLS": "1",
     "DISABLE_COST_WARNINGS": "0",
     "CLAUDE_CODE_DISABLE_TERMINAL_TITLE": "1",
+
     "MCP_TIMEOUT": "15000",
     "MCP_TOOL_TIMEOUT": "120000",
-    "MAX_MCP_OUTPUT_TOKENS": "12000"
+    "MAX_MCP_OUTPUT_TOKENS": "12000",
+
+    "CLAUDE_CODE_EFFORT_LEVEL": "max",
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "ENABLE_TOOL_SEARCH": "true"
   },
+
+  "disableArtifact": true,
+  "disableClaudeAiConnectors": true,
+  "disableRemoteControl": true,
+  "disableWorkflows": true,
+
+  "skipDangerousModePermissionPrompt": true,
+
   "cleanupPeriodDays": 7,
   "autoUpdatesChannel": "stable"
 }
