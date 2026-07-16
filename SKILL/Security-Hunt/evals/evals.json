@@ -1,0 +1,273 @@
+{
+  "schema_version": 3,
+  "description": "Primary routing fixtures and explicitly required handoffs for the security-hunt Skill.",
+  "cases": [
+    {
+      "id": "file-build-reinterpretation",
+      "prompt": "A repository configuration file is accepted as passive text, but a later privileged build automatically executes a hook declared in it.",
+      "expected_module": "input",
+      "expected_profile": "file-chain",
+      "reason": "The same file changes from data to executable control content across processing stages."
+    },
+    {
+      "id": "polymorphic-object-dispatch",
+      "prompt": "An API binder accepts a client-selected type marker and restores an unintended runtime class whose getter is invoked downstream.",
+      "expected_module": "input",
+      "expected_profile": "object-types",
+      "reason": "Deserialization changes the runtime object graph and dispatch target."
+    },
+    {
+      "id": "sanitizer-reparse-tree",
+      "prompt": "Sanitized rich text is serialized and inserted again, producing a different executable DOM after browser repair.",
+      "expected_module": "input",
+      "expected_profile": "browser-parse",
+      "reason": "The sanitizer and final browser derive different parse trees from the same content."
+    },
+    {
+      "id": "prototype-inherited-authorization",
+      "prompt": "A nested filter writes constructor.prototype.isAdmin, and newly created request objects later inherit the authorization flag.",
+      "expected_module": "input",
+      "expected_profile": "prototype",
+      "reason": "A generic object write changes inherited properties consumed by another module."
+    },
+    {
+      "id": "terminal-approval-forgery",
+      "prompt": "A user-controlled approval reason is stored literally but ANSI cursor controls hide the real request ID in an operator terminal.",
+      "expected_module": "input",
+      "expected_profile": "terminal-escape",
+      "reason": "Stored text is reinterpreted as a stateful terminal control language."
+    },
+    {
+      "id": "persisted-header-delimiter",
+      "prompt": "A download filename containing encoded line breaks is persisted and later reparsed as two MIME headers by a mail service.",
+      "expected_module": "input",
+      "expected_profile": "field-injection",
+      "reason": "Protocol data becomes control fields when a downstream receiver reparses it."
+    },
+    {
+      "id": "nosql-filter-operator",
+      "prompt": "A JSON search filter accepts an injected NoSQL operator and changes query semantics.",
+      "expected_module": "input",
+      "expected_profile": "server-interpreters",
+      "reason": "Data is reinterpreted as control syntax by a server-side query interpreter."
+    },
+    {
+      "id": "unicode-identifier-collapse",
+      "prompt": "An account allowlist compares raw characters, but storage applies NFKC and resolves the identifier to a protected account name.",
+      "expected_module": "normalize",
+      "expected_profile": "unicode",
+      "reason": "Validation and lookup use different character-equivalence rules."
+    },
+    {
+      "id": "archive-traversal",
+      "prompt": "An uploaded archive writes a file outside the extraction directory after decoding and normalization.",
+      "expected_module": "normalize",
+      "expected_profile": "path",
+      "reason": "Canonicalization changes the final filesystem target."
+    },
+    {
+      "id": "duplicate-parameter",
+      "prompt": "The gateway validates the first role parameter while the application uses the second duplicate value.",
+      "expected_module": "normalize",
+      "expected_profile": "params",
+      "reason": "Two parsers select different values from the same request."
+    },
+    {
+      "id": "http-message-split",
+      "prompt": "A reverse proxy accepts one HTTP request, but the reused backend connection parses the bytes as two requests and applies the second to the next user.",
+      "expected_module": "normalize",
+      "expected_profile": "http-boundary",
+      "reason": "HTTP hops disagree about message boundaries and ownership of the next request."
+    },
+    {
+      "id": "ssrf-redirect-dns",
+      "prompt": "A webhook URL passes the allowlist but redirects and resolves to an internal address at connection time.",
+      "expected_module": "normalize",
+      "expected_profile": "url-address",
+      "reason": "Validation and the final network address diverge."
+    },
+    {
+      "id": "forwarded-host-reset-link",
+      "prompt": "An untrusted X-Forwarded-Host value changes the absolute password-reset link generated behind a trusted reverse proxy.",
+      "expected_module": "normalize",
+      "expected_profile": "proxy-origin",
+      "reason": "The proxy and application disagree about the canonical external host."
+    },
+    {
+      "id": "oauth-account-confusion",
+      "prompt": "An OAuth callback can bind the attacker's provider identity to the victim's existing session.",
+      "expected_module": "identity",
+      "expected_profile": "oauth-sso",
+      "reason": "The callback, state, session, and target account are misbound."
+    },
+    {
+      "id": "cross-flow-token-use",
+      "prompt": "A one-time organization invitation token can be consumed by a different logged-in account through the registration endpoint.",
+      "expected_module": "identity",
+      "expected_profile": "tokens",
+      "required_adjacent_profiles": ["workflow"],
+      "reason": "A valid token is not bound to the intended subject, purpose, and entry point."
+    },
+    {
+      "id": "cross-session-mfa-state",
+      "prompt": "Completing MFA in browser session A also elevates browser session B for a sensitive action.",
+      "expected_module": "identity",
+      "expected_profile": "auth-state",
+      "reason": "Authentication assurance is not bound to the session that completed the factor."
+    },
+    {
+      "id": "subdomain-cookie-shadow",
+      "prompt": "A user-controlled sibling subdomain can set a parent-domain session cookie that the high-trust application accepts.",
+      "expected_module": "identity",
+      "expected_profile": "subdomain-trust",
+      "reason": "A low-trust DNS boundary inherits browser identity capabilities of the parent domain."
+    },
+    {
+      "id": "object-id-swap",
+      "prompt": "Changing the orderId in an authenticated API request returns another user's order.",
+      "expected_module": "identity",
+      "expected_profile": "object-authorization",
+      "reason": "The primary boundary is authorization for a different object owner."
+    },
+    {
+      "id": "admin-function-low-role",
+      "prompt": "A normal member can call an undocumented tenant-admin endpoint directly.",
+      "expected_module": "identity",
+      "expected_profile": "role-capability",
+      "reason": "The caller reaches a function outside the effective role capability."
+    },
+    {
+      "id": "cross-tenant-header",
+      "prompt": "Changing X-Organization-ID makes a report export read data from another workspace.",
+      "expected_module": "identity",
+      "expected_profile": "tenant-isolation",
+      "required_adjacent_profiles": ["object-authorization"],
+      "reason": "Client-controlled tenant context crosses a storage and export boundary."
+    },
+    {
+      "id": "postmessage-source-capability",
+      "prompt": "A postMessage listener checks only a suffix of event.origin and lets a sibling site invoke an account action in the parent window.",
+      "expected_module": "channels",
+      "expected_profile": "browser-channel",
+      "required_adjacent_profiles": ["subdomain-trust"],
+      "reason": "An unintended message source receives a capability on a cross-origin channel."
+    },
+    {
+      "id": "forged-email-change",
+      "prompt": "A cross-site HTML form can submit the cookie-authenticated email-change request.",
+      "expected_module": "channels",
+      "expected_profile": "csrf",
+      "reason": "Ambient browser credentials are treated as proof of user intent."
+    },
+    {
+      "id": "cache-user-variant",
+      "prompt": "A response varies by an authentication header that is omitted from the CDN cache key and is served to another user.",
+      "expected_module": "channels",
+      "expected_profile": "cache-variant",
+      "reason": "A security-relevant response variant is omitted from shared cache identity."
+    },
+    {
+      "id": "websocket-object-auth",
+      "prompt": "A WebSocket is authenticated once, but subscription messages can request another tenant's object IDs.",
+      "expected_module": "channels",
+      "expected_profile": "graphql-ws",
+      "required_adjacent_profiles": ["object-authorization", "tenant-isolation"],
+      "reason": "Per-operation and per-object authorization is missing on a long-lived channel."
+    },
+    {
+      "id": "dns-cache-contamination",
+      "prompt": "A malicious DNS response stores an unrelated record that is later returned to an independent resolver client.",
+      "expected_module": "channels",
+      "expected_profile": "shared-state",
+      "reason": "Remote input contaminates shared protocol state consumed by a later request."
+    },
+    {
+      "id": "workflow-skip",
+      "prompt": "Calling the finalize endpoint directly skips approval but still moves the order to completed.",
+      "expected_module": "state",
+      "expected_profile": "workflow",
+      "reason": "A mandatory business-state precondition is not enforced."
+    },
+    {
+      "id": "coupon-race",
+      "prompt": "Thirty concurrent requests redeem the same one-time coupon more than once.",
+      "expected_module": "state",
+      "expected_profile": "race",
+      "required_adjacent_profiles": ["workflow"],
+      "reason": "One-time consumption and count enforcement are not atomic."
+    },
+    {
+      "id": "vpn-fallback-egress",
+      "prompt": "The primary client forces traffic through a VPN, but a recovery URL handler sends the same request over the normal network during reconnect.",
+      "expected_module": "state",
+      "expected_profile": "policy-bypass",
+      "reason": "An alternate lifecycle path violates a mandatory network policy."
+    },
+    {
+      "id": "signature-context-replay",
+      "prompt": "A valid signature for a staging update object is accepted for a production update because the environment and object type are not signed.",
+      "expected_module": "crypto",
+      "expected_profile": "crypto-binding",
+      "reason": "Mathematical validity is not bound to the business context and replay state."
+    },
+    {
+      "id": "offline-password-decision",
+      "prompt": "An unauthenticated handshake returns a salt, challenge, and MAC that let a client decide password guesses without contacting the server again.",
+      "expected_module": "crypto",
+      "expected_profile": "offline-verifier",
+      "reason": "Stable pre-authentication material exposes an offline correctness function."
+    },
+    {
+      "id": "xml-signature-consumer",
+      "prompt": "A SAML response signature verifies one assertion while SSO business logic consumes a different assertion node.",
+      "expected_module": "crypto",
+      "expected_profile": "xml-signature",
+      "required_adjacent_profiles": ["oauth-sso"],
+      "reason": "The verified XML object differs from the consumed object."
+    },
+    {
+      "id": "signed-length-narrowing",
+      "prompt": "A negative protocol length passes a signed comparison and becomes a large unsigned allocation size in native code.",
+      "expected_module": "system",
+      "expected_profile": "value-lifetime",
+      "reason": "Checking and allocation use different value types and ranges."
+    },
+    {
+      "id": "filename-option-injection",
+      "prompt": "A privileged archive wrapper passes an attacker-controlled filename beginning with a command option to the final executable.",
+      "expected_module": "system",
+      "expected_profile": "syscall-options",
+      "reason": "A surface filename becomes a privileged command-line option."
+    },
+    {
+      "id": "symlink-swap",
+      "prompt": "A validated temporary path is replaced with a symlink before a privileged process opens it.",
+      "expected_module": "system",
+      "expected_profile": "fs-identity",
+      "required_adjacent_profiles": ["path", "race"],
+      "reason": "Validation and use reach different filesystem objects."
+    },
+    {
+      "id": "dnssec-cost-curve",
+      "prompt": "Small but valid DNSSEC responses create a superlinear number of signature verification attempts and exhaust resolver CPU.",
+      "expected_module": "system",
+      "expected_profile": "complexity",
+      "reason": "Valid structured input creates attacker-controlled worst-case computational cost."
+    },
+    {
+      "id": "container-runtime-socket",
+      "prompt": "A restricted container exposes the host runtime socket and can ask the daemon to mount a host directory.",
+      "expected_module": "system",
+      "expected_profile": "sandbox",
+      "required_adjacent_profiles": ["privileged-ipc"],
+      "reason": "A proxied host capability bypasses the stated container isolation boundary."
+    },
+    {
+      "id": "root-daemon-file-method",
+      "prompt": "A low-privilege local user can call a root D-Bus method with an arbitrary destination path and cause a privileged file write.",
+      "expected_module": "system",
+      "expected_profile": "privileged-ipc",
+      "reason": "A privileged IPC service does not constrain caller identity and delegated object capability."
+    }
+  ]
+}
