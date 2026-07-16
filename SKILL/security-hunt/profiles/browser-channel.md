@@ -8,7 +8,9 @@ reference: ../references/browser-channel.md
 
 **Use for:** window.postMessage, cookie-authenticated WebSockets, iframe embedding, browser-extension messages, and desktop WebView bridges.
 
-**Misalignment to find:** postMessage, WebSocket, iframe, extension messaging, or cross-window bridges perform only connection-level authentication or incomplete source validation, allowing message-level capabilities to be invoked from an unintended source.
+**Misalignment to find:** postMessage, WebSocket, iframe, extension messaging, or cross-window bridges perform only
+connection-level authentication or incomplete source validation, allowing message-level capabilities to be invoked
+from an unintended source.
 
 ## Baseline
 

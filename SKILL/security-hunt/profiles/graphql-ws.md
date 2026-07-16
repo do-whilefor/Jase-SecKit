@@ -8,7 +8,9 @@ reference: ../references/graphql-ws.md
 
 **Use for:** GraphQL queries/mutations, field-level resolution, subscriptions, Socket.IO/WebSocket messages, and batched/aliased queries.
 
-**Misalignment to find:** Connection establishment, route protection, or frontend hiding is mistaken for final authorization, while fields, resolvers, mutations, subscriptions, or message handlers lack object-, field-, or tenant-level checks.
+**Misalignment to find:** Connection establishment, route protection, or frontend hiding is mistaken for final
+authorization, while fields, resolvers, mutations, subscriptions, or message handlers lack object-, field-, or
+tenant-level checks.
 
 ## Baseline
 

@@ -2,12 +2,27 @@
 
 Load after selecting the `xml-signature-consumption` Profile and forming a current-target hypothesis.
 
-Historical cases are variant seeds only. Do not transfer their impact, severity, exploit chain, or final outcome to the current target. Reproduce every relevant segment and every claimed impact independently. `Knowledge value` ranks reference usefulness, not current-target severity.
+## Use Rule
 
-## Full Report Cases
+- Read this file only after forming a current-target hypothesis and recording a baseline.
+- `Reported focus` identifies the source topic; `Transferable test ideas` are abstractions, not source-verified reproduction steps.
+- Never inherit historical impact, exploitability, scope, severity, or chain completion.
+- Verify the original source before citing case-specific details outside the testing workspace.
 
-### hackmanit/Penetration-Test-Report-SURF-openconext-saml-java-by-Hackmanit · 6.1 M01 XML Signature Wrapping Attack Targeting Signed Authentication Requests 7
-- Knowledge value: 10/10; authentication bypass / protocol-behavior exploitation.
-- Chain: The attacker copies or reorders a signed assertion and inserts a malicious node → the signature library verifies the legitimate node → business code reads a different node → identity or privileges are forged.
-- Bypass: Differences in XML reference resolution, ID parsing, and node selection separate the verified content from the content actually used.
-- Defensive anchor: Use a vetted SAML library; obtain assertions directly from the signature reference; enforce unique IDs, fixed structure, audience, and destination checks; reject duplicate or unexpected nodes.
+## Retained Case Notes
+
+### 6.1 M01 XML Signature Wrapping Attack Targeting Signed Authentication Requests
+
+- Source: `hackmanit/Penetration-Test-Report-SURF-openconext-saml-java-by-Hackmanit`
+- Reported focus: 6.1 M01 XML Signature Wrapping Attack Targeting Signed Authentication Requests
+- Transferable test ideas:
+  - Differences in XML reference resolution, ID parsing, and node selection separate the verified content from the content actually used.
+- Defensive anchor:
+  - Use a vetted SAML library.
+  - Obtain assertions directly from the signature reference.
+  - Enforce unique IDs, fixed structure, audience, and destination checks.
+  - Reject duplicate or unexpected nodes.
+- Evidence boundary:
+  - Treat the source as a hypothesis seed only.
+  - Reproduce every technical segment and impact claim on the current target.
+  - Verify the original source before citing case-specific details externally.

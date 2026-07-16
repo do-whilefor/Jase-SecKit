@@ -6,12 +6,16 @@ Reconstruct the real state machine and verify that the server enforces precondit
 
 ## Primary Boundary
 
-Use this module as primary when the failure concerns legal transitions, ordering, replay, counts, versions, atomicity, or enforcement of a mandatory policy. For tokens, use `identity/tokens` when the issue is subject, purpose, audience, session, or lifecycle binding; use `race` when the issue is concurrent use, one-time consumption, or transaction atomicity.
+Use this module as primary when the failure concerns legal transitions, ordering, replay, counts, versions, atomicity,
+or enforcement of a mandatory policy. For tokens, use `identity/tokens` when the issue is subject, purpose, audience,
+session, or lifecycle binding; use `race` when the issue is concurrent use, one-time consumption, or transaction
+atomicity.
 
 ## Loading Order
 
 1. Read `${CLAUDE_SKILL_DIR}/framework/verify-evidence.md` first.
-2. Load the Profiles needed for the concrete hypothesis; keep plausible adjacent and combination paths queued, and add them whenever evidence, gaps, or downstream consumers require it.
+2. Load the Profiles needed for the concrete hypothesis; keep plausible adjacent and combination paths queued, and add
+   them whenever evidence, gaps, or downstream consumers require it.
 3. Establish a baseline before reading matching References for additional variants. Progressive loading limits context use, not testing breadth or depth.
 
 ## Routing
@@ -39,4 +43,5 @@ Profile paths are `${CLAUDE_SKILL_DIR}/profiles/<name>.md`; Reference paths are 
 
 ## Output
 
-Record each round with the complete status, blackboard, evidence, impact-validation, severity-gate, blind-spot, and closure rules in `${CLAUDE_SKILL_DIR}/framework/verify-evidence.md`; do not replace them with a reduced local schema.
+Record each round with the complete status, blackboard, evidence, impact-validation, severity-gate, blind-spot, and
+closure rules in `${CLAUDE_SKILL_DIR}/framework/verify-evidence.md`; do not replace them with a reduced local schema.

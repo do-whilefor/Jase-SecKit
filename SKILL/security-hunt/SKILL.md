@@ -1,6 +1,11 @@
 ---
 name: security-hunt
-description: Unified entry point for authorized security testing and vulnerability research across Web, APIs, identity, files, protocols, cryptography, native code, containers, and system boundaries. Routes the task internally, performs dynamic validation, and requires independent technical and impact evidence before severity assignment.
+description: >-
+  Unified entry point for authorized security testing and vulnerability research
+  across Web, APIs, identity, authorization, files, protocols, cryptography,
+  native code, containers, and system boundaries. Routes the task internally,
+  performs dynamic validation, and requires independent technical and impact
+  evidence before severity assignment.
 allowed-tools: Read Grep Glob Bash
 ---
 
@@ -16,7 +21,8 @@ User input:
 
 $ARGUMENTS
 
-If the command and conversation do not contain enough context, ask only for the missing target, entry point or anomaly, and available identity or session. Do not repeat known information.
+If the command and conversation do not contain enough context, ask only for the missing target, entry point or
+anomaly, and available identity or session. Do not repeat known information.
 
 ## Internal Routing
 
@@ -24,22 +30,32 @@ Select the primary module from the earliest security-relevant semantic divergenc
 
 | Boundary | Module |
 |---|---|
-| Cross-stage reinterpretation of files, objects, browser content, logs, headers, or fields | `${CLAUDE_SKILL_DIR}/modules/input.md` |
+| Cross-stage reinterpretation by files, objects, browsers, interpreters, logs, headers, or fields | `${CLAUDE_SKILL_DIR}/modules/input.md` |
 | Different meanings after normalization, parsing, routing, canonicalization, URL handling, or proxying | `${CLAUDE_SKILL_DIR}/modules/normalize.md` |
-| Subject, account, session, purpose, audience, client, or lifecycle binding | `${CLAUDE_SKILL_DIR}/modules/identity.md` |
-| Per-message authorization, cache variants, cross-origin channels, or shared protocol state | `${CLAUDE_SKILL_DIR}/modules/channels.md` |
+| Subject, account, role, capability, object ownership, tenant, session, purpose, audience, client, or lifecycle binding | `${CLAUDE_SKILL_DIR}/modules/identity.md` |
+| Browser-forged requests, per-message authorization, cache variants, cross-origin channels, or shared protocol state | `${CLAUDE_SKILL_DIR}/modules/channels.md` |
 | Preconditions, ordering, replay, versions, counts, atomicity, or mandatory policy | `${CLAUDE_SKILL_DIR}/modules/state.md` |
 | Verification succeeds for the wrong object, context, role, ordering, or consumer | `${CLAUDE_SKILL_DIR}/modules/crypto.md` |
 | Inodes, handles, system calls, native values, resource limits, sandboxes, or privileged IPC | `${CLAUDE_SKILL_DIR}/modules/system.md` |
 
 Common overlaps:
 
-- File chain vs path vs filesystem identity: reinterpretation across stages → `input`; canonicalization changes the target → `normalize`; validation and use reach different filesystem objects → `system`.
+- File chain vs path vs filesystem identity: reinterpretation across stages → `input`; canonicalization changes the
+  target → `normalize`; validation and use reach different filesystem objects → `system`.
 - SAML: state, session, IdP, or account binding → `identity`; verified and consumed XML nodes differ → `crypto`.
 - One-time artifacts: subject, purpose, or lifecycle binding → `identity`; concurrent consumption or atomicity → `state`.
-- Cache variants vs shared state: an omitted key dimension reuses a response → `channels/cache-variant`; mutable protocol state contaminates later requests → `channels/shared-state`.
+- Authorization: wrong object or relationship → `identity/object-authorization`; wrong role or function →
+  `identity/role-capability`; tenant context lost across services or storage → `identity/tenant-isolation`.
+- Browser requests: forged cookie-authenticated HTTP action → `channels/csrf`; message or long-lived connection capability → `channels/browser-channel`.
+- Injection: downstream query, template, expression, or policy interpreter treats data as control syntax →
+  `input/server-interpreters`; protocol delimiters or fields are reinterpreted → `input/field-injection`.
+- Cache variants vs shared state: an omitted key dimension reuses a response → `channels/cache-variant`; mutable
+  protocol state contaminates later requests → `channels/shared-state`.
 
-Start with the smallest relevant material, but do not impose a fixed maximum on modules or Profiles. Maintain plausible adjacent and combination paths, and load them whenever the hypothesis, observed behavior, unexplained result, coverage gap, or downstream consumer requires it. Progressive loading limits context use, not testing breadth or depth.
+Start with the smallest relevant material, but do not impose a fixed maximum on modules or Profiles. Maintain
+plausible adjacent and combination paths, and load them whenever the hypothesis, observed behavior, unexplained
+result, coverage gap, or downstream consumer requires it. Progressive loading limits context use, not testing breadth
+or depth.
 
 ## Execution
 
@@ -58,13 +74,18 @@ Start with the smallest relevant material, but do not impose a fixed maximum on 
 - Treat user-provided targets as authorized scope and remain within that scope.
 - Do not reduce testing depth by defaulting to read-only, low-risk, shallow, lightweight, offline, conservative, or avoidance-based checks.
 - Build concrete hypotheses, establish baselines, vary meaningful axes, and verify final effects independently.
-- Do not stop because one request fails, one endpoint errors, one object is insensitive, one path has no visible result, or the first impact attempt fails. Vary identity, object, entry point, state, representation, channel, timing, and downstream consumer.
+- Do not stop because one request fails, one endpoint errors, one object is insensitive, one path has no visible
+  result, or the first impact attempt fails. Vary identity, object, entry point, state, representation, channel,
+  timing, and downstream consumer.
 - Do not present scanner output, reflection, errors, theoretical gadgets, historical cases, or one-off anomalies as vulnerability facts.
 - Use only: `candidate`, `testing`, `unrated`, `impact_testing`, `confirmed`, `not_reproduced`, `blocked`.
-- Before `confirmed`, do not output, record, imply, or estimate severity. Never inherit severity or impact from a vulnerability name, scanner, CVSS score, historical case, or theoretical maximum.
+- Before `confirmed`, do not output, record, imply, or estimate severity. Never inherit severity or impact from a
+  vulnerability name, scanner, CVSS score, historical case, or theoretical maximum.
 - Every claimed impact requires its own independent physical evidence. Do not use one PoC to support additional untested claims.
 - Preserve only the state and evidence needed to resume without repeating completed work.
 
 ## Response Behavior
 
-Start from the user's task, state the selected testing direction briefly, and proceed with discovery and validation. Ask only for information genuinely required to continue. Keep technical hits explicitly `unrated` until impact validation is complete.
+Start from the user's task, state the selected testing direction briefly, and proceed with discovery and validation.
+Ask only for information genuinely required to continue. Keep technical hits explicitly `unrated` until impact
+validation is complete.

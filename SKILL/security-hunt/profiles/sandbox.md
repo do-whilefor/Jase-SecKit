@@ -8,7 +8,9 @@ reference: ../references/sandbox.md
 
 **Use for:** containers/Pods, restricted shells, browser/plugin sandboxes, remote code-execution platforms, and BPF/system-call filtering.
 
-**Misalignment to find:** The restricted environment covers only part of the system calls, namespaces, mounts, devices, network, or alternate execution paths, allowing the stated isolation boundary to be bypassed through a combination of gaps.
+**Misalignment to find:** The restricted environment covers only part of the system calls, namespaces, mounts,
+devices, network, or alternate execution paths, allowing the stated isolation boundary to be bypassed through a
+combination of gaps.
 
 ## Baseline
 

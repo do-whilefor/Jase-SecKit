@@ -8,7 +8,8 @@ reference: ../references/cache-variant.md
 
 **Use for:** CDNs/reverse proxies, page caches, API caches, static rendering, and edge functions.
 
-**Misalignment to find:** An input that changes the origin response, identity, or security properties is omitted from a shared cache key, causing a response variant created by an attacker to be reused for other users.
+**Misalignment to find:** An input that changes the origin response, identity, or security properties is omitted from
+a shared cache key, causing a response variant created by an attacker to be reused for other users.
 
 ## Baseline
 

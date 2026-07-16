@@ -8,7 +8,8 @@ reference: ../references/shared-state.md
 
 **Use for:** DNS caches, cookie/session stores, proxy caches, client resolver caches, and connection state.
 
-**Misalignment to find:** Protocol responses, cache entries, session state, or parse results lack source, object, and freshness binding, allowing a malicious participant to contaminate later independent requests.
+**Misalignment to find:** Protocol responses, cache entries, session state, or parse results lack source, object, and
+freshness binding, allowing a malicious participant to contaminate later independent requests.
 
 ## Baseline
 

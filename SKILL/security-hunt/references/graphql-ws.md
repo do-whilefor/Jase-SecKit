@@ -1,13 +1,31 @@
 # GraphQL/WS Authorization · Reference
 
-Load after selecting the `graphql-websocket-auth` Profile and forming a current-target hypothesis.
+Load after selecting the `graphql-operation-authorization` Profile and forming a current-target hypothesis.
 
-Historical cases are variant seeds only. Do not transfer their impact, severity, exploit chain, or final outcome to the current target. Reproduce every relevant segment and every claimed impact independently. `Knowledge value` ranks reference usefulness, not current-target severity.
+## Use Rule
 
-## HackerOne Case Index
+- Use these sources to expand operation, resolver, subscription, and message-level hypotheses.
+- Do not treat a successful handshake or authenticated connection as authorization for every later action.
+- Verify final objects, fields, events, and side effects independently.
 
-### 241244 · Missing operation-level GraphQL/WebSocket authorization
-- Knowledge value: 8/10; authorization bypass / framework-behavior exploitation / authentication bypass.
-- Chain: `http://localhost:8153/go/remoting/api/admin/config.xml` → missing operation-level GraphQL/WebSocket authorization → security controls and the final execution point disagree about subject, object, state, or input semantics → access to internal services or cloud metadata.
-- Bypass: Directly invoke GraphQL fields or mutations not exposed by the UI, or send messages over an established WebSocket that exceed the current identity’s permissions.
-- Defensive anchor: Enforce server-side object- and field-level authorization in every resolver, field, mutation, subscription, and WebSocket message handler; use a unified policy layer and never rely on frontend hiding, connection-level authentication, or client-supplied tenant/user IDs.
+## Curated Sources
+
+### OWASP GraphQL Cheat Sheet
+
+- Source URL: https://cheatsheetseries.owasp.org/cheatsheets/GraphQL_Cheat_Sheet.html
+- Transferable test ideas:
+  - Enumerate queries, mutations, fields, resolvers, aliases, batching, introspection, and subscriptions.
+  - Vary object IDs, tenant context, fields, and operation names under different identities and roles.
+  - Check authorization at the resolver and final object rather than relying on schema visibility or frontend controls.
+- Defensive anchor:
+  - Enforce object, field, and function authorization at each resolver or equivalent downstream boundary.
+  - Bound query complexity and disable unnecessary development features in production.
+
+### OWASP WebSocket Security Cheat Sheet
+
+- Source URL: https://cheatsheetseries.owasp.org/cheatsheets/WebSocket_Security_Cheat_Sheet.html
+- Transferable test ideas:
+  - Separate handshake authentication from authorization for every message type, object, subscription, and tenant.
+  - Test session expiry, logout, reconnect, replay, origin handling, and permission changes while the connection remains open.
+- Defensive anchor:
+  - Validate origin and authenticate the connection, then authorize every message against current server-side state.

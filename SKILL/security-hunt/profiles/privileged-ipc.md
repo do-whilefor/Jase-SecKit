@@ -8,7 +8,8 @@ reference: ../references/privileged-ipc.md
 
 **Use for:** D-Bus, Unix sockets, Windows Named Pipes/COM, Android Binder, and local HTTP/RPC.
 
-**Misalignment to find:** A low-privilege client invokes a high-privilege daemon through local IPC, RPC, sockets, Binder, D-Bus, or named pipes without tightly constraining the subject, method, arguments, and object capability.
+**Misalignment to find:** A low-privilege client invokes a high-privilege daemon through local IPC, RPC, sockets,
+Binder, D-Bus, or named pipes without tightly constraining the subject, method, arguments, and object capability.
 
 ## Baseline
 

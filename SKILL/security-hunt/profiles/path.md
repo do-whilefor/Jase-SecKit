@@ -8,7 +8,8 @@ reference: ../references/path.md
 
 **Use for:** download/upload paths, static files and reverse proxies, archive extraction, object-storage keys, and build workspaces.
 
-**Misalignment to find:** Validation uses a raw path string while the filesystem, router, proxy, archiver, or backend resolves the final target under a different canonicalization model.
+**Misalignment to find:** Validation uses a raw path string while the filesystem, router, proxy, archiver, or backend
+resolves the final target under a different canonicalization model.
 
 ## Baseline
 

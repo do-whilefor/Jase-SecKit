@@ -2,12 +2,28 @@
 
 Load after selecting the `subdomain-cookie-sso-trust` Profile and forming a current-target hypothesis.
 
-Historical cases are variant seeds only. Do not transfer their impact, severity, exploit chain, or final outcome to the current target. Reproduce every relevant segment and every claimed impact independently. `Knowledge value` ranks reference usefulness, not current-target severity.
+## Use Rule
 
-## HackerOne Case Index
+- Use these sources to expand subdomain-control, cookie-scope, origin, and SSO trust hypotheses.
+- Do not equate a subdomain takeover with account impact without proving the browser or identity trust path.
+- Verify the final cookie, callback, session, message, or privileged action independently.
 
-### 1018790 · Subdomain-control and Cookie/SSO trust-boundary mismatch
-- Knowledge value: 9/10; subdomain takeover / cross-component attack chain / authorization bypass.
-- Chain: `PUT /v2/account` → subdomain-control and Cookie/SSO trust-boundary mismatch → security controls and the final execution point disagree about subject, object, state, or input semantics → access to or impact on another user’s data/state.
-- Bypass: Take control of a legacy subdomain or cloud resource, then exploit the main application’s Cookie, Origin, SSO, CSP, or redirect trust in that subdomain.
-- Defensive anchor: Continuously remove dangling DNS/cloud bindings; do not issue parent-domain cookies to low-trust subdomains; explicitly enumerate trusted Origins and callbacks; separate static, user-content, and third-party hosting domains from authentication domains.
+## Curated Sources
+
+### OWASP Subdomain Takeover Prevention Cheat Sheet
+
+- Source URL: https://cheatsheetseries.owasp.org/cheatsheets/Subdomain_Takeover_Prevention_Cheat_Sheet.html
+- Transferable test ideas:
+  - Inventory dangling DNS records, abandoned cloud resources, delegated zones, third-party hosting, and expired ownership bindings.
+  - After proving control, separately test whether the parent application trusts the subdomain through cookies, CORS, postMessage, CSP, SSO, or redirects.
+- Defensive anchor:
+  - Remove stale records, verify resource ownership continuously, and minimize inherited trust across subdomains.
+
+### OWASP Session Management Cheat Sheet
+
+- Source URL: https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html
+- Transferable test ideas:
+  - Review cookie `Domain`, `Path`, `Secure`, `HttpOnly`, and `SameSite` attributes across sibling applications.
+  - Test whether a less-trusted subdomain can set, shadow, overwrite, or receive session-related cookies.
+- Defensive anchor:
+  - Prefer host-only cookies and separate high-trust applications from broadly delegated subdomain namespaces.

@@ -8,7 +8,8 @@ reference: ../references/tokens.md
 
 **Use for:** password reset, email/phone verification, organization invitations, 2FA enrollment/recovery, and account rebinding.
 
-**Misalignment to find:** Sensitive-flow tokens are not bound to the current session, target account, action type, version, use count, and invalidation events, enabling replay, rebinding, cross-flow use, or concurrent takeover.
+**Misalignment to find:** Sensitive-flow tokens are not bound to the current session, target account, action type,
+version, use count, and invalidation events, enabling replay, rebinding, cross-flow use, or concurrent takeover.
 
 ## Baseline
 

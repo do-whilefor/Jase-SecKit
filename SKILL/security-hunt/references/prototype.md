@@ -2,12 +2,27 @@
 
 Load after selecting the `prototype-pollution` Profile and forming a current-target hypothesis.
 
-Historical cases are variant seeds only. Do not transfer their impact, severity, exploit chain, or final outcome to the current target. Reproduce every relevant segment and every claimed impact independently. `Knowledge value` ranks reference usefulness, not current-target severity.
+## Use Rule
 
-## Full Report Cases
+- Read this file only after forming a current-target hypothesis and recording a baseline.
+- `Reported focus` identifies the source topic; `Transferable test ideas` are abstractions, not source-verified reproduction steps.
+- Never inherit historical impact, exploitability, scope, severity, or chain completion.
+- Verify the original source before citing case-specific details outside the testing workspace.
 
-### x41-d-sec/X41-Backstage-Audit-2024-Final-Report-Public · Server-Side Prototype Pollution via Filters Request Parameter
-- Knowledge value: 10/10; framework-behavior exploitation / cross-component attack chain.
-- Chain: The attacker submits nested parameters with special property names → merge/filter code pollutes the global prototype → later query, template, or configuration code inherits malicious values → DoS, injection, or code execution.
-- Bypass: JavaScript prototype inheritance performs implicit lookup, allowing security options or object fields that were never set locally to be modified globally.
-- Defensive anchor: Use null-prototype objects or Map; recursively reject dangerous keys; update affected dependencies; use own-property checks at security-sensitive reads and freeze critical configuration objects.
+## Retained Case Notes
+
+### Server-Side Prototype Pollution via Filters Request Parameter
+
+- Source: `x41-d-sec/X41-Backstage-Audit-2024-Final-Report-Public`
+- Reported focus: Server-Side Prototype Pollution via Filters Request Parameter
+- Transferable test ideas:
+  - JavaScript prototype inheritance performs implicit lookup, allowing security options or object fields that were never set locally to be modified globally.
+- Defensive anchor:
+  - Use null-prototype objects or Map.
+  - Recursively reject dangerous keys.
+  - Update affected dependencies.
+  - Use own-property checks at security-sensitive reads and freeze critical configuration objects.
+- Evidence boundary:
+  - Treat the source as a hypothesis seed only.
+  - Reproduce every technical segment and impact claim on the current target.
+  - Verify the original source before citing case-specific details externally.

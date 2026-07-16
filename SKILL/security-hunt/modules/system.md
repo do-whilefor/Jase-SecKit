@@ -2,20 +2,31 @@
 
 ## Goal
 
-Trace low-privilege input to the real system object, system call, resource cost, isolation boundary, or privileged service, then determine whether the resulting capability exceeds the design.
+Trace low-privilege input to the real system object, system call, resource cost, isolation boundary, or privileged
+service, then determine whether the resulting capability exceeds the design.
 
 ## Primary Boundary
 
-Use this module as primary when the decisive failure depends on a real system object, system call, native value, resource cost, isolation boundary, or privileged IPC service. Prefer `input/file-chain` for cross-stage reinterpretation, `normalize/path` for canonicalization differences, and `state/race` for timing-window failures. Use `fs-identity` when validation and use refer to different inode, handle, descriptor, or filesystem object.
+Use this module as primary when the decisive failure depends on a real system object, system call, native value, resource cost, isolation boundary, or privileged IPC service.
+
+Choose the narrower module when the decisive boundary is elsewhere:
+
+- Prefer `input/file-chain` for cross-stage reinterpretation.
+- Prefer `normalize/path` for canonicalization differences.
+- Prefer `state/race` for timing-window failures.
+- Use `fs-identity` when validation and use refer to different inode, handle, descriptor, or filesystem object.
 
 ## Compatibility
 
-Effective validation may require the target operating system, compiler/runtime, sanitizer or tracer, container runtime, IPC tooling, and real privilege context. Use `blocked` only under the framework rule after viable platform and observation alternatives have been tried.
+Effective validation may require the target operating system, compiler/runtime, sanitizer or tracer, container
+runtime, IPC tooling, and real privilege context. Use `blocked` only under the framework rule after viable platform
+and observation alternatives have been tried.
 
 ## Loading Order
 
 1. Read `${CLAUDE_SKILL_DIR}/framework/verify-evidence.md` first.
-2. Load the Profiles needed for the concrete hypothesis; keep plausible adjacent and combination paths queued, and add them whenever evidence, gaps, or downstream consumers require it.
+2. Load the Profiles needed for the concrete hypothesis; keep plausible adjacent and combination paths queued, and add
+   them whenever evidence, gaps, or downstream consumers require it.
 3. Establish a baseline before reading matching References for additional variants. Progressive loading limits context use, not testing breadth or depth.
 
 ## Routing
@@ -46,4 +57,5 @@ Profile paths are `${CLAUDE_SKILL_DIR}/profiles/<name>.md`; Reference paths are 
 
 ## Output
 
-Record each round with the complete status, blackboard, evidence, impact-validation, severity-gate, blind-spot, and closure rules in `${CLAUDE_SKILL_DIR}/framework/verify-evidence.md`; do not replace them with a reduced local schema.
+Record each round with the complete status, blackboard, evidence, impact-validation, severity-gate, blind-spot, and
+closure rules in `${CLAUDE_SKILL_DIR}/framework/verify-evidence.md`; do not replace them with a reduced local schema.

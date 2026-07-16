@@ -8,7 +8,8 @@ reference: ../references/field-injection.md
 
 **Use for:** HTTP headers/cookies, download filenames, MIME/email, SSH/SCP, and messaging protocols.
 
-**Misalignment to find:** Filenames, headers, MIME fields, cookies, SCP/XMPP fields, or other protocol data are reinterpreted by another endpoint as control information, cross-domain state, or a different content type.
+**Misalignment to find:** Filenames, headers, MIME fields, cookies, SCP/XMPP fields, or other protocol data are
+reinterpreted by another endpoint as control information, cross-domain state, or a different content type.
 
 ## Baseline
 

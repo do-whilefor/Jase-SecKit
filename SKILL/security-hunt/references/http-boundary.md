@@ -1,25 +1,30 @@
 # HTTP Boundaries · Reference
 
-Load after selecting the `http-parser-differential` Profile and forming a current-target hypothesis.
+Load after selecting the `http-message-boundary` Profile and forming a current-target hypothesis.
 
-Historical cases are variant seeds only. Do not transfer their impact, severity, exploit chain, or final outcome to the current target. Reproduce every relevant segment and every claimed impact independently. `Knowledge value` ranks reference usefulness, not current-target severity.
+## Use Rule
 
-## HackerOne Case Index
+- Use protocol specifications to identify parsing and forwarding assumptions, not to infer a vulnerability from malformed traffic alone.
+- Compare the exact message boundaries seen by every intermediary and the final backend.
+- Prove a security-relevant routing, request, cache, or response effect independently.
 
-### 648434 · HTTP message-boundary/protocol parsing differential
-- Knowledge value: 10/10; protocol-behavior exploitation / cross-component attack chain.
-- Chain: `https://packetstormsecurity.com/papers/general/whitepaper_httpresponse.pdf` → HTTP message-boundary/protocol parsing differential, combined with a cache-key/response-variant mismatch → the corresponding trust boundary is crossed → access to or impact on another user’s data/state.
-- Bypass: Construct requests that produce different boundaries in layered HTTP parsers and use connection reuse to affect later requests, routing, or caches; combine with a cache-key mismatch.
-- Defensive anchor: Align HTTP parsing and normalization across layers; reject ambiguous length indicators, abnormal duplicate headers, and invalid line endings; test H2/H1 conversion consistency; never return anomalous connections to shared pools; add cache-variant cross-component regressions.
+## Curated Sources
 
-### 737140 · HTTP message-boundary/protocol parsing differential
-- Knowledge value: 10/10; protocol-behavior exploitation / cross-component attack chain / authentication bypass.
-- Chain: `GET https://<URL> HTTP/1.1` → HTTP message-boundary/protocol parsing differential → security controls and the final execution point disagree about subject, object, state, or input semantics → account takeover.
-- Bypass: Construct requests that produce different message boundaries across layers and use connection reuse to affect later requests, routing, or caches.
-- Defensive anchor: Align HTTP parsing and normalization across layers; reject ambiguous lengths, abnormal duplicates, and invalid line endings; test H2/H1 conversion; keep anomalous connections out of shared pools.
+### RFC 9112 · HTTP/1.1 Message Syntax and Parsing
 
-### 771666 · HTTP message-boundary/protocol parsing differential
-- Knowledge value: 9/10; protocol-behavior exploitation / cross-component attack chain / authentication bypass.
-- Chain: `GET /some/other/endpoint` → HTTP message-boundary/protocol parsing differential, combined with OAuth/SSO callback and credential-lifecycle misbinding → the corresponding trust boundary is crossed → token, key, session, or cloud-credential disclosure.
-- Bypass: Create cross-layer request-boundary ambiguity and combine it with OAuth/SSO callback or credential-lifecycle misbinding.
-- Defensive anchor: Unify parsing, reject ambiguity, test protocol conversion, isolate anomalous connections, and add OAuth/SSO binding regressions at the final consumer.
+- Source URL: https://www.rfc-editor.org/info/rfc9112/
+- Transferable test ideas:
+  - Map how each hop handles message length, transfer coding, connection-specific fields, invalid syntax, and ambiguous framing.
+  - Compare strict rejection with normalization, forwarding, and backend interpretation.
+  - Preserve raw bytes at each observable hop and use controls to isolate the parser disagreement.
+- Defensive anchor:
+  - Use consistent, standards-compliant parsers and reject ambiguous or invalid framing before forwarding.
+
+### RFC 9113 · HTTP/2
+
+- Source URL: https://www.rfc-editor.org/info/rfc9113/
+- Transferable test ideas:
+  - Trace HTTP/2 to HTTP/1 conversion, pseudo-header handling, field normalization, and request boundary reconstruction.
+  - Test whether gateways and backends derive the same authority, path, method, length, and connection semantics.
+- Defensive anchor:
+  - Normalize once at a trusted boundary and ensure downgrade paths cannot create a second interpretation.

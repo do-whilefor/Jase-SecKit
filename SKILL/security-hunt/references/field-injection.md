@@ -2,12 +2,27 @@
 
 Load after selecting the `protocol-field-injection` Profile and forming a current-target hypothesis.
 
-Historical cases are variant seeds only. Do not transfer their impact, severity, exploit chain, or final outcome to the current target. Reproduce every relevant segment and every claimed impact independently. `Knowledge value` ranks reference usefulness, not current-target severity.
+## Use Rule
 
-## Full Report Cases
+- Read this file only after forming a current-target hypothesis and recording a baseline.
+- `Reported focus` identifies the source topic; `Transferable test ideas` are abstractions, not source-verified reproduction steps.
+- Never inherit historical impact, exploitability, scope, severity, or chain completion.
+- Verify the original source before citing case-specific details outside the testing workspace.
 
-### cure53/pentest-report Curl · CRL-01-001 Malicious server can inject cookies for other servers
-- Knowledge value: 10/10; protocol-behavior exploitation / cross-component attack chain.
-- Chain: A malicious endpoint or filename creates a special protocol field → a client or intermediary accepts it as data and persists/forwards it → a later parser interprets it as control syntax → cross-domain cookies, commands, files, or a malicious content type are injected.
-- Bypass: Exploit differences in delimiter, line-break, escaping, or persisted-format semantics so data becomes a control instruction in a later stage.
-- Defensive anchor: Use structured protocol libraries; strictly validate and encode fields; reject control characters and ambiguous delimiters; add round-trip consistency tests for persistence and reparsing paths.
+## Retained Case Notes
+
+### CRL-01-001 Malicious server can inject cookies for other servers
+
+- Source: `cure53/pentest-report Curl`
+- Reported focus: CRL-01-001 Malicious server can inject cookies for other servers
+- Transferable test ideas:
+  - Exploit differences in delimiter, line-break, escaping, or persisted-format semantics so data becomes a control instruction in a later stage.
+- Defensive anchor:
+  - Use structured protocol libraries.
+  - Strictly validate and encode fields.
+  - Reject control characters and ambiguous delimiters.
+  - Add round-trip consistency tests for persistence and reparsing paths.
+- Evidence boundary:
+  - Treat the source as a hypothesis seed only.
+  - Reproduce every technical segment and impact claim on the current target.
+  - Verify the original source before citing case-specific details externally.

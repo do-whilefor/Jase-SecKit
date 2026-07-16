@@ -8,7 +8,8 @@ reference: ../references/http-boundary.md
 
 **Use for:** proxy-to-backend paths, CDNs/WAFs, H2-to-H1 conversion, connection pools, and service meshes.
 
-**Misalignment to find:** Front proxies, gateways, protocol converters, and backends derive different message boundaries from request lengths, duplicate headers, line endings, H2/H1 conversion, or connection reuse.
+**Misalignment to find:** Front proxies, gateways, protocol converters, and backends derive different message
+boundaries from request lengths, duplicate headers, line endings, H2/H1 conversion, or connection reuse.
 
 ## Baseline
 

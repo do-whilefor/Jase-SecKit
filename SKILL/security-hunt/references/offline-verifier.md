@@ -2,12 +2,27 @@
 
 Load after selecting the `offline-verifier-exposure` Profile and forming a current-target hypothesis.
 
-Historical cases are variant seeds only. Do not transfer their impact, severity, exploit chain, or final outcome to the current target. Reproduce every relevant segment and every claimed impact independently. `Knowledge value` ranks reference usefulness, not current-target severity.
+## Use Rule
 
-## Full Report Cases
+- Read this file only after forming a current-target hypothesis and recording a baseline.
+- `Reported focus` identifies the source topic; `Transferable test ideas` are abstractions, not source-verified reproduction steps.
+- Never inherit historical impact, exploitability, scope, severity, or chain completion.
+- Verify the original source before citing case-specific details outside the testing workspace.
 
-### singlepointofcontact/SPoC Penetration-Test · 2. IPMI v2.0 Password Hash Disclosure
-- Knowledge value: 6/10; information disclosure / protocol-behavior exploitation.
-- Chain: The attacker initiates an authentication handshake → obtains a password hash or challenge-response material → performs high-speed offline guessing → logs in to the management interface with recovered credentials.
-- Bypass: The protocol reveals a password proof that can be checked offline before authentication, bypassing online rate limits and lockout policy.
-- Defensive anchor: Upgrade or disable the affected protocol; use strong unique passwords and network isolation; prefer PAKE or certificate authentication resistant to offline guessing; monitor anomalous handshakes.
+## Retained Case Notes
+
+### 2. IPMI v2.0 Password Hash Disclosure
+
+- Source: `singlepointofcontact/SPoC Penetration-Test`
+- Reported focus: 2. IPMI v2.0 Password Hash Disclosure
+- Transferable test ideas:
+  - The protocol reveals a password proof that can be checked offline before authentication, bypassing online rate limits and lockout policy.
+- Defensive anchor:
+  - Upgrade or disable the affected protocol.
+  - Use strong unique passwords and network isolation.
+  - Prefer PAKE or certificate authentication resistant to offline guessing.
+  - Monitor anomalous handshakes.
+- Evidence boundary:
+  - Treat the source as a hypothesis seed only.
+  - Reproduce every technical segment and impact claim on the current target.
+  - Verify the original source before citing case-specific details externally.

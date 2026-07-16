@@ -8,7 +8,9 @@ reference: ../references/unicode.md
 
 **Use for:** domain/Origin allowlists, paths and filenames, keyword filters, account identifiers, protocol fields, and signature inputs.
 
-**Misalignment to find:** A security control operates on one character, encoding, or boundary representation while a later component derives a different meaning after decoding, case folding, IDNA processing, truncation, or normalization.
+**Misalignment to find:** A security control operates on one character, encoding, or boundary representation while a
+later component derives a different meaning after decoding, case folding, IDNA processing, truncation, or
+normalization.
 
 ## Baseline
 

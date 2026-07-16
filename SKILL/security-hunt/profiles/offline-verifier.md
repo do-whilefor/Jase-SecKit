@@ -8,7 +8,8 @@ reference: ../references/offline-verifier.md
 
 **Use for:** challenge-response authentication, remote-management protocols, VPN/Wi-Fi, custom handshakes, and PAKE pre-flows.
 
-**Misalignment to find:** An unauthenticated handshake exposes stable material that lets an attacker verify password guesses offline, converting online rate limits and lockouts into offline cracking.
+**Misalignment to find:** An unauthenticated handshake exposes stable material that lets an attacker verify password
+guesses offline, converting online rate limits and lockouts into offline cracking.
 
 ## Baseline
 

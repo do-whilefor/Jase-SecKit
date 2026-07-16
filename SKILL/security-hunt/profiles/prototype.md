@@ -8,7 +8,9 @@ reference: ../references/prototype.md
 
 **Use for:** deep merge/filtering, object-path assignment, configuration override, JSON parameters, and plugin/template systems.
 
-**Misalignment to find:** Generic object merge, filtering, or path assignment writes attacker-controlled properties into the prototype chain, and inherited values later affect authorization, queries, templates, or execution in a different module.
+**Misalignment to find:** Generic object merge, filtering, or path assignment writes attacker-controlled properties
+into the prototype chain, and inherited values later affect authorization, queries, templates, or execution in a
+different module.
 
 ## Baseline
 

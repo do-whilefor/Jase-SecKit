@@ -6,9 +6,12 @@ reference: ../references/file-chain.md
 
 # File Processing Chain
 
-**Use for:** file upload/import/export, archive extraction and dependency handling, configuration, repository metadata and package installation, document preview, builds, and artifact publication.
+**Use for:** file upload/import/export, archive extraction and dependency handling, configuration, repository metadata
+and package installation, document preview, builds, and artifact publication.
 
-**Misalignment to find:** Files, archives, configuration, metadata, or names are reinterpreted by different components during import, extraction, build, publication, preview, or installation, separating validation semantics from final execution semantics.
+**Misalignment to find:** Files, archives, configuration, metadata, or names are reinterpreted by different components
+during import, extraction, build, publication, preview, or installation, separating validation semantics from final
+execution semantics.
 
 ## Baseline
 

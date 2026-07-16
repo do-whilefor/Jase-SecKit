@@ -8,7 +8,8 @@ reference: ../references/crypto-binding.md
 
 **Use for:** digital signatures, Merkle proofs, zero-knowledge proofs, batch/aggregate verification, PAKE/OPRF, and secure-update metadata.
 
-**Misalignment to find:** Mathematical verification may be correct while the algorithm, key type, domain, context, object type, ordering, uniqueness, inclusion, version, or replay state is not bound.
+**Misalignment to find:** Mathematical verification may be correct while the algorithm, key type, domain, context,
+object type, ordering, uniqueness, inclusion, version, or replay state is not bound.
 
 ## Baseline
 

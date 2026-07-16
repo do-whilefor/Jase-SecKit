@@ -8,7 +8,8 @@ reference: ../references/xml-signature.md
 
 **Use for:** SAML, SOAP WS-Security, XMLDSig, signed configuration/documents, and payment messages.
 
-**Misalignment to find:** Signature verification resolves to one XML node while business logic consumes a different attacker-controlled node by ID, XPath, position, or deserialized representation.
+**Misalignment to find:** Signature verification resolves to one XML node while business logic consumes a different
+attacker-controlled node by ID, XPath, position, or deserialized representation.
 
 ## Baseline
 

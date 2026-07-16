@@ -8,7 +8,9 @@ reference: ../references/subdomain-trust.md
 
 **Use for:** multi-subdomain organizations, broad-domain cookies, SSO callbacks, CORS allowlists, and third-party hosting/custom domains.
 
-**Misalignment to find:** An organization treats subdomains under one parent as a single trust domain, while subdomain takeover, third-party hosting, or broad-domain Cookie/SSO behavior lets a low-trust subdomain affect a high-trust application.
+**Misalignment to find:** An organization treats subdomains under one parent as a single trust domain, while subdomain
+takeover, third-party hosting, or broad-domain Cookie/SSO behavior lets a low-trust subdomain affect a high-trust
+application.
 
 ## Baseline
 

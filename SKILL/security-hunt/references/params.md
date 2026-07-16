@@ -2,24 +2,30 @@
 
 Load after selecting the `parameter-parser-differential` Profile and forming a current-target hypothesis.
 
-Historical cases are variant seeds only. Do not transfer their impact, severity, exploit chain, or final outcome to the current target. Reproduce every relevant segment and every claimed impact independently. `Knowledge value` ranks reference usefulness, not current-target severity.
+## Use Rule
 
-## HackerOne Case Index
+- Use these sources to identify ambiguity in duplicate values, locations, methods, content types, and binders.
+- Preserve the raw request and the value selected by each layer.
+- Prove that the disagreement changes the final object, authorization decision, or action.
 
-### 150083 · Parameter-location/duplicate-key/Content-Type parsing differential
-- Knowledge value: 10/10; framework-behavior exploitation / type confusion / XSS.
-- Chain: Parameter pollution → parameter-location/duplicate-key/Content-Type parsing differential → security controls and the final execution point disagree about subject, object, state, or input semantics → script execution in a trusted origin.
-- Bypass: Duplicate a parameter, move it between locations, change encoding/Content-Type, or use method override so the security control and business logic read different values.
-- Defensive anchor: Parse once at the edge and reject duplicate security-sensitive parameters; fix the allowed Content-Type and method per endpoint; make validation and execution share the same normalized object; fail explicitly on Query/Body/Header/Cookie conflicts.
+## Curated Sources
 
-### 719856 · Parameter-location/duplicate-key/Content-Type parsing differential
-- Knowledge value: 9/10; framework-behavior exploitation / type confusion / deserialization.
-- Chain: `https://www.npmjs.com/package/dot-prop` → parameter parsing differential, combined with deserialization/type-system semantic exploitation → the corresponding trust boundary is crossed → arbitrary code or command execution.
-- Bypass: Use duplicate or relocated parameters and combine the parser disagreement with unsafe type restoration or dispatch.
-- Defensive anchor: Parse once, reject duplicates and cross-location conflicts, fix method/Content-Type, share one normalized object, and add deserialization-focused cross-component regressions.
+### OWASP WSTG · Testing for HTTP Parameter Pollution
 
-### 78158 · Parameter-location/duplicate-key/Content-Type parsing differential
-- Knowledge value: 8/10; framework-behavior exploitation / type confusion / XSS.
-- Chain: `http://vulnerable-site.com/RenderImageServlet.php?imgId=1234&lang=application/x-shockwave-flash` → parameter parsing differential, combined with browser/template/filter parsing differences → the corresponding trust boundary is crossed → the unauthorized access, state change, or availability impact described by the report.
-- Bypass: Use duplicate or relocated parameters and combine the parser disagreement with browser-side reinterpretation.
-- Defensive anchor: Parse once, reject ambiguity, fix methods and content types, share one normalized object, and add browser-parsing regressions.
+- Source URL: https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/07-Input_Validation_Testing/04-Testing_for_HTTP_Parameter_Pollution
+- Transferable test ideas:
+  - Duplicate security-sensitive parameters and vary their order, location, encoding, array form, and content type.
+  - Compare CDN, WAF, gateway, framework, binder, and business-logic selection rules.
+  - Use single-variable controls to distinguish parser behavior from backend instability.
+- Defensive anchor:
+  - Reject ambiguous duplicates and cross-location conflicts for security-sensitive fields.
+  - Parse once into one typed object shared by validation and execution.
+
+### OWASP Mass Assignment Cheat Sheet
+
+- Source URL: https://cheatsheetseries.owasp.org/cheatsheets/Mass_Assignment_Cheat_Sheet.html
+- Transferable test ideas:
+  - Test undocumented, nested, and privilege-bearing fields accepted by automatic binders.
+  - Compare create, patch, bulk, import, and administrative endpoints.
+- Defensive anchor:
+  - Bind only explicitly allowed fields and apply authorization to each sensitive property.

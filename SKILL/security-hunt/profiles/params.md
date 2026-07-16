@@ -8,7 +8,8 @@ reference: ../references/params.md
 
 **Use for:** REST APIs, gateways/WAFs, forms/JSON, method override, and signed parameters.
 
-**Misalignment to find:** Gateways, middleware, frameworks, and business code use different rules for duplicate parameters, Query/Body/Header/Cookie precedence, method override, or Content-Type parsing.
+**Misalignment to find:** Gateways, middleware, frameworks, and business code use different rules for duplicate
+parameters, Query/Body/Header/Cookie precedence, method override, or Content-Type parsing.
 
 ## Baseline
 

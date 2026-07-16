@@ -8,7 +8,8 @@ reference: ../references/terminal-escape.md
 
 **Use for:** audit logs, SSH/operations platforms, CI output, terminal approvals, CLI listings, and alerts.
 
-**Misalignment to find:** Plain text from a Web/API context is reinterpreted by a CLI, log viewer, or terminal as ANSI/VT control sequences, allowing output forgery, content hiding, or interaction manipulation.
+**Misalignment to find:** Plain text from a Web/API context is reinterpreted by a CLI, log viewer, or terminal as
+ANSI/VT control sequences, allowing output forgery, content hiding, or interaction manipulation.
 
 ## Baseline
 

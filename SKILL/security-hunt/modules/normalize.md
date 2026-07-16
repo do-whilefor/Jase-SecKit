@@ -6,12 +6,19 @@ Compare the values seen by validation, proxy, framework, and final execution lay
 
 ## Primary Boundary
 
-Use this module as primary when two layers derive different meanings from the same representation. `params` requires a concrete parser, binder, or precedence disagreement; the mere presence of REST, forms, or JSON is not enough. Use `url-address` when URL parsing, DNS, redirects, or the final connection target diverge. Use `proxy-origin` when a proxy and application disagree about external host, scheme, origin, tenant, or trusted client identity.
+Use this module as primary when two layers derive different meanings from the same representation.
+
+Choose the Profile from the concrete disagreement:
+
+- Use `params` only when a parser, binder, or precedence rule selects a different value; REST, forms, or JSON alone are not enough.
+- Use `url-address` when URL parsing, DNS, redirects, or the final connection target diverge.
+- Use `proxy-origin` when a proxy and application disagree about external host, scheme, origin, tenant, or trusted client identity.
 
 ## Loading Order
 
 1. Read `${CLAUDE_SKILL_DIR}/framework/verify-evidence.md` first.
-2. Load the Profiles needed for the concrete hypothesis; keep plausible adjacent and combination paths queued, and add them whenever evidence, gaps, or downstream consumers require it.
+2. Load the Profiles needed for the concrete hypothesis; keep plausible adjacent and combination paths queued, and add
+   them whenever evidence, gaps, or downstream consumers require it.
 3. Establish a baseline before reading matching References for additional variants. Progressive loading limits context use, not testing breadth or depth.
 
 ## Routing
@@ -42,4 +49,5 @@ Profile paths are `${CLAUDE_SKILL_DIR}/profiles/<name>.md`; Reference paths are 
 
 ## Output
 
-Record each round with the complete status, blackboard, evidence, impact-validation, severity-gate, blind-spot, and closure rules in `${CLAUDE_SKILL_DIR}/framework/verify-evidence.md`; do not replace them with a reduced local schema.
+Record each round with the complete status, blackboard, evidence, impact-validation, severity-gate, blind-spot, and
+closure rules in `${CLAUDE_SKILL_DIR}/framework/verify-evidence.md`; do not replace them with a reduced local schema.

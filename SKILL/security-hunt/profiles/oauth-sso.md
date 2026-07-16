@@ -8,7 +8,8 @@ reference: ../references/oauth-sso.md
 
 **Use for:** OAuth/OIDC login, SAML SSO, social-account binding, multiple identity providers, and mobile/desktop authorization.
 
-**Misalignment to find:** Authorization codes, tokens, state, redirect_uri, identity providers, callback sessions, or external accounts are not strongly bound to the initiating subject, client, and single flow.
+**Misalignment to find:** Authorization codes, tokens, state, redirect_uri, identity providers, callback sessions, or
+external accounts are not strongly bound to the initiating subject, client, and single flow.
 
 ## Baseline
 

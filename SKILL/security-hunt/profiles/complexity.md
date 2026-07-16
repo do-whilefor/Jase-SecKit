@@ -8,7 +8,8 @@ reference: ../references/complexity.md
 
 **Use for:** regex/replacement, JSON/number parsing, DNSSEC, cryptographic proof verification, compression/decompression, and recursive parsers.
 
-**Misalignment to find:** An attacker supplies valid but worst-case numbers, regular expressions, DNSSEC structures, compressed data, or parse trees that make CPU, memory, recursion, or verification cost grow superlinearly.
+**Misalignment to find:** An attacker supplies valid but worst-case numbers, regular expressions, DNSSEC structures,
+compressed data, or parse trees that make CPU, memory, recursion, or verification cost grow superlinearly.
 
 ## Baseline
 

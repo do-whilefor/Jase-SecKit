@@ -2,18 +2,29 @@
 
 Load after selecting the `toctou-state-boundary` Profile and forming a current-target hypothesis.
 
-Historical cases are variant seeds only. Do not transfer their impact, severity, exploit chain, or final outcome to the current target. Reproduce every relevant segment and every claimed impact independently. `Knowledge value` ranks reference usefulness, not current-target severity.
+## Use Rule
 
-## HackerOne Case Index
+- Read this file only after forming a current-target hypothesis and recording a baseline.
+- `Reported focus` identifies the source topic; `Transferable test ideas` are abstractions, not source-verified reproduction steps.
+- Never inherit historical impact, exploitability, scope, severity, or chain completion.
+- Verify the original source before citing case-specific details outside the testing workspace.
 
-### 187134 · TOCTOU/concurrent-state boundary failure
-- Knowledge value: 9/10; race condition / business logic / framework-behavior exploitation.
-- Chain: `http://127.0.0.1:8000/memspy` → TOCTOU/concurrent-state boundary failure, combined with memory-safety or low-level runtime behavior → the corresponding trust boundary is crossed → access to internal services or cloud metadata.
-- Bypass: Concurrently trigger a non-atomic “check condition → perform action → update state” window, or mutate the same business object through different endpoints; combine with low-level runtime behavior to extend the chain.
-- Defensive anchor: Place condition checks and state updates in one atomic transaction; use unique constraints, conditional updates, row locks, or idempotency keys; validate the invariant from the final ledger/balance/object count rather than HTTP 200 counts; add low-level cross-component regressions.
+## Verified HackerOne Index
 
-### 759247 · TOCTOU/concurrent-state boundary failure
-- Knowledge value: 8/10; race condition / business logic / state confusion.
-- Chain: `POST /fi/redeem` → TOCTOU/concurrent-state boundary failure → security controls and the final execution point disagree about subject, object, state, or input semantics → billing, redemption, or quota constraints are bypassed.
-- Bypass: Concurrently trigger the non-atomic check/action/update window or mutate the same object through multiple endpoints.
-- Defensive anchor: Make checks and updates atomic; use unique constraints, conditional updates, row locks, or idempotency keys; verify the final ledger, balance, or object count instead of response counts.
+### HackerOne #187134 · JSBeautifier BApp race condition and memory leak
+
+- Source: `HackerOne report #187134`
+- Source URL: https://hackerone.com/reports/187134
+- Reported focus: Concurrent processing exposed a race condition that caused memory growth.
+- Transferable test ideas:
+  - Exercise the same shared processing path with controlled concurrency and repeatable input sizes.
+  - Measure success rate, memory growth, thread count, queue behavior, and recovery after load stops.
+  - Distinguish a race-specific invariant failure from ordinary high-cost processing.
+- Defensive anchor:
+  - Protect shared mutable state with correct synchronization and ownership rules.
+  - Bound per-request and aggregate resource use.
+  - Add concurrent regression tests that assert both correctness and resource recovery.
+- Evidence boundary:
+  - The report title and high-level focus are retained only for routing and variant generation.
+  - Do not inherit the historical outcome, scope, or severity.
+  - Reproduce every technical and impact segment independently on the current target.

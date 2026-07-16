@@ -8,7 +8,8 @@ reference: ../references/syscall-options.md
 
 **Use for:** kernel syscalls, privileged daemons, CLI wrappers, environment-driven tools, and filenames converted into command arguments.
 
-**Misalignment to find:** Low-privilege input influences high-privilege kernel or daemon behavior through system calls, command-line arguments, environment variables, file descriptors, or option parsing.
+**Misalignment to find:** Low-privilege input influences high-privilege kernel or daemon behavior through system
+calls, command-line arguments, environment variables, file descriptors, or option parsing.
 
 ## Baseline
 

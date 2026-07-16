@@ -8,7 +8,8 @@ reference: ../references/workflow.md
 
 **Use for:** account lifecycles, orders/payments/refunds, invitations/approvals/bindings, quotas/rate limits/rewards, on-chain state, and asynchronous jobs.
 
-**Misalignment to find:** The server validates only local fields or one request without enforcing legal preconditions, unique transition paths, counts, ordering, concurrency, and rollback semantics.
+**Misalignment to find:** The server validates only local fields or one request without enforcing legal preconditions,
+unique transition paths, counts, ordering, concurrency, and rollback semantics.
 
 ## Baseline
 

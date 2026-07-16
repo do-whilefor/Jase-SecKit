@@ -2,18 +2,30 @@
 
 Load after selecting the `syscall-option-boundary` Profile and forming a current-target hypothesis.
 
-Historical cases are variant seeds only. Do not transfer their impact, severity, exploit chain, or final outcome to the current target. Reproduce every relevant segment and every claimed impact independently. `Knowledge value` ranks reference usefulness, not current-target severity.
+## Use Rule
 
-## HackerOne Case Index
+- Use these sources to expand command, argument, option, environment, and system-call boundary hypotheses.
+- Do not infer execution from string reflection, an error, or the presence of a shell-like character.
+- Capture the final executable, argument vector, environment, working directory, caller identity, and side effect.
 
-### 212696 · System-call argument/option-boundary failure
-- Knowledge value: 8/10; command injection / framework-behavior exploitation / cross-component attack chain.
-- Chain: `/edit/process` → system-call argument/option-boundary failure, combined with file-processing order and multi-parser semantic differences → the corresponding trust boundary is crossed → arbitrary code or command execution.
-- Bypass: Inject a controllable filename, path, argument, or configuration fragment into an external tool’s argument/option boundary, triggering the tool’s own secondary parsing; combine this with file-processing differences to extend the chain.
-- Defensive anchor: Avoid shell concatenation and use argument arrays; enforce allowlists and the `--` option terminator at the final call site; reject user filenames beginning with `-`; fix working directory, environment, and configuration; run external tools in a low-privilege, networkless sandbox; add file-processing cross-component regressions.
+## Curated Sources
 
-### 388936 · System-call argument/option-boundary failure
-- Knowledge value: 8/10; command injection / framework-behavior exploitation.
-- Chain: `https://www.npmjs.com/package/egg-scripts` → system-call argument/option-boundary failure → security controls and the final execution point disagree about subject, object, state, or input semantics → arbitrary code or command execution.
-- Bypass: Inject controllable filenames, paths, arguments, or configuration fragments into external-tool option boundaries so the tool reparses data as options.
-- Defensive anchor: Avoid shell concatenation; use argument arrays; apply allowlists and `--`; reject leading-dash filenames; fix working directory, environment, and configuration; execute tools in a low-privilege, networkless sandbox.
+### OWASP OS Command Injection Defense Cheat Sheet
+
+- Source URL: https://cheatsheetseries.owasp.org/cheatsheets/OS_Command_Injection_Defense_Cheat_Sheet.html
+- Transferable test ideas:
+  - Determine whether the application invokes a shell, a direct process API, a CLI wrapper, or a privileged service.
+  - Test argument injection, leading-option interpretation, delimiter handling, environment influence, and alternate execution paths.
+  - Distinguish shell metacharacter injection from unsafe argument or option construction.
+- Defensive anchor:
+  - Prefer library APIs over external commands and use fixed executable paths with explicit argument construction.
+  - Apply least privilege and terminate option parsing where supported.
+
+### OWASP WSTG · Testing for Command Injection
+
+- Source URL: https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/07-Input_Validation_Testing/12-Testing_for_Command_Injection
+- Transferable test ideas:
+  - Trace user-controlled values through wrappers, job runners, file converters, package tools, and administrative helpers.
+  - Verify final execution with a controlled side effect, process trace, or another independent signal.
+- Defensive anchor:
+  - Keep untrusted values out of command syntax and validate arguments against a narrow semantic allowlist.

@@ -8,7 +8,8 @@ reference: ../references/policy-bypass.md
 
 **Use for:** forced VPN/Tor egress, TLS/certificate validation, zero-trust proxies, session recording/auditing, and restricted sessions.
 
-**Misalignment to find:** The system claims to enforce VPN/Tor/TLS/certificate/audit/session restrictions, but alternate protocols, redirects, races, system integrations, or uncovered paths bypass the policy.
+**Misalignment to find:** The system claims to enforce VPN/Tor/TLS/certificate/audit/session restrictions, but
+alternate protocols, redirects, races, system integrations, or uncovered paths bypass the policy.
 
 ## Baseline
 

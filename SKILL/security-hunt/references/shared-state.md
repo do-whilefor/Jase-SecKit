@@ -2,12 +2,27 @@
 
 Load after selecting the `protocol-cache-state` Profile and forming a current-target hypothesis.
 
-Historical cases are variant seeds only. Do not transfer their impact, severity, exploit chain, or final outcome to the current target. Reproduce every relevant segment and every claimed impact independently. `Knowledge value` ranks reference usefulness, not current-target severity.
+## Use Rule
 
-## Full Report Cases
+- Read this file only after forming a current-target hypothesis and recording a baseline.
+- `Reported focus` identifies the source topic; `Transferable test ideas` are abstractions, not source-verified reproduction steps.
+- Never inherit historical impact, exploitability, scope, severity, or chain completion.
+- Verify the original source before citing case-specific details outside the testing workspace.
 
-### cure53/pentest-report CoreDNS · DNS-01-003 Cache: DNS Cache poisoning via malicious Response
-- Knowledge value: 8/10; protocol-behavior exploitation / cross-component attack chain.
-- Chain: The attacker induces or forges a crafted DNS response → the resolver incorrectly accepts and caches malicious records → later clients hit the poisoned cache → they are redirected to attacker-controlled services.
-- Bypass: Weak query/response association, name rewriting, additional records, or incomplete cache-key semantics lets records unrelated to the original query inherit trusted cache state.
-- Defensive anchor: Strictly match query ID, source endpoint, question section, and name semantics; minimize caching of additional records; randomize source ports and IDs and use DNSSEC; test cache consistency across rewrite/forwarding plugins.
+## Retained Case Notes
+
+### DNS-01-003 Cache: DNS Cache poisoning via malicious Response
+
+- Source: `cure53/pentest-report CoreDNS`
+- Reported focus: DNS-01-003 Cache: DNS Cache poisoning via malicious Response
+- Transferable test ideas:
+  - Weak query/response association, name rewriting, additional records, or incomplete cache-key semantics lets records unrelated to the original query inherit trusted cache state.
+- Defensive anchor:
+  - Strictly match query ID, source endpoint, question section, and name semantics.
+  - Minimize caching of additional records.
+  - Randomize source ports and IDs and use DNSSEC.
+  - Test cache consistency across rewrite/forwarding plugins.
+- Evidence boundary:
+  - Treat the source as a hypothesis seed only.
+  - Reproduce every technical segment and impact claim on the current target.
+  - Verify the original source before citing case-specific details externally.

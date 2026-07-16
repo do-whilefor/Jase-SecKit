@@ -8,7 +8,8 @@ reference: ../references/proxy-origin.md
 
 **Use for:** reverse proxies, password-reset links, SSO callbacks, multi-tenant Host routing, and CORS/WebSocket handling.
 
-**Misalignment to find:** The application incorrectly trusts client-controlled Host, Origin, or forwarding headers, or the proxy and backend disagree about the external origin, scheme, or host identity.
+**Misalignment to find:** The application incorrectly trusts client-controlled Host, Origin, or forwarding headers, or
+the proxy and backend disagree about the external origin, scheme, or host identity.
 
 ## Baseline
 

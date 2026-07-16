@@ -8,7 +8,8 @@ reference: ../references/fs-identity.md
 
 **Use for:** high-privilege file operations, temporary directories, build workspaces, installers/updaters, archives, and synchronization clients.
 
-**Misalignment to find:** Path-string validation and the actual open/write are not one atomic operation, allowing an attacker to change the final inode or handle through symlinks, reparse points, directory replacement, or races.
+**Misalignment to find:** Path-string validation and the actual open/write are not one atomic operation, allowing an
+attacker to change the final inode or handle through symlinks, reparse points, directory replacement, or races.
 
 ## Baseline
 
