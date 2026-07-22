@@ -32,68 +32,30 @@ JaseSkills 是一套面向 AI 辅助渗透测试与漏洞研究的安全 Skill �
 
 ---
 
-## 🔧 个人维护命令
+## 🔧 个人维护与推送命令
 
-以下命令适用于 Windows 命令提示符（CMD），可直接逐段执行：
+以下命令适用于 Windows 命令提示符（CMD）。
 
 ```cmd
-git rev-parse --is-inside-work-tree
 
-git branch --show-current
-git remote -v
-
-if exist ".git\index.lock" (
-    echo 检测到 .git\index.lock
-    echo 请先确认没有其他 Git 操作正在运行。
-    echo 确认后可执行：del /f ".git\index.lock"
-) else (
-    echo 未检测到 .git\index.lock
-)
-
-git add -A -- . > "%TEMP%\git-add-log.txt" 2>&1
-
-type "%TEMP%\git-add-log.txt"
-
-git status --short
-
-echo.
-echo 前 50 个已暂存文件：
-powershell -NoProfile -Command "git diff --cached --name-status | Select-Object -First 50"
+git add -A -- .
 
 git diff --cached --quiet
 
 if errorlevel 1 (
     git commit -m "Update skills"
 ) else (
-    echo.
     echo 没有需要提交的本地变更。
 )
 
 git pull --rebase origin main
 
-git push origin main
+if errorlevel 1 (
+    echo git pull 执行失败，已停止推送。
+) else (
+    git -c http.version=HTTP/1.1 push origin main
+)
 
 git status
 ```
-
-## 🔍 检查本地是否与 GitHub 同步
-
-以下命令适用于直接粘贴到 Windows 命令提示符（CMD）中执行：
-
-```cmd
-git fetch origin
-
-for /f %i in ('git rev-parse HEAD') do set "LOCAL_HASH=%i"
-for /f %i in ('git ls-remote origin refs/heads/main') do set "REMOTE_HASH=%i"
-
-echo 本地提交：%LOCAL_HASH%
-echo 远程提交：%REMOTE_HASH%
-
-if "%LOCAL_HASH%"=="%REMOTE_HASH%" (
-    echo 本地已经与 GitHub 完全同步。
-) else (
-    echo 本地与 GitHub 不一致。
-)
-
-git status --short
-```
+---
