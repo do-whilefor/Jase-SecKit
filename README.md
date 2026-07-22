@@ -42,19 +42,7 @@ git add -A -- .
 
 git diff --cached --quiet
 
-if errorlevel 1 (
-    git commit -m "Update skills"
-) else (
-    echo 没有需要提交的本地变更。
-)
-
 git pull --rebase origin main
-
-if errorlevel 1 (
-    echo git pull 执行失败，已停止推送。
-) else (
-    git -c http.version=HTTP/1.1 push origin main
-)
 
 git status
 ```
