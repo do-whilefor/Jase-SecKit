@@ -2,20 +2,23 @@
   "mcpServers": {
     "burp": {
       "type": "stdio",
-      "command": "/BurpSuite/jre/bin/java",
+      "command": "java.exe",
       "args": [
         "-jar",
-        "/BurpSuite/mcp-proxy.jar",
+        "mcp-proxy.jar",
         "--sse-url",
         "http://127.0.0.1:9876"
       ]
     },
     "chrome-devtools": {
       "type": "stdio",
-      "command": "npx",
+      "command": "npx.cmd",
       "args": [
         "-y",
-        "chrome-devtools-mcp@latest"
+        "chrome-devtools-mcp@latest",
+        "--autoConnect",
+        "--no-usage-statistics",
+        "--no-performance-crux"
       ]
     }
   }

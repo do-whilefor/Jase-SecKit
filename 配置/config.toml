@@ -1,8 +1,8 @@
+model_provider = "chatgpt_http"
+
 approval_policy = "never"
 sandbox_mode = "danger-full-access"
-personality = "pragmatic"
 
-model_provider = "chatgpt_http"
 
 [model_providers.chatgpt_http]
 name = "ChatGPT HTTP"
@@ -11,5 +11,41 @@ wire_api = "responses"
 requires_openai_auth = true
 supports_websockets = false
 
-model_instructions_file = "./gpt5.5-unrestricted.md"
 
+[mcp_servers.burp]
+command = 'jre\bin\java.exe'
+args = [
+    "-jar",
+    'mcp-proxy.jar',
+    "--sse-url",
+    "http://127.0.0.1:9876"
+]
+startup_timeout_sec = 30
+tool_timeout_sec = 120
+default_tools_approval_mode = "approve"
+
+
+[mcp_servers.chrome-devtools]
+command = "npx.cmd"
+args = [
+    "-y",
+    "chrome-devtools-mcp@latest",
+    "--autoConnect",
+    "--no-usage-statistics",
+    "--no-performance-crux"
+]
+startup_timeout_sec = 60
+tool_timeout_sec = 120
+default_tools_approval_mode = "approve"
+enabled = true
+
+
+[mcp_servers.tscanplus]
+command = 'TscanPlus'
+args = [
+    "mcp",
+    "stdio"
+]
+startup_timeout_sec = 60
+tool_timeout_sec = 300
+default_tools_approval_mode = "approve"
