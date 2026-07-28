@@ -13,10 +13,10 @@ supports_websockets = false
 
 
 [mcp_servers.burp]
-command = 'jre\bin\java.exe'
+command = '【绝对路径】\\java.exe'
 args = [
     "-jar",
-    'mcp-proxy.jar',
+    '【绝对路径】\\mcp-proxy.jar',
     "--sse-url",
     "http://127.0.0.1:9876"
 ]
@@ -38,14 +38,3 @@ startup_timeout_sec = 60
 tool_timeout_sec = 120
 default_tools_approval_mode = "approve"
 enabled = true
-
-
-[mcp_servers.tscanplus]
-command = 'TscanPlus'
-args = [
-    "mcp",
-    "stdio"
-]
-startup_timeout_sec = 60
-tool_timeout_sec = 300
-default_tools_approval_mode = "approve"

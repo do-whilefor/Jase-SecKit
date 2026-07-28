@@ -2,10 +2,10 @@
   "mcpServers": {
     "burp": {
       "type": "stdio",
-      "command": "java.exe",
+      "command": "【绝对路径】\\java.exe",
       "args": [
         "-jar",
-        "mcp-proxy.jar",
+        "【绝对路径】\\mcp-proxy.jar",
         "--sse-url",
         "http://127.0.0.1:9876"
       ]

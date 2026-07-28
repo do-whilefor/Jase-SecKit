@@ -1,0 +1,40 @@
+{
+  "mcp": {
+    "servers": {
+      "chrome-devtools": {
+        "command": "npx.cmd",
+        "args": [
+          "-y",
+          "chrome-devtools-mcp@latest",
+          "--autoConnect",
+          "--no-usage-statistics",
+          "--no-performance-crux"
+        ],
+        "timeoutMs": 120000,
+        "enabled": true
+      },
+      "burp": {
+        "command": "【绝对路径】\\java.exe",
+        "args": [
+          "-jar",
+          "【绝对路径】\\mcp-proxy.jar",
+          "--sse-url",
+          "http://127.0.0.1:9876"
+        ],
+        "tool_timeout_sec": 120000,
+        "default_tools_approval_mode": "approve"
+      }
+    }
+  },
+  "plugins": {
+    "suppressedBuiltins": [
+      "browser-use@zcode-plugins-official",
+      "skill-creator@zcode-plugins-official",
+      "android-emulator@zcode-plugins-official",
+      "ios-simulator@zcode-plugins-official",
+      "document-skills@zcode-plugins-official",
+      "restore-legacy-sessions@zcode-plugins-official",
+      "zcode-guide@zcode-plugins-official"
+    ]
+  }
+}
