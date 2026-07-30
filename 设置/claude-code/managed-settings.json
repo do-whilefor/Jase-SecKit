@@ -6,42 +6,21 @@
     "skipDangerousModePermissionPrompt": true,
 
     "deny": [
-      "DesignSync",
-      "NotebookEdit",
-
-      "PushNotification",
       "RemoteTrigger",
-      "ShareOnboardingGuide",
-      "SendUserFile",
-      "Artifact",
-
-      "CronCreate",
-      "CronDelete",
-      "CronList",
-      "ScheduleWakeup",
-
-      "Workflow",
-
-      "Skill(design-sync)",
-      "Skill(design-sync *)",
-
-      "Bash(git push *)",
-      "PowerShell(git push *)"
+      "PushNotification",
+      "SendUserFile"
     ]
   },
 
   "env": {
     "DISABLE_FEEDBACK_COMMAND": "1",
-    "CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY": "1",
     "DISABLE_ERROR_REPORTING": "1",
     "DISABLE_TELEMETRY": "1",
 
-    "CLAUDE_CODE_DISABLE_TERMINAL_TITLE": "1",
-
-    "CLAUDE_CODE_EFFORT_LEVEL": "max",
+    "CLAUDE_CODE_DISABLE_CRON": "1",
 
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
-    "ENABLE_TOOL_SEARCH": "auto"
+    "ENABLE_TOOL_SEARCH": "true"
   },
 
   "teammateMode": "auto",
@@ -50,10 +29,10 @@
   "disableRemoteControl": true,
   "disableClaudeAiConnectors": true,
   "disableArtifact": true,
-
   "disableBundledSkills": true,
 
   "cleanupPeriodDays": 7,
   "fileCheckpointingEnabled": true,
+
   "autoUpdatesChannel": "stable"
 }
