@@ -39,7 +39,7 @@ JaseSkills 是一套面向 AI 辅助渗透测试与漏洞研究的安全 Skill �
 ```cmd
 git add -A -- .
 git status --short
-git commit -m "Update skills"
+git commit -m "更新说明"
 git pull --rebase origin main
 git push origin main
 git status
