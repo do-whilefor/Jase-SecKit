@@ -1,5 +1,5 @@
 ---
-name: web-vulnhunt
+name: Web-Vulnhunt
 description: Authorized security testing methodology for web apps, APIs, multi-tenant SaaS, Spring Boot / Cloud Gateway stacks, FIDO/WebAuthn passwordless auth, mobile backends, and OAuth/SSO integrations. Use whenever the user asks to test, probe, scan, find vulnerabilities in, or pentest any web service — including bug bounty engagements, authorized pentests, CTF challenges, post-patch re-verification, CVSS scoring, subdomain/asset discovery, WAF/auth-filter bypass, **authorization bypass / IDOR / broken access control / missing @PreAuthorize / privilege escalation** testing, FIDO2/UAF testing, token-chain analysis, or writing vulnerability reports. Also triggers on the words "AcmeAuth", "Keycloak", "Okta", "PingFederate", "Auth0", or any passwordless-auth vendor. This is a defensive skill for authorized work only — always confirm scope before any active test.
 ---
 
