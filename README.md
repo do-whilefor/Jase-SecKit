@@ -1,3 +1,4 @@
+<div align="center">
 # JaseSkills
 
 > 面向授权漏洞赏金、安全研究与 AI 辅助渗透测试的 Skills、约束文件、Prompt 和 MCP 配置集合。
@@ -9,9 +10,8 @@
 
 `JaseSkills` 是一个面向漏洞赏金、授权 Web 安全测试和 AI 辅助漏洞研究的个人仓库。
 
-本仓库并非简单收集互联网上已有的 Security Skills，而是对公开漏洞赏金 Skills 和安全研究资料进行重新整理、精简、转译与工程化改造：删除重复或低价值内容，移除面向 Word 报告自动生成的冗余模块，统一英文 Skill 内容，同时补充全局行为约束、状态文件机制、Prompt 以及 Burp MCP、Chrome DevTools MCP 的使用配置。
+本仓库对公开漏洞赏金 Skills 和安全研究资料进行重新整理、精简、转译与工程化改造：删除重复或低价值内容，移除面向 Word 报告自动生成的冗余模块，统一英文 Skill 内容，同时补充全局行为约束、状态文件机制、Prompt 以及 Burp MCP、Chrome DevTools MCP 的使用配置。
 
-项目的核心目标不是让大模型机械执行一套固定流水线，而是为模型提供必要的方法提示、工具能力、证据要求和行为边界，使其在授权范围内保持发散思考，同时避免脱离真实证据、依赖记忆猜测、过早确认漏洞或执行越界操作。
 
 ## 核心原则
 
@@ -40,7 +40,7 @@
 
 ### 2. 提供全局 Agent 约束
 
-`约束文件/AGENTS.md` 与 `约束文件/CLAUDE.md` 分别提供中文和英文版本的全局安全测试约束。
+`约束文件/AGENTS.md` 提供中文和英文版本的全局安全测试约束。
 
 约束文件主要用于：
 
@@ -108,35 +108,8 @@ JaseSkills/
 └── LICENSE
 ```
 
-## 核心 Skill
-
-### Pentest-Lyan
-
-`SKILL/Pentest-Lyan/` 是一套面向授权 Web 渗透测试的完整 Skill，主要特征包括：
-
-- 自主威胁建模，而不是仅依赖固定漏洞清单。
-- Discovery、Module Loop、Audit 三阶段工作流。
-- 使用 JSON Schema 校验状态文件和派生结果。
-- 强制动态验证、业务影响验证和证据外置。
-- 通过 `gates.md` 控制阶段转换与报告门禁。
-- 使用独立会话、角色矩阵、对象归属和状态差异验证越权及业务逻辑问题。
-- 对未排除的攻击面保留 `unruled_out`，避免用“已覆盖”掩盖验证不足。
-
-该 Skill 适合需要较强流程控制、持续状态记录和完整证据审计的任务。
-
-### security-hunt
-
-`SKILL/security-hunt/` 是一套轻量、单入口、渐进加载的漏洞研究 Skill。
-
-它以 `/security-hunt` 作为唯一用户入口，由模型根据最早出现的安全语义差异自动选择内部模块。当前设计包括 7 个内部模块与 32 个 Profile，覆盖输入链、规范化差异、身份与令牌、跨通道状态、业务状态机、密码学语义以及系统边界等方向。
-
-该 Skill 不会将所有知识模块暴露为并列命令，而是按证据跨越的边界逐步加载，适合减少上下文占用并保留模型的自主路由能力。
-
 ## 全局约束与黑板机制
 
-建议将约束文件与 Skill 分开理解：
-
-- Skill 负责提供方法、流程、检查维度和可复用知识。
 - 全局约束负责定义允许做什么、何时可以确认漏洞、如何保存状态以及何时终止分支。
 - Prompt 负责根据当前目标改变模型的关注点和推理方向。
 - MCP 负责提供真实的浏览器与 HTTP 交互能力。
@@ -164,7 +137,7 @@ JaseSkills/
 Claude Code 示例配置位于：
 
 ```text
-设置/claude-code/managed-mcp.json
+/claude-code/managed-mcp.json
 ```
 
 使用前需要修改：
@@ -220,39 +193,7 @@ git clone https://github.com/do-whilefor/JaseSkills.git
 cd JaseSkills
 ```
 
-### 2. 选择使用模式
-
-强模型建议优先采用：
-
-```text
-全局约束 + 当前任务 Prompt + 必要的单个 Skill + MCP
-```
-
-较弱模型或容易遗漏步骤的模型，可以采用：
-
-```text
-全局约束 + 完整 Skill 工作流 + 状态文件 + MCP
-```
-
-不建议一次性加载仓库内全部 Skills、References 和规则。应根据任务选择最小必要集合，以减少上下文竞争和机械化执行。
-
-### 3. 安装 Skill
-
-将需要的 Skill 目录复制到目标客户端支持的 Skills 目录中。例如，只安装：
-
-```text
-SKILL/Pentest-Lyan/
-```
-
-或：
-
-```text
-SKILL/security-hunt/
-```
-
-不要只复制单个 `SKILL.md`，除非已经确认该 Skill 不依赖 `references/`、`scripts/`、`schema/`、`framework/`、`profiles/` 或其他相对路径文件。
-
-### 4. 配置全局约束
+### 2. 配置全局约束
 
 根据客户端选择：
 
@@ -261,7 +202,7 @@ SKILL/security-hunt/
 
 不建议直接覆盖已有全局规则。应检查冲突项后进行合并，并确保授权范围、状态文件路径和工具权限符合实际环境。
 
-### 5. 配置 MCP
+### 3. 配置 MCP
 
 从 `设置/` 中选择对应客户端的配置作为参考，替换本机路径和服务地址，再验证：
 
@@ -337,13 +278,14 @@ SKILL/security-hunt/
 
 提交修改时建议：
 
-- 删除重复和失效内容，避免重新堆积大型上下文。
-- 新增 Skill 时说明适用场景、依赖文件、入口方式和安全边界。
-- 将通用验证、证据和状态规则保留在统一位置，避免模块之间重复复制。
-- 对第三方内容保留来源、作者和原始许可证信息。
-- 配置文件不得提交真实 Token、Cookie、账号、私钥、内部地址或个人路径。
-- 对实验性 MCP 参数注明版本和兼容性。
-- 不以漏洞数量、名称或理论上限替代真实影响验证。
+```cmd
+git add -A -- .
+git status --short
+git commit -m "更新说明"
+git pull --rebase origin main
+git push origin main
+git status
+```
 
 ## License
 
