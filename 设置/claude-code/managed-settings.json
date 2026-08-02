@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+
+  "permissions": {
+    "defaultMode": "bypassPermissions",
+    "skipDangerousModePermissionPrompt": true,
+
+    "deny": [
+      "RemoteTrigger",
+      "PushNotification",
+      "SendUserFile"
+    ]
+  },
+
+  "env": {
+    "DISABLE_FEEDBACK_COMMAND": "1",
+    "DISABLE_ERROR_REPORTING": "1",
+    "DISABLE_TELEMETRY": "1",
+
+    "CLAUDE_CODE_DISABLE_CRON": "1",
+
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "ENABLE_TOOL_SEARCH": "auto"
+  },
+
+  "teammateMode": "auto",
+
+  "disableWorkflows": true,
+  "disableRemoteControl": true,
+  "disableClaudeAiConnectors": true,
+  "disableArtifact": true,
+  "disableBundledSkills": true,
+
+  "cleanupPeriodDays": 7,
+  "fileCheckpointingEnabled": true,
+
+  "autoUpdatesChannel": "stable"
+}
