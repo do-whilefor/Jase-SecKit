@@ -109,7 +109,7 @@ Tested against `/cc/api/email/send/template` (SSTI target) and `/actuator/env`.
 |---|---|---|---|---|
 | **Time-based** — MySQL `SLEEP(5)`, `BENCHMARK(...)`, versioned hint `/*!50000SLEEP*/`; PG `pg_sleep(5)`; MSSQL `WAITFOR DELAY '0:0:5'`; case-fold `AdMiN'+SlEeP(5)+'`; inline-comment `/**/`; newline `%0a`; whitespace `%20` | `uid` param, FIDO2 `username`/`displayName`, audit `sortBy/orderBy/filter/q/search` | BLOCKED (WAF 403 ~0.75s, no delay) | WAF blocks time primitives pre-app; backend uses parameterized JPA |
 | **Error-based** — `extractvalue()`, `updatexml()`, double-query, `cast`/`convert` | FIDO2 fields, `uid` | no SQLException signature | parameterized queries |
-| **Boolean-based** — `' OR '1'='1`, `' OR '1'='2`, `' UNION SELECT 1--`, `; DROP TABLE users--`, `" OR "1"="1` | `uid` (12 distinct usernames incl. negative control), FIDO2 `username` | no size/status differential | ORM parameterization; no existence oracle |
+| **Boolean-based** — `' OR '1'='1`, `' OR '1'='2`, `' UNION SELECT 1--`,  `" OR "1"="1` | `uid` (12 distinct usernames incl. negative control), FIDO2 `username` | no size/status differential | ORM parameterization; no existence oracle |
 | **SCIM filter injection** — 23 payloads incl. `userName eq "admin"`, UNION, stacked, time-based, JNDI `${jndi:ldap://x}`, SSTI `{{7*7}}`, cmd-sub `$(whoami)`, `` `whoami` `` | `/cc/api/<x>?filter=` on every CC host | byte-identical 400/116 `InvalidRequestParamProblem` for ALL 23 | global static edge `filter`-validator — no parser to inject into |
 | bare quotes, backslash, `*`, `%`, `${jndi:ldap://x}`, `{{7*7}}`, `%00` | `uid` | identical 200/86-byte baseline | `uid` is non-interpolated lookup key (K/V or document store) |
 

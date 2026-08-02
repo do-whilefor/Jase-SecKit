@@ -34,7 +34,7 @@ TENANTS=(
 # Persistence primitive still live (AcmeAuth F8 example).
 # Used to mint a fresh token and prove the issuance surface wasn't touched.
 # Leave empty to skip.
-INSTALL_TOKEN=""  # e.g. "hypws-41ae1881-e0e3-4f64-b6e7-5a2b22283bb6"
+INSTALL_TOKEN=""  # e.g. "hypws-token"
 INSTALL_URL_FMT="https://%s/rp/token/endpoint/exchange/installtoken"
 INSTALL_BODY='{"wsinstallToken":{"token":"'"$INSTALL_TOKEN"'","machineId":"retest","rpAppId":"AcmeAuthDefaultWorkstationApplication"}}'
 
@@ -44,7 +44,6 @@ ENDPOINTS=(
   "GET|/cc/api/acmeauth/idp/integrations/configured|F5 keycloakSecret leak"
   "GET|/cc/api/idp/integration/enablement?rpAppId=ZZFAKE|F7 enablement read"
   "POST|/cc/api/idp/suspend/ZZFAKE|F7 suspend SSO"
-  "DELETE|/cc/api/idp/integration/ZZFAKE?rpAppId=ZZFAKE|F9 delete SSO"
   "GET|/cc/api/support/allowed?email=nobody@nowhere.com|F7 support check"
 )
 

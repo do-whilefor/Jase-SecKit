@@ -61,7 +61,7 @@ for path, ops in spec.get("paths", {}).items():
     if not path.startswith(prefix):
         continue
     for method in ops:
-        if method.lower() in ("get","post","put","patch","delete","head","options"):
+        if method.lower() in ("get","post","put","patch","head","options"):
             print(f"{method.upper()}\t{path}")
 PY
 
