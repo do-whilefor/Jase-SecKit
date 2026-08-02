@@ -188,14 +188,7 @@ http://127.0.0.1:9876
 
 ## 使用方式
 
-### 1. 克隆仓库
-
-```bash
-git clone https://github.com/do-whilefor/JaseSkills.git
-cd JaseSkills
-```
-
-### 2. 配置全局约束
+### 1. 配置全局约束
 
 根据客户端选择：
 
@@ -204,7 +197,7 @@ cd JaseSkills
 
 不建议直接覆盖已有全局规则。应检查冲突项后进行合并，并确保授权范围、状态文件路径和工具权限符合实际环境。
 
-### 3. 配置 MCP
+### 2. 配置 MCP
 
 从 `设置/` 中选择对应客户端的配置作为参考，替换本机路径和服务地址，再验证：
 
@@ -214,7 +207,7 @@ cd JaseSkills
 - 当前浏览器会话是否为复用会话或隔离会话。
 - 实验性参数是否被当前版本支持。
 
-### 4. 使用 Prompt
+### 3. 使用 Prompt
 
 不要将 `Prompt.md` 原样用于所有目标。建议按任务替换目标、范围、环境、账号、禁止事项和期望输出，并与全局约束配合使用。
 
@@ -283,7 +276,7 @@ cd JaseSkills
 ```cmd
 git add -A -- .
 git status --short
-git commit -m "更新说明"
+git commit -m "更新Prompt"
 git pull --rebase origin main
 git push origin main
 git status
