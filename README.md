@@ -276,7 +276,7 @@ http://127.0.0.1:9876
 ```cmd
 git add -A -- .
 git status --short
-git commit -m "更新Prompt"
+git commit -m "更新说明"
 git pull --rebase origin main
 git push origin main
 git status
