@@ -1,18 +1,18 @@
-<div align="center">、
+<h1 align="center">JaseSkills</h1>
 
-# JaseSkills
+<p align="center">面向授权漏洞赏金、安全研究与 AI 辅助渗透测试的 Skills、约束文件、Prompt 和 MCP 配置集合。</p>
 
-> 面向授权漏洞赏金、安全研究与 AI 辅助渗透测试的 Skills、约束文件、Prompt 和 MCP 配置集合。
-
-[![Scope](https://img.shields.io/badge/Scope-Authorized%20Security%20Research-blue)](#使用边界)
-[![Skills](https://img.shields.io/badge/Skills-Claude%20Code%20%7C%20Codex-6f42c1)](#仓库内容)
-[![MCP](https://img.shields.io/badge/MCP-Burp%20%7C%20Chrome-success)](#mcp-与浏览器配置)
-[![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
+<p align="center">
+  <a href="#使用边界"><img src="https://img.shields.io/badge/Scope-Authorized%20Security%20Research-blue" alt="Scope: Authorized Security Research"></a>
+  <a href="#仓库内容"><img src="https://img.shields.io/badge/Skills-Claude%20Code%20%7C%20Codex-6f42c1" alt="Skills: Claude Code and Codex"></a>
+  <a href="#mcp-与浏览器配置"><img src="https://img.shields.io/badge/MCP-Burp%20%7C%20Chrome-success" alt="MCP: Burp and Chrome"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow" alt="License: MIT"></a>
+</p>
 
 `JaseSkills` 是一个面向漏洞赏金、授权 Web 安全测试和 AI 辅助漏洞研究的个人仓库。
 
 本仓库对公开漏洞赏金 Skills 和安全研究资料进行重新整理、精简、转译与工程化改造：删除重复或低价值内容，移除面向 Word 报告自动生成的冗余模块，统一英文 Skill 内容，同时补充全局行为约束、状态文件机制、Prompt 以及 Burp MCP、Chrome DevTools MCP 的使用配置。
-</div>
+
 ---
 
 ## 核心原则
@@ -214,7 +214,7 @@ cd JaseSkills
 - 当前浏览器会话是否为复用会话或隔离会话。
 - 实验性参数是否被当前版本支持。
 
-### 6. 使用 Prompt
+### 4. 使用 Prompt
 
 不要将 `Prompt.md` 原样用于所有目标。建议按任务替换目标、范围、环境、账号、禁止事项和期望输出，并与全局约束配合使用。
 
