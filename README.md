@@ -1,4 +1,4 @@
-<h1 align="center">JaseSkills</h1>
+<h1 align="center">Jase-SecKit</h1>
 
 <p align="center">面向授权漏洞赏金、安全研究与 AI 辅助渗透测试的 Skills、约束文件、Prompt 和 MCP 配置集合。</p>
 
@@ -9,7 +9,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow" alt="License: MIT"></a>
 </p>
 
-`JaseSkills` 是一个面向漏洞赏金、授权 Web 安全测试和 AI 辅助漏洞研究的个人仓库。
+`Jase-SecKit` 是一个面向漏洞赏金、授权 Web 安全测试和 AI 辅助漏洞研究的个人仓库。
 
 本仓库对公开漏洞赏金 Skills 和安全研究资料进行重新整理、精简、转译与工程化改造：删除重复或低价值内容，移除面向 Word 报告自动生成的冗余模块，统一英文 Skill 内容，同时补充全局行为约束、状态文件机制、Prompt 以及 Burp MCP、Chrome DevTools MCP 的使用配置。
 
@@ -86,7 +86,7 @@ Prompt 更适合作为阶段性引导。可结合全局约束文件使用，在�
 ## 仓库内容
 
 ```text
-JaseSkills/
+Jase-SecKit/
 ├── SKILL/
 │   ├── Pentest-Lyan/              # 自主 Web 渗透测试、状态文件与动态验证工作流
 │   ├── security-hunt/             # 单入口漏洞研究 Skill，按模块与 Profile 渐进加载
