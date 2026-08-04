@@ -154,7 +154,7 @@ curl -s -X POST "https://tenant-001.cdn.acmeauth.example/rp/versioned/device/set
   -H 'Content-Type: application/json' \
   -d '{"version":4,"pin":"77019d97...","mobileType":"ANDROID","actionId":""}'
 # {"status":{"responseCode":200,"responseMessage":"PIN match successful"},
-#  "response":{"machineUserName":"w1th0ut2356@gmail.com","sessionType":"MAGIC_LINK","sessionId":"76a2bb6b..."}}
+#  "response":{"machineUserName":"@gmail.com","sessionType":"MAGIC_LINK","sessionId":"76a2bb6b..."}}
 ```
 
 ### Token-oracle and PIN-replay tests
