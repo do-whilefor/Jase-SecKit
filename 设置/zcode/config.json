@@ -18,7 +18,12 @@
           "--category-experimental-third-party",
           "--allow-unrestricted-paths",
           "--no-usage-statistics",
-          "--no-performance-crux"
+          "--no-performance-crux",
+
+          "--screenshot-format=webp",
+          "--screenshot-quality=85",
+          "--screenshot-max-width=1920",
+          "--screenshot-max-height=1080"
         ],
         "timeoutMs": 120000,
         "enabled": true
