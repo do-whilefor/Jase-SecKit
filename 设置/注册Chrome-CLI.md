@@ -1,0 +1,1 @@
+claude mcp add chrome-devtools -- npx -y chrome-devtools-mcp@latest --autoConnect --channel=stable

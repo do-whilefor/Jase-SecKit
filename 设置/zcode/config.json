@@ -28,7 +28,8 @@
           "--category-experimental-third-party",
           "--allow-unrestricted-paths",
           "--no-usage-statistics",
-          "--no-performance-crux"
+          "--no-performance-crux",
+          "--category-extensions"
         ],
         "timeoutMs": 120000,
         "enabled": true
