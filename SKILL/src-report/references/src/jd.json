@@ -1,0 +1,712 @@
+{
+  "id": "jd",
+  "version": "2026-10-03.1",
+  "verified_at": "2026-10-03",
+  "source_urls": [
+    "https://security.jd.com/#/submitBug"
+  ],
+  "notes": [
+    "基于 SRC提交字段汇总.md 中 2026-10-03 通过 Chrome MCP 采集的页面记录；本配置未重新读取在线页面。",
+    "required=true 仅表示页面必填标记；required=null 表示未标记，不等于确认可空。未实际提交表单或验证服务端规则。",
+    "没有配置长度、格式、数量或其他规则时，表示没有已验证的规则；不能推导为后台无限制。",
+    "枚举记录采集当时的页面选项，可能变化；不得为了通过校验而将未知值强行映射为已有分类。",
+    "敏感值仅在受控原件定位；分享产物用一致代号或人工补填，脱敏请求不能假定可以直接重放。",
+    "已检查四种危害类型与 FLAG 的 SSRF/RCE 分支；未遍历部门、活动和漏洞类型的全部组合。",
+    "SQL 注入漏洞需补充数据库名作为证明；同站多个漏洞建议分别提交，否则页面说明仅计算一次奖励。数据库名缺证据时保留缺口。",
+    "评分细则、协议和 FLAG 指南全文未核对；引用链接不代表已验证其中规则。"
+  ],
+  "groups": {
+    "test_ips": {
+      "label": "测试源IP（可重复组）",
+      "min_items": 1
+    },
+    "test_accounts": {
+      "label": "测试账号（账号/密码可重复组）",
+      "min_items": 1
+    },
+    "request_packets": {
+      "label": "数据请求包与危害信息（可重复组）",
+      "min_items": 1
+    },
+    "flag": {
+      "label": "可选 FLAG 自动化验证模块（受账号权限控制）",
+      "min_items": 0
+    }
+  },
+  "fields": [
+    {
+      "id": "title",
+      "label": "漏洞名称",
+      "kind": "text",
+      "required": true,
+      "map_from": "根据受影响业务、漏洞类型与已观察危害拟定客观标题",
+      "notes": "页面占位： 【***活动】京东***系统存在***漏洞（危害描述：可以查询***条敏感信息）。示例规模不代表需要或已经证明该规模。"
+    },
+    {
+      "id": "department",
+      "label": "公司部门",
+      "kind": "select",
+      "required": true,
+      "map_from": "已确认业务归属；无法确认时留缺口",
+      "options": [
+        "京东",
+        "一号店",
+        "京东科技",
+        "京东到家",
+        "京东风控",
+        "京东物流",
+        "五星电器",
+        "京东保险",
+        "京东工业",
+        "京东健康",
+        "京喜",
+        "京东零售",
+        "达达",
+        "京东创新零售",
+        "京东云鼎",
+        "京东反爬",
+        "数据泄露",
+        "京东AI",
+        "京东国际"
+      ],
+      "notes": "京东风控：优惠券配置错误、0元购物等；京东AI：大模型提示词注入等；京东反爬：爬虫问题；数据泄露：暗网/TG贩卖信息等情报。"
+    },
+    {
+      "id": "domain",
+      "label": "域名",
+      "kind": "text",
+      "required": true,
+      "map_from": "受影响前端域名",
+      "notes": "请输入发现漏洞的前端域名；不把推断的域名写成已验证资产。"
+    },
+    {
+      "id": "severity",
+      "label": "自评等级",
+      "kind": "select",
+      "required": true,
+      "map_from": "基于证据的自评等级，缺少评级依据时请求人工确认",
+      "options": [
+        "低危",
+        "中危",
+        "高危",
+        "严重"
+      ],
+      "notes": "仅保留选项；未展开评级细则，不能依据平台未核对的标准自动确定等级。"
+    },
+    {
+      "id": "activity",
+      "label": "SRC活动",
+      "kind": "select",
+      "required": true,
+      "map_from": "用户确认的活动",
+      "options": [
+        "无",
+        "通用漏洞活动",
+        "双十一国内业务专测"
+      ],
+      "notes": "读取时默认“无”；默认值不等于用户已选择，不能自动声称属于某活动。"
+    },
+    {
+      "id": "vulnerability_type",
+      "label": "漏洞类型",
+      "kind": "cascade",
+      "required": true,
+      "map_from": "依据已确认漏洞机理选择分类路径",
+      "option_paths": [
+        [
+          "WEB漏洞",
+          "CSRF"
+        ],
+        [
+          "WEB漏洞",
+          "文件包含"
+        ],
+        [
+          "WEB漏洞",
+          "URL跳转"
+        ],
+        [
+          "WEB漏洞",
+          "其它"
+        ],
+        [
+          "WEB漏洞",
+          "XXE注入"
+        ],
+        [
+          "WEB漏洞",
+          "文件读取"
+        ],
+        [
+          "WEB漏洞",
+          "JSON劫持"
+        ],
+        [
+          "WEB漏洞",
+          "SSRF"
+        ],
+        [
+          "WEB漏洞",
+          "通用组件"
+        ],
+        [
+          "WEB漏洞",
+          "目录遍历"
+        ],
+        [
+          "WEB漏洞",
+          "管理后台对外"
+        ],
+        [
+          "WEB漏洞",
+          "CRLF"
+        ],
+        [
+          "WEB漏洞",
+          "CORS劫持"
+        ],
+        [
+          "WEB漏洞",
+          "内容注入"
+        ],
+        [
+          "WEB漏洞",
+          "第三方应用系统"
+        ],
+        [
+          "PC客户端漏洞",
+          "任意代码执行"
+        ],
+        [
+          "PC客户端漏洞",
+          "溢出"
+        ],
+        [
+          "PC客户端漏洞",
+          "内核提取"
+        ],
+        [
+          "PC客户端漏洞",
+          "其它"
+        ],
+        [
+          "移动及IOT智能",
+          "智能设备"
+        ],
+        [
+          "移动及IOT智能",
+          "移动客户端"
+        ],
+        [
+          "移动及IOT智能",
+          "本地代码执行"
+        ],
+        [
+          "移动及IOT智能",
+          "组件拒绝服务漏洞"
+        ],
+        [
+          "移动及IOT智能",
+          "接口越权"
+        ],
+        [
+          "移动及IOT智能",
+          "本地文件权限设置不当"
+        ],
+        [
+          "移动及IOT智能",
+          "本地敏感数据明文存储"
+        ],
+        [
+          "移动及IOT智能",
+          "敏感数据明文传输"
+        ],
+        [
+          "移动及IOT智能",
+          "敏感信息泄露"
+        ],
+        [
+          "移动及IOT智能",
+          "其它"
+        ],
+        [
+          "移动及IOT智能",
+          "android"
+        ],
+        [
+          "移动及IOT智能",
+          "小程序"
+        ],
+        [
+          "服务器漏洞",
+          "远程代码执行"
+        ],
+        [
+          "服务器漏洞",
+          "疑似入侵"
+        ],
+        [
+          "服务器漏洞",
+          "其它"
+        ],
+        [
+          "服务器漏洞",
+          "SSH弱口令"
+        ],
+        [
+          "服务器漏洞",
+          "配置缺陷"
+        ],
+        [
+          "服务器漏洞",
+          "系统命令注入"
+        ],
+        [
+          "服务器漏洞",
+          "权限提升"
+        ],
+        [
+          "服务器漏洞",
+          "服务未授权"
+        ],
+        [
+          "服务器漏洞",
+          "通用口令"
+        ],
+        [
+          "服务器漏洞",
+          "后门远控"
+        ],
+        [
+          "服务器漏洞",
+          "逃逸漏洞"
+        ],
+        [
+          "服务器漏洞",
+          "服务组件弱口令"
+        ],
+        [
+          "服务器漏洞",
+          "高危端口"
+        ],
+        [
+          "其它",
+          "其它"
+        ],
+        [
+          "技术情报",
+          "0day"
+        ],
+        [
+          "技术情报",
+          "入侵行为及事件"
+        ],
+        [
+          "技术情报",
+          "蠕虫/木马及病毒"
+        ],
+        [
+          "技术情报",
+          "新型利用方法"
+        ],
+        [
+          "技术情报",
+          "规则绕过"
+        ],
+        [
+          "技术情报",
+          "可利用工具"
+        ],
+        [
+          "技术情报",
+          "钓鱼事件"
+        ],
+        [
+          "技术情报",
+          "拒绝服务与劫持"
+        ],
+        [
+          "业务情报",
+          "威胁组织"
+        ],
+        [
+          "业务情报",
+          "账号相关"
+        ],
+        [
+          "业务情报",
+          "违规营销"
+        ],
+        [
+          "业务情报",
+          "价格异常"
+        ],
+        [
+          "业务情报",
+          "资产/套现"
+        ],
+        [
+          "业务情报",
+          "第三方/合作厂商"
+        ],
+        [
+          "业务情报",
+          "网盘泄漏"
+        ],
+        [
+          "业务情报",
+          "GitHub信息泄漏"
+        ],
+        [
+          "业务情报",
+          "暗网贩卖数据"
+        ],
+        [
+          "AI漏洞",
+          "提示词注入"
+        ],
+        [
+          "AI漏洞",
+          "提示词泄漏"
+        ],
+        [
+          "AI漏洞",
+          "模型窃取"
+        ],
+        [
+          "AI漏洞",
+          "模型投毒"
+        ],
+        [
+          "AI漏洞",
+          "模型资源消耗"
+        ],
+        [
+          "AI漏洞",
+          "其他AI漏洞"
+        ]
+      ],
+      "incomplete_paths": [
+        [
+          "WEB漏洞",
+          "SQL注入"
+        ],
+        [
+          "WEB漏洞",
+          "上传漏洞"
+        ],
+        [
+          "WEB漏洞",
+          "信息泄露"
+        ],
+        [
+          "WEB漏洞",
+          "逻辑漏洞"
+        ],
+        [
+          "WEB漏洞",
+          "权限绕过"
+        ],
+        [
+          "WEB漏洞",
+          "登录认证缺陷"
+        ],
+        [
+          "WEB漏洞",
+          "弱口令"
+        ],
+        [
+          "WEB漏洞",
+          "执行类漏洞"
+        ],
+        [
+          "WEB漏洞",
+          "XSS漏洞"
+        ],
+        [
+          "爬虫报告",
+          "无限制访问接口"
+        ],
+        [
+          "爬虫报告",
+          "访问行为识别绕过"
+        ],
+        [
+          "爬虫报告",
+          "安全防护技术破解"
+        ]
+      ],
+      "notes": "已核对一级和二级；incomplete_paths 是必须继续选三级的前缀，尚非叶子，三级未完整核对。不得将前缀当作最终分类或补造三级枚举。"
+    },
+    {
+      "id": "test_ip",
+      "label": "测试源IP",
+      "kind": "text",
+      "required": true,
+      "map_from": "实际测试源 IP，允许受控原件定位或人工补填",
+      "group": "test_ips",
+      "notes": "可添加多组；未确认格式、字数或组数上限。"
+    },
+    {
+      "id": "test_account",
+      "label": "测试账号：账号",
+      "kind": "text",
+      "required": true,
+      "map_from": "该测试身份的一致代号或受控账号定位",
+      "group": "test_accounts",
+      "max_length": 50,
+      "notes": "越权类漏洞页面要求至少两个测试账号；无需登录可填“无需账号”。这不证明密码框可以留空。"
+    },
+    {
+      "id": "test_password",
+      "label": "测试账号：密码",
+      "kind": "text",
+      "required": true,
+      "map_from": "对应身份密码的受控原件定位/人工补填",
+      "group": "test_accounts",
+      "max_length": 50,
+      "manual": true,
+      "notes": "页面普通文本框且所在表单项 is-required；分享产物不输出真实密码。无需登录时如何填写未确认。"
+    },
+    {
+      "id": "request_packet",
+      "label": "数据请求包1",
+      "kind": "multiline",
+      "required": true,
+      "map_from": "该请求的完整结构化内容（分享版脱敏）及受控原件定位",
+      "group": "request_packets",
+      "max_length": 60000,
+      "notes": "“1”为第一组显示序号；每组含危害类型和漏洞危害描述。涉及网络请求需完整POST/GET数据；组合漏洞拆分多组。"
+    },
+    {
+      "id": "harm_type",
+      "label": "危害类型",
+      "kind": "select",
+      "required": true,
+      "map_from": "该请求证据支持的危害类型",
+      "group": "request_packets",
+      "options": [
+        "入侵危害",
+        "盗号危害",
+        "数据泄露危害",
+        "其他危害"
+      ]
+    },
+    {
+      "id": "impact_description",
+      "label": "漏洞危害描述",
+      "kind": "multiline",
+      "required": true,
+      "map_from": "该请求已观察的影响与范围，明确证据边界",
+      "group": "request_packets",
+      "max_length": 200,
+      "notes": "页面占位含“****条敏感信息”；未观察的规模不能由示例或脚本循环推断。"
+    },
+    {
+      "id": "core_network",
+      "label": "是否核心内网",
+      "kind": "select",
+      "required": true,
+      "map_from": "证明内网范围的事实；不足时待确认",
+      "group": "request_packets",
+      "when": {
+        "field": "harm_type",
+        "equals": "入侵危害"
+      },
+      "options": [
+        "是",
+        "否"
+      ],
+      "notes": "展开时“否”已选；默认不构成范围判断，选择“是”或“否”均显示网段证明截图。"
+    },
+    {
+      "id": "network_screenshots",
+      "label": "网段证明截图",
+      "kind": "attachments",
+      "required": null,
+      "map_from": "当前请求组的网段证明截图材料",
+      "group": "request_packets",
+      "when": {
+        "field": "harm_type",
+        "equals": "入侵危害"
+      },
+      "max_items": 3,
+      "extensions": [
+        ".jpg",
+        ".jpeg",
+        ".png",
+        ".gif",
+        ".webp"
+      ],
+      "size_limit": {
+        "label": "单个文件不超过 1M",
+        "bytes": 1000000,
+        "inclusive": true,
+        "basis": "conservative_decimal",
+        "scope": "per_file"
+      },
+      "notes": "JPEG/PNG/GIF/WEBP；未标必填。1M对应字节数未验证；此阈值仅为保守十进制检查，不是已确认服务器规则。"
+    },
+    {
+      "id": "account_credentials",
+      "label": "账号信息凭证",
+      "kind": "multiline",
+      "required": true,
+      "map_from": "凭证种类、脱敏说明及受控原件定位/人工补填",
+      "group": "request_packets",
+      "when": {
+        "field": "harm_type",
+        "equals": "盗号危害"
+      },
+      "max_length": 200,
+      "manual": true,
+      "notes": "页面占位：账号密码/cookie/aksk/其他。分享产物不得机械复制密码、cookie或AK/SK。"
+    },
+    {
+      "id": "steps",
+      "label": "复现步骤",
+      "kind": "richtext",
+      "required": true,
+      "map_from": "按 body_sections 组织复现正文并引用材料",
+      "notes": "一个富文本编辑器，可插入图像和代码段；无独立修复建议或通用附件控件。编辑器插图限制未确认。"
+    },
+    {
+      "id": "captcha",
+      "label": "验证码",
+      "kind": "text",
+      "required": true,
+      "map_from": "交由用户在页面获取并填写",
+      "manual": true,
+      "notes": "图片验证码支持换一张；报告生成阶段不能代为验证。"
+    },
+    {
+      "id": "agreement",
+      "label": "用户协议",
+      "kind": "boolean",
+      "required": true,
+      "map_from": "用户阅读京东安全用户协议后人工选择",
+      "manual": true,
+      "notes": "https://security.jd.com/#/protocol"
+    },
+    {
+      "id": "flag_type",
+      "label": "FLAG 类型",
+      "kind": "cascade",
+      "required": null,
+      "map_from": "仅在用户选择使用 FLAG 模块时人工选择",
+      "group": "flag",
+      "manual": true,
+      "option_paths": [
+        [
+          "入侵类",
+          "SSRF漏洞验证"
+        ],
+        [
+          "入侵类",
+          "RCE漏洞验证"
+        ]
+      ],
+      "notes": "模块受账号权限控制；本次只检查界面，未生成或验证FLAG。"
+    },
+    {
+      "id": "flag_level",
+      "label": "FLAG 级别",
+      "kind": "text",
+      "required": null,
+      "map_from": "页面系统显示",
+      "group": "flag",
+      "manual": true,
+      "read_only": true,
+      "notes": "禁用只读显示框，不需要手工填写。"
+    },
+    {
+      "id": "flag_credential",
+      "label": "FLAG 凭证",
+      "kind": "text",
+      "required": null,
+      "map_from": "页面系统显示",
+      "group": "flag",
+      "manual": true,
+      "read_only": true,
+      "notes": "禁用只读状态框，区别于“填入有效FLAG凭证”。"
+    },
+    {
+      "id": "silver_activation",
+      "label": "激活白银凭证",
+      "kind": "text",
+      "required": null,
+      "map_from": "页面系统显示；生成操作由用户人工执行",
+      "group": "flag",
+      "manual": true,
+      "read_only": true,
+      "when": {
+        "field": "flag_type",
+        "equals": [
+          "入侵类",
+          "SSRF漏洞验证"
+        ]
+      },
+      "notes": "只读框旁有生成按钮；未执行生成。"
+    },
+    {
+      "id": "ssrf_credential",
+      "label": "填入有效FLAG凭证",
+      "kind": "text",
+      "required": null,
+      "map_from": "用户通过授权验证流程取得的凭证，人工填写",
+      "group": "flag",
+      "manual": true,
+      "when": {
+        "field": "flag_type",
+        "equals": [
+          "入侵类",
+          "SSRF漏洞验证"
+        ]
+      },
+      "notes": "占位 InvasionSilverFlag{...}；旁有验证按钮，未执行验证。"
+    },
+    {
+      "id": "rce_credential",
+      "label": "填入有效FLAG凭证",
+      "kind": "text",
+      "required": null,
+      "map_from": "用户通过授权验证流程取得的凭证，人工填写",
+      "group": "flag",
+      "manual": true,
+      "when": {
+        "field": "flag_type",
+        "equals": [
+          "入侵类",
+          "RCE漏洞验证"
+        ]
+      },
+      "notes": "占位 InvasionDiamondFlag{...}；旁有验证按钮。核心内网主机RCE验证说明与复制指令入口不是额外字段，未执行。"
+    }
+  ],
+  "body_sections": [
+    {
+      "id": "entry_point",
+      "label": "漏洞出现点或请求发起的位置和方式",
+      "map_from": "受影响网站、功能页面与功能点",
+      "notes": "按 网站 → 功能页面 → 功能点 描述。"
+    },
+    {
+      "id": "reproduction",
+      "label": "操作思路、具体方式及工具",
+      "map_from": "带证据定位的有序步骤、URL、接口、请求响应与观察结果",
+      "notes": "每个关键操作附对应截图；不把PoC设计意图作为成功结果。"
+    },
+    {
+      "id": "environment",
+      "label": "复现方式、测试环境及组件依赖",
+      "map_from": "复现前提、身份、版本、环境和依赖",
+      "notes": "未知项明确待补充。"
+    },
+    {
+      "id": "supplements",
+      "label": "复杂漏洞补充材料",
+      "map_from": "视频、截图、照片与利用材料",
+      "notes": "页面原词 divoc/exdiv、[divoc] 含义未验证；不得擅自改写成特定工具或文件类型。"
+    }
+  ]
+}

@@ -1,0 +1,459 @@
+{
+  "id": "360",
+  "version": "2026-10-07.1",
+  "verified_at": "2026-10-07",
+  "source_urls": [
+    "https://security.360.cn/Report/index"
+  ],
+  "notes": [
+    "2026-10-07 通过 Chrome MCP 读取官方提交页并切换10个一级分类；配置的核对范围为 partial，未逐选全部二级分类。",
+    "required=true 来自可见星号；required=null 为未标记，不等于确认可空。未提交、上传或验证服务端规则。",
+    "已完整读取10个一级分类及每类当前二级选项，排除请选择占位项；名称保留原站大小写及信息泄露/信息泄漏等差异。",
+    "android漏洞和iOS漏洞显示移动端6项；android隐私漏洞和iOS隐私漏洞本次均未显示这些字段，不能仅按名称扩展条件。",
+    "表单文本控件未发现 maxlength；未配置限制表示规则未知，不能推导为无限制。",
+    "大小按十进制保守换算，M的真实字节数和单文件/合计范围未实测。数量限制及编辑器插图规则未核对。",
+    "用户协议及评级细则全文未读取；验证码和协议由用户人工处理，未执行提交、上传或验证码刷新。",
+    "敏感值只保留受控原件定位；分享内容使用一致代号和脱敏值，缺证据不能臆造版本、安装包或影响范围。"
+  ],
+  "groups": {},
+  "fields": [
+    {
+      "id": "title",
+      "label": "漏洞名称",
+      "kind": "text",
+      "required": true,
+      "map_from": "客观描述受影响业务、漏洞与已观察危害",
+      "notes": "页面提示请输入漏洞标题；未发现 DOM maxlength。"
+    },
+    {
+      "id": "type_primary",
+      "label": "漏洞类型：一级",
+      "kind": "select",
+      "required": true,
+      "map_from": "依据证据选择一级分类",
+      "options": [
+        "web漏洞",
+        "android漏洞",
+        "PC客户端漏洞",
+        "智能硬件",
+        "威胁情报",
+        "iOS漏洞",
+        "android隐私漏洞",
+        "iOS隐私漏洞",
+        "样本收集",
+        "大语言模型"
+      ]
+    },
+    {
+      "id": "type_secondary",
+      "label": "漏洞类型：二级",
+      "kind": "select",
+      "required": true,
+      "map_from": "选择与一级分类相符的二级类型",
+      "parent_field": "type_primary",
+      "options_by_parent": {
+        "web漏洞": [
+          "反射型XSS",
+          "代码执行",
+          "HTTP头注入",
+          "命令注入",
+          "SQL注入",
+          "上传漏洞",
+          "文件包含",
+          "权限绕过",
+          "URL跳转",
+          "其他",
+          "存储型XSS",
+          "敏感信息泄露",
+          "XML注入",
+          "文件读取",
+          "SSRF",
+          "源码泄露",
+          "CSRF",
+          "应用配置错误",
+          "弱口令",
+          "拒绝服务",
+          "Jsonp劫持",
+          "暴力破解\\撞库",
+          "短信轰炸",
+          "CSV注入",
+          "逻辑设计错误",
+          "支付类漏洞",
+          "钓鱼攻击",
+          "水平/垂直越权",
+          "获取主机权限",
+          "条件竞争"
+        ],
+        "android漏洞": [
+          "组件越权调用",
+          "信息泄露",
+          "webview风险",
+          "代码执行",
+          "文件目录遍历",
+          "Manifest配置风险",
+          "加密风险",
+          "硬编码问题",
+          "中间人攻击风险",
+          "数据库读写风险",
+          "Content Provider读写风险",
+          "Janus漏洞",
+          "逻辑漏洞",
+          "拒绝服务"
+        ],
+        "PC客户端漏洞": [
+          "DLL劫持",
+          "信息泄漏",
+          "权限提升",
+          "本地拒绝服务",
+          "其他",
+          "远程代码执行",
+          "远程拒绝服务",
+          "主动防御绕过",
+          "自我保护绕过",
+          "其它安全功能绕过",
+          "安全扫描绕过"
+        ],
+        "智能硬件": [
+          "信息泄露",
+          "任意文件操作",
+          "其他",
+          "远程代码执行",
+          "局域网内代码执行",
+          "远程拒绝服务",
+          "未授权访问"
+        ],
+        "威胁情报": [
+          "威胁情报信息"
+        ],
+        "iOS漏洞": [
+          "信息泄漏",
+          "其他",
+          "webview风险",
+          "硬编码问题",
+          "中间人攻击风险",
+          "逻辑漏洞",
+          "拒绝服务"
+        ],
+        "android隐私漏洞": [
+          "违规收集个人信息",
+          "超范围收集个人信息",
+          "违规使用个人信息",
+          "强制用户使用定向推送功能",
+          "APP强制、频繁、过度索取权限",
+          "APP频繁自启动和关联启动"
+        ],
+        "iOS隐私漏洞": [
+          "违规收集个人信息",
+          "超范围收集个人信息",
+          "违规使用个人信息",
+          "强制用户使用定向推送功能",
+          "APP强制、频繁、过度索取权限",
+          "APP频繁自启动和关联启动"
+        ],
+        "样本收集": [
+          "php",
+          "jsp",
+          "python",
+          "javaweb",
+          "asp",
+          "aspx"
+        ],
+        "大语言模型": [
+          "模型拒绝服务",
+          "不安全的输出处理",
+          "违规场景提示词注入",
+          "大模型敏感信息泄露",
+          "大模型供应链漏洞",
+          "大模型应用平台越权类漏洞",
+          "大模型应用平台注入类漏洞",
+          "大模型应用平台代码执行类漏洞",
+          "大模型应用平台逻辑类漏洞",
+          "文生图提示词注入",
+          "编码绕过提示词注入",
+          "角色扮演提示词注入",
+          "条件竞争提示词注入",
+          "文生视频提示词注入"
+        ]
+      },
+      "notes": "两个独立下拉框；切换一级后读取完整二级选项，未逐个选择二级核对额外联动。"
+    },
+    {
+      "id": "severity",
+      "label": "漏洞等级",
+      "kind": "select",
+      "required": true,
+      "map_from": "依据证据和平台评级规则自评；不能由 CVSS 分数自动映射",
+      "options": [
+        "无",
+        "低",
+        "中",
+        "高",
+        "严重"
+      ],
+      "when": {
+        "field": "type_primary",
+        "in": [
+          "web漏洞",
+          "android漏洞",
+          "PC客户端漏洞",
+          "智能硬件",
+          "威胁情报",
+          "iOS漏洞",
+          "android隐私漏洞",
+          "iOS隐私漏洞",
+          "大语言模型"
+        ]
+      },
+      "notes": "选择样本收集时此字段隐藏。"
+    },
+    {
+      "id": "mobile_model",
+      "label": "手机型号",
+      "kind": "text",
+      "required": true,
+      "map_from": "实际复现手机型号",
+      "when": {
+        "field": "type_primary",
+        "in": [
+          "android漏洞",
+          "iOS漏洞"
+        ]
+      }
+    },
+    {
+      "id": "system_version",
+      "label": "系统版本",
+      "kind": "text",
+      "required": true,
+      "map_from": "实际复现设备系统版本",
+      "when": {
+        "field": "type_primary",
+        "in": [
+          "android漏洞",
+          "iOS漏洞"
+        ]
+      }
+    },
+    {
+      "id": "app_package",
+      "label": "软件包名",
+      "kind": "text",
+      "required": true,
+      "map_from": "实际受影响软件包名",
+      "when": {
+        "field": "type_primary",
+        "in": [
+          "android漏洞",
+          "iOS漏洞"
+        ]
+      }
+    },
+    {
+      "id": "app_version",
+      "label": "软件版本",
+      "kind": "text",
+      "required": true,
+      "map_from": "实际复现 APP 版本",
+      "when": {
+        "field": "type_primary",
+        "in": [
+          "android漏洞",
+          "iOS漏洞"
+        ]
+      }
+    },
+    {
+      "id": "app_download",
+      "label": "APP下载包",
+      "kind": "attachments",
+      "required": true,
+      "map_from": "已登记的对应版本 APP 安装包",
+      "when": {
+        "field": "type_primary",
+        "in": [
+          "android漏洞",
+          "iOS漏洞"
+        ]
+      },
+      "extensions": [
+        ".ipa",
+        ".apk"
+      ],
+      "size_limit": {
+        "label": "允许上传150M以内ipa/apk格式的文件",
+        "bytes": 150000000,
+        "inclusive": true,
+        "basis": "conservative_decimal",
+        "scope": "unknown"
+      },
+      "notes": "与报告附件是独立上传控件；数量上限和大小作用范围未明确，不能伪造安装包。"
+    },
+    {
+      "id": "app_source",
+      "label": "APP下载来源",
+      "kind": "text",
+      "required": true,
+      "map_from": "该安装包的真实下载来源或取得路径",
+      "when": {
+        "field": "type_primary",
+        "in": [
+          "android漏洞",
+          "iOS漏洞"
+        ]
+      }
+    },
+    {
+      "id": "device_name",
+      "label": "设备名称",
+      "kind": "text",
+      "required": true,
+      "map_from": "实际受影响智能硬件名称",
+      "when": {
+        "field": "type_primary",
+        "equals": "智能硬件"
+      }
+    },
+    {
+      "id": "device_version",
+      "label": "设备版本",
+      "kind": "text",
+      "required": true,
+      "map_from": "实际复现硬件版本",
+      "when": {
+        "field": "type_primary",
+        "equals": "智能硬件"
+      }
+    },
+    {
+      "id": "software_name",
+      "label": "软件名称",
+      "kind": "text",
+      "required": true,
+      "map_from": "智能硬件中受影响软件名称",
+      "when": {
+        "field": "type_primary",
+        "equals": "智能硬件"
+      }
+    },
+    {
+      "id": "software_version",
+      "label": "软件版本",
+      "kind": "text",
+      "required": true,
+      "map_from": "智能硬件中实际复现软件版本",
+      "when": {
+        "field": "type_primary",
+        "equals": "智能硬件"
+      }
+    },
+    {
+      "id": "url",
+      "label": "漏洞 Url",
+      "kind": "text",
+      "required": true,
+      "map_from": "存在漏洞的具体 URL 或请求入口",
+      "when": {
+        "field": "type_primary",
+        "equals": "web漏洞"
+      },
+      "notes": "页面提示：请提供漏洞Url，如反射XSS等可直接提供相应payload。"
+    },
+    {
+      "id": "details",
+      "label": "漏洞详情",
+      "kind": "richtext",
+      "required": true,
+      "map_from": "按 body_sections 组织详细说明、漏洞证明与修复方案",
+      "notes": "单个富文本编辑器；三段模板不是三个独立表单字段。"
+    },
+    {
+      "id": "attachments",
+      "label": "上传附件",
+      "kind": "attachments",
+      "required": null,
+      "map_from": "已登记的报告 PDF 与证据材料清单",
+      "when": {
+        "field": "type_primary",
+        "in": [
+          "web漏洞",
+          "android漏洞",
+          "PC客户端漏洞",
+          "智能硬件",
+          "威胁情报",
+          "iOS漏洞",
+          "android隐私漏洞",
+          "iOS隐私漏洞",
+          "大语言模型"
+        ]
+      },
+      "extensions": [
+        ".pdf"
+      ],
+      "size_limit": {
+        "label": "仅允许上传10M以内pdf格式",
+        "bytes": 10000000,
+        "inclusive": true,
+        "basis": "conservative_decimal",
+        "scope": "unknown"
+      },
+      "notes": "与 sample_attachment 是同一物理上传控件在互斥分类下的不同规则。当前分支未标必填；数量和单文件/合计范围未确认。"
+    },
+    {
+      "id": "sample_attachment",
+      "label": "上传样本",
+      "kind": "attachments",
+      "required": true,
+      "map_from": "已登记的样本 ZIP；仅整理来源和用途，不执行样本",
+      "when": {
+        "field": "type_primary",
+        "equals": "样本收集"
+      },
+      "extensions": [
+        ".zip"
+      ],
+      "size_limit": {
+        "label": "仅允许上传1M以内zip格式",
+        "bytes": 1000000,
+        "inclusive": true,
+        "basis": "conservative_decimal",
+        "scope": "unknown"
+      },
+      "notes": "样本收集时同一附件控件改为必填，名称、格式与大小限制同时变化；不要另外添加 PDF 附件字段。"
+    },
+    {
+      "id": "captcha",
+      "label": "验证码",
+      "kind": "text",
+      "required": true,
+      "map_from": "用户在页面获取并填写",
+      "manual": true,
+      "notes": "图片验证码有换一张入口；报告阶段不填写验证码。"
+    },
+    {
+      "id": "agreement",
+      "label": "360SRC 用户协议",
+      "kind": "boolean",
+      "required": null,
+      "map_from": "用户阅读360SRC用户协议后人工选择",
+      "manual": true,
+      "notes": "页面显示我已阅读并同意，未标星号；提交是否要求勾选未实测。"
+    }
+  ],
+  "body_sections": [
+    {
+      "id": "description",
+      "label": "一、详细说明",
+      "map_from": "受影响业务、版本、入口、前提及按顺序的复现步骤"
+    },
+    {
+      "id": "proof",
+      "label": "二、漏洞证明",
+      "map_from": "实际请求响应、结果截图与已观察影响，关联证据定位并明确未验证范围"
+    },
+    {
+      "id": "remediation",
+      "label": "三、修复方案",
+      "map_from": "针对已确认根因提出可执行修复建议，明确为建议"
+    }
+  ]
+}

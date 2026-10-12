@@ -1,0 +1,15 @@
+# Local planning document and image
+/SRC报告生成_Skill与Workflow方案.md
+/mermaid-diagram.png
+
+# Local instructions contain machine-specific credentials
+/AGENTS.md
+
+# Local case materials, generated reports, and Python caches
+/refer/
+/materials/
+/runs/
+/outputs/
+__pycache__/
+*.py[cod]
+.pytest_cache/

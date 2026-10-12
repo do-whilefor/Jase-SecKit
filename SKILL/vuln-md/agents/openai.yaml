@@ -1,6 +1,0 @@
-interface:
-  display_name: "漏洞 Markdown 报告"
-  short_description: "根据已验证证据稳定生成固定结构的中文漏洞 Markdown 报告"
-  default_prompt: "Use $vuln-md to turn my verified vulnerability evidence into a standardized Chinese Markdown report."
-policy:
-  allow_implicit_invocation: true

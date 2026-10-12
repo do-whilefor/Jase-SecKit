@@ -1,0 +1,4 @@
+interface:
+  display_name: "SRC 漏洞筛选与报告"
+  short_description: "从杂乱证据筛选漏洞、评估 CVSS 3.1，并生成可追溯的 SRC 报告"
+  default_prompt: "使用 $src-report，先筛选我提供的证据，再评估有依据的 CVSS 3.1 Base 并按指定 SRC 生成 report.md；不足以支持漏洞时保留线索与具体补证项。"

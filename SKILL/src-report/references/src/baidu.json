@@ -1,0 +1,380 @@
+{
+  "id": "baidu",
+  "version": "2026-10-07.1",
+  "verified_at": "2026-10-07",
+  "source_urls": [
+    "https://bsrc.baidu.com/v2/#/loophole/create?language=zh"
+  ],
+  "notes": [
+    "2026-10-07 通过 Chrome MCP 读取百度安全应急响应中心官方提交表单、控件属性和正文模板，未填写报告、上传、保存或提交；来源不保留会话参数。",
+    "required=true 来自页面星号，required=null 为未标记，不表示确认可空。未执行服务端校验。",
+    "漏洞类型在同一个下拉面板按9组展示41项，选中后显示组名 > 类型名；配置使用完整路径数组保留归属，不表示页面是逐层展开的级联控件。",
+    "已逐个选择全部11个危害选项，观察到的字段及必填标记均无变化；未逐一选择全部漏洞类型或遍历类型与危害的组合，核对范围为partial。",
+    "参与活动当前仅显示当前暂无活动，没有输入控件，不创建活动字段。AI上传并解析仅支持DOCX单文件不超过10MB，是独立助手入口，不属于报告附件规则。",
+    "标题50、链接500、验证码4来自DOM maxlength；详情10000来自编辑器字符计数，length_basis=editor_counter仅用于提示需页面核验，富文本计数口径及服务器实际边界未验证。",
+    "附件按格式分为8M与500M两档；M按保守十进制换算，是否单文件或合计、等于阈值时的接受规则及数量上限未核实。",
+    "协议全文未读取，验证码和协议均由用户在页面人工处理；分享内容一致脱敏，不将PoC设计意图写成已观察危害。"
+  ],
+  "groups": {},
+  "fields": [
+    {
+      "id": "title",
+      "label": "漏洞名称",
+      "kind": "text",
+      "required": true,
+      "map_from": "简洁描述受影响业务、漏洞及证据支持的危害",
+      "max_length": 50,
+      "notes": "DOM maxlength=50，与页面字数限制50以内提示一致；超长时人工编辑，不静默截断。"
+    },
+    {
+      "id": "vulnerability_type",
+      "label": "漏洞类型",
+      "kind": "cascade",
+      "required": true,
+      "map_from": "依据证据选择分组与类型组成的完整路径",
+      "option_paths": [
+        [
+          "基础架构",
+          "网络设计缺陷/逻辑错误"
+        ],
+        [
+          "基础架构",
+          "基础设施弱口令"
+        ],
+        [
+          "基础架构",
+          "网络未授权访问"
+        ],
+        [
+          "基础架构",
+          "网络敏感信息泄露"
+        ],
+        [
+          "系统运维",
+          "系统服务补丁不及时"
+        ],
+        [
+          "系统运维",
+          "重要敏感信息泄露"
+        ],
+        [
+          "系统运维",
+          "未授权访问/权限绕过"
+        ],
+        [
+          "系统运维",
+          "服务器弱口令"
+        ],
+        [
+          "系统运维",
+          "系统/服务运维配置不当"
+        ],
+        [
+          "应用漏洞",
+          "XSS跨站脚本漏洞"
+        ],
+        [
+          "应用漏洞",
+          "CSRF"
+        ],
+        [
+          "应用漏洞",
+          "SQL注入漏洞"
+        ],
+        [
+          "应用漏洞",
+          "任意文件遍历/下载"
+        ],
+        [
+          "应用漏洞",
+          "文件上传导致任意代码执行"
+        ],
+        [
+          "应用漏洞",
+          "文件包含"
+        ],
+        [
+          "应用漏洞",
+          "命令执行"
+        ],
+        [
+          "应用漏洞",
+          "应用配置错误"
+        ],
+        [
+          "应用漏洞",
+          "敏感信息泄露"
+        ],
+        [
+          "应用漏洞",
+          "未授权访问/权限绕过"
+        ],
+        [
+          "应用漏洞",
+          "后台弱口令"
+        ],
+        [
+          "应用漏洞",
+          "设计缺陷/逻辑错误"
+        ],
+        [
+          "应用漏洞",
+          "URL跳转"
+        ],
+        [
+          "应用漏洞",
+          "SSRF"
+        ],
+        [
+          "业务安全",
+          "钓鱼欺诈信息"
+        ],
+        [
+          "业务安全",
+          "账户体系控制不严"
+        ],
+        [
+          "业务安全",
+          "内容安全"
+        ],
+        [
+          "业务安全",
+          "恶意信息传播"
+        ],
+        [
+          "安全事件",
+          "内部绝密信息泄露"
+        ],
+        [
+          "安全事件",
+          "用户资料大量泄露"
+        ],
+        [
+          "安全事件",
+          "成功入侵事件"
+        ],
+        [
+          "客户端应用",
+          "非授权访问/认证绕过"
+        ],
+        [
+          "客户端应用",
+          "权限提升"
+        ],
+        [
+          "客户端应用",
+          "拒绝服务"
+        ],
+        [
+          "客户端应用",
+          "远程代码执行"
+        ],
+        [
+          "客户端应用",
+          "用户敏感信息泄露"
+        ],
+        [
+          "客户端应用",
+          "默认配置不当"
+        ],
+        [
+          "客户端应用",
+          "设计错误/逻辑缺陷"
+        ],
+        [
+          "入侵事件安全情报",
+          "其他"
+        ],
+        [
+          "隐私安全漏洞",
+          "APP隐私安全漏洞"
+        ],
+        [
+          "隐私安全漏洞",
+          "SDK隐私安全漏洞"
+        ],
+        [
+          "其他",
+          "其他"
+        ]
+      ],
+      "notes": "同一分组下拉面板包含9组41项；选中显示组名 > 类型名，值用[组名,类型名]保留归属。未逐选全部类型核对额外联动。"
+    },
+    {
+      "id": "harm_type",
+      "label": "漏洞最终造成的危害",
+      "kind": "select",
+      "required": true,
+      "map_from": "选择已有材料实际证明的最终危害",
+      "options": [
+        "安全特性绕过/逻辑漏洞",
+        "web端-任意代码/命令执行",
+        "客户端-任意代码/命令执行",
+        "通内网-全回显SSRF",
+        "任意文件读取敏感文件",
+        "webshell",
+        "actuator env/heapdump泄露",
+        "SQL注入获取数据",
+        "用户敏感信息泄露-身份证/百度组织架构等",
+        "百度云AKSK泄露",
+        "其他危害等"
+      ],
+      "notes": "11项均切换检查，未出现新增字段或必填变化；初始其他危害等是页面默认显示，不是用户结论。不能从漏洞类型自动推定取得内网访问、主机权限、用户数据或AK/SK。"
+    },
+    {
+      "id": "severity",
+      "label": "危害自评",
+      "kind": "select",
+      "required": true,
+      "map_from": "根据已观察影响和平台规则自评",
+      "options": [
+        "无危害",
+        "低危",
+        "中危",
+        "高危",
+        "严重"
+      ],
+      "notes": "页面为五个等级按钮；报告以一个选择值记录，不新增五个布尔字段，也不直接套用CVSS等级。"
+    },
+    {
+      "id": "url",
+      "label": "漏洞链接",
+      "kind": "text",
+      "required": true,
+      "map_from": "材料证明存在安全问题的链接地址",
+      "max_length": 500,
+      "notes": "DOM maxlength=500；敏感参数保持一致脱敏并保留受控原件定位。"
+    },
+    {
+      "id": "details",
+      "label": "漏洞详情",
+      "kind": "richtext",
+      "required": true,
+      "map_from": "按body_sections组织发现方式、漏洞证明和修复方案",
+      "max_length": 10000,
+      "notes": "单个富文本编辑器，计数显示已输入64字符、还可输入9936字符。10000依据页面计数，非textarea的DOM maxlength；超出配置文本计数时仅提示warning并要求到页面核对，不断言无法提交。富文本/HTML计数及实际接受边界未验证。",
+      "length_basis": "editor_counter"
+    },
+    {
+      "id": "attachments",
+      "label": "上传附件",
+      "kind": "attachments",
+      "required": null,
+      "map_from": "已登记并完成分享复核的报告、安装包或压缩材料",
+      "extensions": [
+        ".docx",
+        ".doc",
+        ".apk",
+        ".ipa",
+        ".aar",
+        ".zip",
+        ".jar",
+        ".rar",
+        ".7z"
+      ],
+      "size_limits_by_extension": {
+        ".docx": {
+          "label": "docx/doc 附件上传大小限制8M",
+          "bytes": 8000000,
+          "inclusive": true,
+          "basis": "conservative_decimal",
+          "scope": "unknown"
+        },
+        ".doc": {
+          "label": "docx/doc 附件上传大小限制8M",
+          "bytes": 8000000,
+          "inclusive": true,
+          "basis": "conservative_decimal",
+          "scope": "unknown"
+        },
+        ".apk": {
+          "label": "apk/ipa/aar/zip/jar/rar/7z 附件上传大小限制500M",
+          "bytes": 500000000,
+          "inclusive": true,
+          "basis": "conservative_decimal",
+          "scope": "unknown"
+        },
+        ".ipa": {
+          "label": "apk/ipa/aar/zip/jar/rar/7z 附件上传大小限制500M",
+          "bytes": 500000000,
+          "inclusive": true,
+          "basis": "conservative_decimal",
+          "scope": "unknown"
+        },
+        ".aar": {
+          "label": "apk/ipa/aar/zip/jar/rar/7z 附件上传大小限制500M",
+          "bytes": 500000000,
+          "inclusive": true,
+          "basis": "conservative_decimal",
+          "scope": "unknown"
+        },
+        ".zip": {
+          "label": "apk/ipa/aar/zip/jar/rar/7z 附件上传大小限制500M",
+          "bytes": 500000000,
+          "inclusive": true,
+          "basis": "conservative_decimal",
+          "scope": "unknown"
+        },
+        ".jar": {
+          "label": "apk/ipa/aar/zip/jar/rar/7z 附件上传大小限制500M",
+          "bytes": 500000000,
+          "inclusive": true,
+          "basis": "conservative_decimal",
+          "scope": "unknown"
+        },
+        ".rar": {
+          "label": "apk/ipa/aar/zip/jar/rar/7z 附件上传大小限制500M",
+          "bytes": 500000000,
+          "inclusive": true,
+          "basis": "conservative_decimal",
+          "scope": "unknown"
+        },
+        ".7z": {
+          "label": "apk/ipa/aar/zip/jar/rar/7z 附件上传大小限制500M",
+          "bytes": 500000000,
+          "inclusive": true,
+          "basis": "conservative_decimal",
+          "scope": "unknown"
+        }
+      },
+      "notes": "仅按主表单页面格式列表配置；不合并AI助手的DOCX 10MB限制，也不沿用其他SRC的PDF规则。大小采用保守阈值，等号规则及单文件/合计范围仍需页面验证。"
+    },
+    {
+      "id": "captcha",
+      "label": "验证码",
+      "kind": "text",
+      "required": true,
+      "map_from": "用户在页面获取并填写",
+      "max_length": 4,
+      "manual": true,
+      "notes": "DOM maxlength=4；页面提示不区分大小写并提供换一张入口，报告不填写或读取实际验证码。"
+    },
+    {
+      "id": "agreement",
+      "label": "我已仔细阅读并同意《百度安全应急响应中心（bsrc）服务协议》",
+      "kind": "boolean",
+      "required": null,
+      "map_from": "用户阅读服务协议后在页面人工选择",
+      "manual": true,
+      "notes": "未标星号，提交是否强制勾选未实测；不自动同意。"
+    }
+  ],
+  "body_sections": [
+    {
+      "id": "discovery",
+      "label": "1. 发现方式",
+      "map_from": "详细交代发现与复现场景、必要前提、顺序操作和截图定位"
+    },
+    {
+      "id": "proof",
+      "label": "2. 漏洞证明",
+      "map_from": "整理已有PoC、实际请求响应、结果和影响证明，标注证据定位及未验证范围",
+      "notes": "模板请在这里写POC是写作要求，不授权执行PoC；没有执行结果时列出缺口。"
+    },
+    {
+      "id": "remediation",
+      "label": "3. 修复方案",
+      "map_from": "与已确认根因对应的修复建议，明确为建议"
+    }
+  ]
+}

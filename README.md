@@ -88,9 +88,12 @@ Prompt 更适合作为阶段性引导。可结合全局约束文件使用，在�
 ```text
 Jase-SecKit/
 ├── SKILL/
-│   ├── Pentest-Lyan/              # 自主 Web 渗透测试、状态文件与动态验证工作流
-│   ├── security-hunt/             # 单入口漏洞研究 Skill，按模块与 Profile 渐进加载
-│   └── 规则文件/                   # Skill 相关规则与参考材料
+│   ├── Web-Vulnhunt/              # 自主 Web 渗透测试、状态文件与动态验证工作流
+│   ├── flounder/             # 代码审计 Skill
+│   └── src-report/                   # 漏洞报告撰写Skill
+├── refer/
+│   ├── ARTEX-main/              # ARTEX
+│   └── Cairn-main/             # Cairn
 ├── 约束文件/
 │   ├── AGENTS.md                  # 中文全局 Agent 约束
 │   ├── CLAUDE.md                  # 英文全局 Agent 约束
@@ -268,19 +271,6 @@ http://127.0.0.1:9876
 本仓库不保证能够发现漏洞，不保证发现数量或严重程度，也不保证 AI 输出、工具结果、配置参数、攻击思路或漏洞结论始终正确、完整、适用于特定环境或符合特定平台规则。任何结论都应由具备资质的测试人员进行独立验证。
 
 仓库中引用、收录或改编的第三方资料、案例、文档和代码，其著作权和许可证仍归原作者或权利人所有。根目录 MIT License 仅适用于仓库作者有权许可的原创或修改内容；第三方材料应遵循其各自的许可证、署名和使用条件。
-
-## 贡献与维护
-
-提交修改时建议：
-
-```cmd
-git add -A -- .
-git status --short
-git commit -m "更新说明"
-git pull --rebase origin main
-git push origin main
-git status
-```
 
 ## License
 

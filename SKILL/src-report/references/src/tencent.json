@@ -1,0 +1,302 @@
+{
+  "id": "tencent",
+  "version": "2026-10-07.1",
+  "verified_at": "2026-10-07",
+  "source_urls": [
+    "https://security.tencent.com/index.php/report/add"
+  ],
+  "notes": [
+    "2026-10-07 通过 Chrome MCP 读取官方漏洞提交页面的可见表单、控件属性和正文模板；未填写真实报告、上传文件、保存草稿或提交。",
+    "required=true 表示页面必填标记；required=null 表示未确认，不等于确认可空。没有实测服务端校验。",
+    "必填状态依据主表单标签的 t-form__label--required 样式；Web漏洞增加请求/响应数据包，PC/移动客户端漏洞增加 APP名称/版本/描述。九个一级分类均已切换，未逐一选择子类型，不能保证覆盖全部条件联动。",
+    "未配置的长度、格式、数量或其他规则表示未确认，不能推导为无限制；页面默认选项不代表用户确认或证据支持。",
+    "分享产物使用一致代号、脱敏值和受控原件定位；正文模板要求的真实账号和密码由用户人工补填，不复制实际凭证。",
+    "主表单上传附件与侧边漏洞预检的上传入口不同；漏洞预检的 image/*、.pdf、.docx 不属于报告附件规则。",
+    "页面要求提交前确认步骤清晰可复现、包含请求/响应截图、有具体危害说明、未放外部链接；附件请转 PDF 上传的提示与同时允许 ZIP 的控件规则分别保留。",
+    "TSRC 用户服务协议、安全测试规范、重复漏洞认定及奖励规则全文未核对。"
+  ],
+  "groups": {},
+  "fields": [
+    {
+      "id": "title",
+      "label": "漏洞名称",
+      "kind": "text",
+      "required": true,
+      "map_from": "简洁描述受影响业务、漏洞机理与已观察危害",
+      "notes": "占位为请输入漏洞名称；未见 DOM maxlength。"
+    },
+    {
+      "id": "type_primary",
+      "label": "漏洞类型：一级",
+      "kind": "select",
+      "required": true,
+      "map_from": "依据证据支持的漏洞机理选择一级类型",
+      "options": [
+        "Web漏洞",
+        "安全情报",
+        "PC客户端漏洞",
+        "移动客户端漏洞",
+        "服务器漏洞",
+        "号码安全",
+        "通用软件",
+        "疑似BUG",
+        "其他"
+      ],
+      "notes": "已核对九个一级选项；请选择漏洞类型是占位项，不属于分类。"
+    },
+    {
+      "id": "type_secondary",
+      "label": "漏洞类型：子类型",
+      "kind": "select",
+      "required": true,
+      "map_from": "选择与一级类型匹配且有证据支持的子类型",
+      "notes": "与一级共用漏洞类型标签；九个一级分支的子类型已展开并读取，排除请选择漏洞子类型占位项。未逐一选择所有子类型，不能排除额外联动。保留其他/其它等页面原词。",
+      "parent_field": "type_primary",
+      "options_by_parent": {
+        "Web漏洞": [
+          "普通反射型XSS",
+          "CRLF注入",
+          "ClickJacking",
+          "代码执行",
+          "基于DOM的XSS",
+          "基于Flash的XSS",
+          "存储型XSS",
+          "命令注入",
+          "SQL注入",
+          "上传漏洞",
+          "信息泄漏",
+          "读类型CSRF",
+          "写类型CSRF",
+          "文件包含",
+          "逻辑漏洞",
+          "权限绕过",
+          "URL跳转漏洞",
+          "其他",
+          "文件读取",
+          "管理后台",
+          "目录浏览",
+          "SSRF漏洞",
+          "短信轰炸"
+        ],
+        "安全情报": [
+          "漏洞线索",
+          "攻击线索",
+          "其它"
+        ],
+        "PC客户端漏洞": [
+          "DLL劫持",
+          "XSS",
+          "其它代码执行",
+          "溢出",
+          "释放重引用",
+          "双重释放",
+          "数组越界",
+          "拒绝服务",
+          "内核提权",
+          "权限提升/绕过",
+          "逻辑漏洞",
+          "信息泄漏",
+          "其它"
+        ],
+        "移动客户端漏洞": [
+          "安卓组件权限漏洞",
+          "钓鱼欺骗",
+          "拒绝服务",
+          "信息泄漏",
+          "XSS漏洞",
+          "代码执行",
+          "逻辑漏洞",
+          "其他"
+        ],
+        "服务器漏洞": [
+          "高危端口",
+          "远程代码执行",
+          "DOS",
+          "疑似入侵",
+          "其他"
+        ],
+        "号码安全": [
+          "盗号",
+          "申诉失败",
+          "欺诈网站",
+          "挂马网站",
+          "其他"
+        ],
+        "通用软件": [
+          "通用软件"
+        ],
+        "疑似BUG": [
+          "BUG",
+          "其他"
+        ],
+        "其他": [
+          "其他",
+          "抓取恶意页面"
+        ]
+      }
+    },
+    {
+      "id": "url",
+      "label": "漏洞URL",
+      "kind": "text",
+      "required": true,
+      "map_from": "材料支持的完整请求地址；敏感参数使用一致代号并保留受控定位",
+      "notes": "占位为请输入漏洞URL；未见 DOM maxlength。"
+    },
+    {
+      "id": "request_packet",
+      "label": "漏洞请求数据包",
+      "kind": "multiline",
+      "required": true,
+      "map_from": "证据中触发漏洞的完整请求结构（分享版脱敏）和受控原件定位",
+      "when": {
+        "field": "type_primary",
+        "equals": "Web漏洞"
+      },
+      "notes": "选择 Web漏洞后出现且标必填；与响应数据包一一对应。未见 maxlength，不推断无长度限制。完整材料和阅读摘录须明确区分，脱敏后未验证可重放。"
+    },
+    {
+      "id": "response_packet",
+      "label": "漏洞响应数据包",
+      "kind": "multiline",
+      "required": true,
+      "map_from": "与漏洞请求对应的实际响应结构、关键结果及受控原件定位",
+      "when": {
+        "field": "type_primary",
+        "equals": "Web漏洞"
+      },
+      "notes": "选择 Web漏洞后出现且标必填；没有实际响应时保留缺口，不根据 PoC 或预期效果编造。未见 maxlength。"
+    },
+    {
+      "id": "app_name",
+      "label": "APP名称",
+      "kind": "text",
+      "required": true,
+      "map_from": "实际测试的客户端名称及证据定位",
+      "when": {
+        "field": "type_primary",
+        "in": [
+          "PC客户端漏洞",
+          "移动客户端漏洞"
+        ]
+      },
+      "notes": "PC 与移动客户端分支均出现且标必填；占位请输入APP名称，未见 maxlength。"
+    },
+    {
+      "id": "app_version",
+      "label": "APP版本",
+      "kind": "text",
+      "required": true,
+      "map_from": "材料证明的实际测试客户端版本",
+      "when": {
+        "field": "type_primary",
+        "in": [
+          "PC客户端漏洞",
+          "移动客户端漏洞"
+        ]
+      },
+      "notes": "PC 与移动客户端分支均出现且标必填；占位请输入APP版本。不能用最新版本替代材料中未知的测试版本。未见 maxlength。"
+    },
+    {
+      "id": "app_description",
+      "label": "APP描述",
+      "kind": "text",
+      "required": true,
+      "map_from": "实际客户端的下载地址等可定位信息，未知项明确待补充",
+      "when": {
+        "field": "type_primary",
+        "in": [
+          "PC客户端漏洞",
+          "移动客户端漏洞"
+        ]
+      },
+      "notes": "PC 与移动客户端分支均出现且标必填；单行输入框占位请输入APP下载地址等信息，未见 maxlength。不能误设为漏洞详情正文。"
+    },
+    {
+      "id": "severity",
+      "label": "危害自评",
+      "kind": "select",
+      "required": true,
+      "map_from": "依据实际影响和平台规则进行自评，材料不足时待确认",
+      "notes": "采集时默认为无危害，不等于用户自评；五项已核对。不能直接用 CVSS 严重性代替平台自评。",
+      "options": [
+        "无危害",
+        "低危",
+        "中危",
+        "高危",
+        "严重"
+      ]
+    },
+    {
+      "id": "details",
+      "label": "漏洞详情",
+      "kind": "richtext",
+      "required": true,
+      "map_from": "按 body_sections 组织描述、复现、危害和修复建议并引用材料",
+      "notes": "一个正文编辑器；测试账号、密码、工具与修复建议是正文模板内容，不新增同名独立字段。图片/视频和正文长度限制未确认。"
+    },
+    {
+      "id": "attachments",
+      "label": "上传附件",
+      "kind": "attachments",
+      "required": null,
+      "map_from": "已登记且经脱敏复核的 PDF 或 ZIP 附件清单",
+      "extensions": [
+        ".pdf",
+        ".zip"
+      ],
+      "size_limits_by_extension": {
+        ".pdf": {
+          "label": "pdf文件小于10M",
+          "bytes": 10000000,
+          "inclusive": false,
+          "basis": "conservative_decimal",
+          "scope": "per_file"
+        },
+        ".zip": {
+          "label": "zip文件小于100M",
+          "bytes": 100000000,
+          "inclusive": false,
+          "basis": "conservative_decimal",
+          "scope": "per_file"
+        }
+      },
+      "notes": "主表单文件控件 accept=.pdf,.zip；未确认附件总数上限。M 的字节换算和实际接受边界未实测，十进制阈值仅用于保守预检。不同格式不能共用一个大小阈值。"
+    },
+    {
+      "id": "agreement",
+      "label": "同意《TSRC用户服务协议》和《TSRC安全测试规范》",
+      "kind": "boolean",
+      "required": null,
+      "map_from": "用户阅读协议和规范后在页面人工选择",
+      "manual": true,
+      "notes": "同一个复选框同时对应协议和规范；未通过提交测试是否强制勾选。"
+    }
+  ],
+  "body_sections": [
+    {
+      "id": "description",
+      "label": "1. 漏洞描述",
+      "map_from": "完整请求地址、触发漏洞的关键参数、是否需要测试账号及工具名称",
+      "notes": "需要账号时页面要求详细账号和密码；分享正文只提供一致代号及受控原件定位，真实凭证列为人工补填。"
+    },
+    {
+      "id": "reproduction",
+      "label": "2. 复现步骤（请按顺序提供截图或视频）",
+      "map_from": "权限内正常请求、Payload 构造、测试请求和响应结果，逐步引用对应材料",
+      "notes": "模板四步是写作顺序，不证明每步已实际执行；缺少正常对照、请求/响应截图或结果时明确列为补证项，不运行 PoC。"
+    },
+    {
+      "id": "impact",
+      "label": "3. 危害说明",
+      "map_from": "证据支持的具体危害、受影响对象和范围，区分已观察与可能影响",
+      "notes": "模板所举敏感信息泄露、账户被盗、数据被篡改只是示例，不能自动写入结论。"
+    },
+    {
+      "id": "remediation",
+      "label": "4. 修复建议",
+      "map_from": "针对已有证据支持的根因提出具体措施并明确为建议",
+      "notes": "修复建议属于漏洞详情模板，未观察到独立修复控件。"
+    }
+  ]
+}

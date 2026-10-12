@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "src-report case and supporting artifacts, version 1.0",
+  "description": "Root validates case.json. Supporting artifacts are available under $defs. Evidence support and redaction still require semantic review.",
+  "$ref": "#/$defs/case",
+  "$defs": {
+    "refs": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+    "claim": {
+      "type": "object", "required": ["id", "text", "verification", "evidence_refs"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "text": {"type": "string", "minLength": 1},
+        "verification": {"enum": ["observed", "inferred", "unverified", "conflicted"]},
+        "evidence_refs": {"$ref": "#/$defs/refs"}
+      }
+    },
+    "triage": {
+      "description": "Evidence-based host triage; lead means insufficient evidence, not absence of a vulnerability. No keyword filtering.",
+      "type": "object", "required": ["status", "matched_rules", "reason", "basis"],
+      "properties": {
+        "status": {"enum": ["pending", "lead", "supported"]},
+        "matched_rules": {"type": "array", "uniqueItems": true, "items": {"enum": ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8"]}},
+        "reason": {"type": "string", "minLength": 1},
+        "basis": {
+          "type": "object", "required": ["boundary", "reproducibility", "impact"], "additionalProperties": false,
+          "properties": {"boundary": {"$ref": "#/$defs/refs"}, "reproducibility": {"$ref": "#/$defs/refs"}, "impact": {"$ref": "#/$defs/refs"}}
+        }
+      }
+    },
+    "cvssMetricBasis": {
+      "type": "object", "required": ["reason", "claim_refs"],
+      "properties": {"reason": {"type": "string", "minLength": 1}, "claim_refs": {"$ref": "#/$defs/refs"}}
+    },
+    "cvss31": {
+      "description": "Optional CVSS 3.1 Base input. A null vector with empty rationale is pending, never zero. Scores are calculated in review output, never trusted from input.",
+      "type": "object", "required": ["vector", "rationale", "reason"],
+      "properties": {
+        "vector": {"type": ["string", "null"]}, "reason": {"type": "string", "minLength": 1},
+        "rationale": {
+          "type": "object", "additionalProperties": false,
+          "properties": {
+            "AV": {"$ref": "#/$defs/cvssMetricBasis"}, "AC": {"$ref": "#/$defs/cvssMetricBasis"},
+            "PR": {"$ref": "#/$defs/cvssMetricBasis"}, "UI": {"$ref": "#/$defs/cvssMetricBasis"},
+            "S": {"$ref": "#/$defs/cvssMetricBasis"}, "C": {"$ref": "#/$defs/cvssMetricBasis"},
+            "I": {"$ref": "#/$defs/cvssMetricBasis"}, "A": {"$ref": "#/$defs/cvssMetricBasis"}
+          }
+        }
+      },
+      "allOf": [{
+        "if": {"properties": {"vector": {"type": "string"}}},
+        "then": {"properties": {"rationale": {"required": ["AV", "AC", "PR", "UI", "S", "C", "I", "A"]}}},
+        "else": {"properties": {"rationale": {"maxProperties": 0}}}
+      }]
+    },
+    "case": {
+      "type": "object",
+      "required": ["schema_version", "case_id", "version", "src", "profile_version", "target", "identities", "prerequisites", "steps", "observed_results", "supported_impact", "evidence", "uncertainties", "semantic_review"],
+      "properties": {
+        "schema_version": {"const": "1.0"}, "case_id": {"type": "string", "minLength": 1},
+        "version": {"type": "integer", "minimum": 1}, "src": {"type": "string", "minLength": 1},
+        "profile_version": {"type": "string", "minLength": 1}, "target": {"type": "object"},
+        "triage": {"$ref": "#/$defs/triage"}, "cvss31": {"$ref": "#/$defs/cvss31"},
+        "identities": {"type": "array", "items": {"$ref": "#/$defs/claim"}},
+        "prerequisites": {"type": "array", "items": {"$ref": "#/$defs/claim"}},
+        "steps": {"type": "array", "items": {"$ref": "#/$defs/claim"}},
+        "observed_results": {"type": "array", "items": {"$ref": "#/$defs/claim"}},
+        "supported_impact": {"type": "array", "items": {"$ref": "#/$defs/claim"}},
+        "evidence": {
+          "type": "array", "items": {
+            "type": "object", "required": ["evidence_id", "locator", "note"],
+            "properties": {"evidence_id": {"type": "string"}, "locator": {"type": "string", "minLength": 1}, "note": {"type": "string"}}
+          }
+        },
+        "uncertainties": {
+          "type": "array", "items": {
+            "type": "object", "required": ["id", "description", "affects", "evidence_refs"],
+            "properties": {
+              "id": {"type": "string"}, "description": {"type": "string", "minLength": 1},
+              "affects": {"type": "array", "items": {"type": "string"}}, "evidence_refs": {"$ref": "#/$defs/refs"}
+            }
+          }
+        },
+        "semantic_review": {
+          "type": "object", "required": ["status", "notes", "reviewed_evidence_refs"],
+          "properties": {
+            "status": {"enum": ["pending", "completed"]}, "notes": {"type": "array", "items": {"type": "string"}},
+            "reviewed_evidence_refs": {"$ref": "#/$defs/refs"}
+          }
+        }
+      }
+    },
+    "attachment": {
+      "type": "object", "required": ["path", "evidence_id"],
+      "properties": {"path": {"type": "string", "minLength": 1}, "evidence_id": {"type": "string"}, "purpose": {"type": "string"}}
+    },
+    "field": {
+      "type": "object", "required": ["value", "status", "evidence_refs"],
+      "properties": {
+        "value": {"oneOf": [
+          {"type": ["string", "boolean", "null"]},
+          {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          {"type": "array", "items": {"$ref": "#/$defs/attachment"}}
+        ]},
+        "status": {"enum": ["supported", "inferred", "missing", "manual", "not_applicable"]},
+        "evidence_refs": {"$ref": "#/$defs/refs"}, "notes": {"type": "string"}
+      }
+    },
+    "fields": {
+      "type": "object", "required": ["schema_version", "case_id", "case_version", "src", "profile_version", "fields", "groups", "redaction_review"],
+      "properties": {
+        "schema_version": {"const": "1.0"}, "case_id": {"type": "string", "minLength": 1},
+        "case_version": {"type": "integer", "minimum": 1}, "src": {"type": "string", "minLength": 1},
+        "profile_version": {"type": "string", "minLength": 1},
+        "fields": {"type": "object", "additionalProperties": {"$ref": "#/$defs/field"}},
+        "groups": {"type": "object", "additionalProperties": {"type": "array", "items": {"type": "object", "additionalProperties": {"$ref": "#/$defs/field"}}}},
+        "redaction_review": {
+          "type": "object", "required": ["status", "notes"],
+          "properties": {"status": {"enum": ["pending", "completed"]}, "notes": {"type": "array", "items": {"type": "string"}}}
+        },
+        "content_review": {
+          "description": "Optional for legacy drafts. Records PoC selection and whole-report review; completion is a declaration, not semantic verification. Notes remain internal and are not rendered to Markdown.",
+          "type": "object", "required": ["status", "notes"],
+          "properties": {"status": {"enum": ["pending", "completed"]}, "notes": {"type": "array", "items": {"type": "string"}}}
+        }
+      }
+    },
+    "manifest": {
+      "type": "object", "required": ["schema_version", "materials_root", "materials", "warnings"],
+      "properties": {
+        "schema_version": {"const": "1.0"}, "materials_root": {"type": "string", "minLength": 1},
+        "materials": {"type": "array", "items": {
+          "type": "object", "required": ["evidence_id", "sha256", "size_bytes", "kind", "mime_type", "paths"],
+          "properties": {
+            "evidence_id": {"type": "string", "pattern": "^E-([a-f0-9]{16}|[a-f0-9]{64})$"},
+            "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}, "size_bytes": {"type": "integer", "minimum": 0},
+            "kind": {"type": "string"}, "mime_type": {"type": "string"},
+            "paths": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+          }
+        }},
+        "warnings": {"type": "array", "items": {"type": "object", "required": ["path", "reason"], "properties": {"path": {"type": "string"}, "reason": {"type": "string"}}}}
+      }
+    }
+  }
+}
