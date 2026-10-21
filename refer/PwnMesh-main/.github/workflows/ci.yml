@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Linux image and offline checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # The runtime target requires type checks, build, vet and offline smoke tests.
+      - name: Build and validate the application image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: runtime
+          platforms: linux/amd64
+          load: true
+          push: false
+          tags: pwnmesh:ci
+          cache-from: type=gha,scope=pwnmesh-linux
+          cache-to: type=gha,scope=pwnmesh-linux,mode=max
+
+      - name: Verify the final image starts and stops
+        run: bash scripts/test-docker.sh pwnmesh:ci
+
+      - name: Remove the local image
+        if: always()
+        run: docker image rm pwnmesh:ci >/dev/null 2>&1 || true

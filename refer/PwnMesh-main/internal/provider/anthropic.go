@@ -1,0 +1,483 @@
+// Package provider implements Anthropic Messages and OpenAI Chat Completions.
+package provider
+
+import (
+	"bufio"
+	"bytes"
+	"context"
+	"crypto/rand"
+	"encoding/hex"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"io"
+	"net"
+	"net/http"
+	"strings"
+	"sync"
+	"syscall"
+	"time"
+
+	"pwnmesh/internal/agent"
+	"pwnmesh/internal/modelwire"
+)
+
+const DefaultRequestTimeout = 5 * time.Minute
+
+type Client struct {
+	Protocol         string
+	AuthMode         string
+	BaseURL          string
+	Token            string
+	TokenSource      func(context.Context) (string, error)
+	Secrets          func() []string
+	Model            string
+	MaxTokens        int
+	ReasoningEffort  string
+	ReasoningContent bool
+	Timeout          time.Duration
+	Client           *http.Client
+	SessionID        string
+	sessionOnce      sync.Once
+	sessionID        string
+	sessionErr       error
+}
+
+func (p *Client) Generate(ctx context.Context, messages []agent.Message, tools []agent.Definition, emit agent.Emit) (agent.Message, error) {
+	message, err := p.generate(ctx, messages, tools, p.MaxTokens, emit)
+	source := p.ModelDescriptor()
+	message.Source = &source
+	return message, err
+}
+
+func (p *Client) GenerateSummary(ctx context.Context, messages []agent.Message, maxTokens int, emit agent.Emit) (agent.Message, error) {
+	message, err := p.generate(ctx, messages, nil, maxTokens, emit)
+	source := p.ModelDescriptor()
+	message.Source = &source
+	return message, err
+}
+
+// InputBytes counts the complete serialized request, including system text,
+// tools and output controls, without exposing local transcript metadata.
+func (p *Client) InputBytes(messages []agent.Message, tools []agent.Definition) (int, error) {
+	return p.RequestFormat().InputBytes(messages, tools)
+}
+
+func (p *Client) RequestFormat() modelwire.RequestFormat {
+	return modelwire.RequestFormat{Protocol: p.Protocol, Model: p.Model, MaxTokens: p.MaxTokens, ReasoningEffort: p.ReasoningEffort, Adaptive: p.AdaptiveThinking(), Source: p.ModelDescriptor(), ReasoningContent: p.ReasoningContent}
+}
+
+func (p *Client) generate(ctx context.Context, messages []agent.Message, tools []agent.Definition, maxTokens int, emit agent.Emit) (agent.Message, error) {
+	if err := p.validateAuthEndpoint(); err != nil {
+		return agent.Message{}, err
+	}
+	timeout := p.Timeout
+	if timeout <= 0 {
+		timeout = DefaultRequestTimeout
+	}
+	ctx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+	if err := ctx.Err(); err != nil {
+		return agent.Message{}, err
+	}
+	token := p.Token
+	if p.TokenSource != nil {
+		var err error
+		token, err = p.TokenSource(ctx)
+		if err != nil {
+			return agent.Message{}, err
+		}
+	}
+	if strings.TrimSpace(token) == "" {
+		return agent.Message{}, errors.New("missing model authentication token")
+	}
+	p.sessionOnce.Do(func() {
+		p.sessionID = p.SessionID
+		if p.sessionID == "" {
+			value := make([]byte, 16)
+			_, p.sessionErr = rand.Read(value)
+			p.sessionID = hex.EncodeToString(value)
+		}
+	})
+	if p.sessionErr != nil {
+		return agent.Message{}, p.sessionErr
+	}
+	data, err := p.RequestFormat().Payload(messages, tools, maxTokens)
+	if err != nil {
+		return agent.Message{}, err
+	}
+	client := p.Client
+	if client == nil {
+		client = http.DefaultClient
+	}
+	// Redirects can forward x-api-key and the complete conversation to another
+	// endpoint. Require the configured final URL and leave shared clients intact.
+	requestClient := *client
+	requestClient.CheckRedirect = func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }
+	var res *http.Response
+	// Retries only precede consumption of a response; never replay tool actions.
+	for attempt := 0; ; attempt++ {
+		req, err := http.NewRequestWithContext(ctx, "POST", Endpoint(p.Protocol, p.BaseURL), bytes.NewReader(data))
+		if err != nil {
+			return agent.Message{}, err
+		}
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Accept", "text/event-stream")
+		req.Header.Set("Authorization", "Bearer "+token)
+		if p.Protocol != "openai" {
+			req.Header.Set("anthropic-version", "2023-06-01")
+			if p.AuthMode != "kimi_oauth" {
+				req.Header.Set("x-api-key", token)
+			}
+		}
+		req.Header.Set("User-Agent", "pwnmesh/0.1")
+		req.Header.Set("x-opencode-session", p.sessionID)
+		var retryErr error
+		res, err = requestClient.Do(req)
+		if err != nil {
+			if attempt >= 2 || ctx.Err() != nil || !retryableTransport(err) {
+				kind := agent.ErrorProvider
+				if retryableTransport(err) {
+					kind = agent.ErrorTransport
+				}
+				return agent.Message{}, &agent.ModelError{Kind: kind, Err: err}
+			}
+			retryErr = &agent.ModelError{Kind: agent.ErrorTransport, Err: err}
+		} else {
+			if res.StatusCode >= 200 && res.StatusCode < 300 {
+				break
+			}
+			status := res.StatusCode
+			body, _ := io.ReadAll(io.LimitReader(res.Body, 8192))
+			res.Body.Close()
+			classified := classifyEndpointError(status, body)
+			if classified.Kind == agent.ErrorContextOverflow {
+				return agent.Message{}, classified
+			}
+			if attempt >= 2 || !retryableStatus(status) {
+				return agent.Message{}, classified
+			}
+			retryErr = classified
+		}
+		if err := waitRetry(ctx, attempt); err != nil {
+			// A deadline during backoff must retain the failure that required
+			// the retry. Human cancellation does not acquire retry permission.
+			if !errors.Is(err, context.Canceled) {
+				err = errors.Join(retryErr, err)
+			}
+			return agent.Message{}, err
+		}
+	}
+	defer res.Body.Close()
+	if p.Protocol == "openai" && !strings.Contains(res.Header.Get("Content-Type"), "text/event-stream") {
+		return consumeOpenAIJSON(res.Body)
+	}
+	if !strings.Contains(res.Header.Get("Content-Type"), "text/event-stream") {
+		var m struct {
+			Role    string        `json:"role"`
+			Content []agent.Block `json:"content"`
+			Stop    string        `json:"stop_reason"`
+			Usage   *agent.Usage  `json:"usage"`
+		}
+		// A successful first Decode does not prove that the complete response
+		// contains one JSON value. Keep one extra byte to distinguish the body
+		// limit from a real EOF while checking for trailing values or garbage.
+		body := &io.LimitedReader{R: res.Body, N: (32 << 20) + 1}
+		decoder := json.NewDecoder(body)
+		var observed agent.Message
+		if err = decoder.Decode(&m); err == nil {
+			// A later framing or semantic error rejects content, not usage that
+			// was already decoded from the provider's complete response object.
+			observed.Usage = m.Usage
+			var extra json.RawMessage
+			err = decoder.Decode(&extra)
+			if err == io.EOF {
+				err = nil
+			} else if err == nil {
+				err = errors.New("multiple model response values")
+			}
+		}
+		if body.N == 0 {
+			return observed, &agent.ModelError{Kind: agent.ErrorProvider, Err: errors.New("model response body exceeds 32 MiB")}
+		}
+		if err != nil {
+			kind := agent.ErrorProvider
+			if retryableTransport(err) {
+				kind = agent.ErrorTransport
+			}
+			return observed, &agent.ModelError{Kind: kind, Err: fmt.Errorf("invalid or incomplete model response body: %w", err)}
+		}
+		if m.Role != "assistant" || len(m.Content) == 0 || m.Stop == "" {
+			return observed, &agent.ModelError{Kind: agent.ErrorProvider, Err: errors.New("invalid model response")}
+		}
+		return agent.Message{Role: m.Role, Content: m.Content, StopReason: m.Stop, Usage: m.Usage}, nil
+	}
+	consume := consumeSSE
+	if p.Protocol == "openai" {
+		consume = consumeOpenAISSE
+	}
+	message, streamErr := consume(ctx, io.LimitReader(res.Body, 32<<20), emit)
+	if streamErr != nil {
+		var modelErr *agent.ModelError
+		if !errors.As(streamErr, &modelErr) && !errors.Is(streamErr, context.Canceled) && !errors.Is(streamErr, context.DeadlineExceeded) {
+			streamErr = &agent.ModelError{Kind: agent.ErrorProvider, Err: streamErr}
+		}
+	}
+	return message, streamErr
+}
+
+func retryableTransport(err error) bool {
+	if errors.Is(err, context.Canceled) {
+		return false
+	}
+	if errors.Is(err, io.EOF) || errors.Is(err, io.ErrUnexpectedEOF) ||
+		errors.Is(err, syscall.ECONNRESET) || errors.Is(err, syscall.EPIPE) || errors.Is(err, syscall.ECONNREFUSED) {
+		return true
+	}
+	var network net.Error
+	return errors.As(err, &network) && (network.Timeout() || network.Temporary())
+}
+
+func waitRetry(ctx context.Context, attempt int) error {
+	timer := time.NewTimer(time.Duration(1<<attempt) * time.Second)
+	defer timer.Stop()
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-timer.C:
+		return ctx.Err()
+	}
+}
+
+func retryableStatus(status int) bool {
+	return status == http.StatusRequestTimeout || status == http.StatusTooManyRequests || status >= 500
+}
+
+func classifyEndpointError(status int, body []byte) *agent.ModelError {
+	var detail struct {
+		Error struct {
+			Type    string `json:"type"`
+			Code    string `json:"code"`
+			Message string `json:"message"`
+		} `json:"error"`
+	}
+	_ = json.Unmarshal(body, &detail)
+	kind := agent.ErrorProvider
+	if status == 429 {
+		kind = agent.ErrorRateLimit
+	} else if status == http.StatusRequestTimeout {
+		kind = agent.ErrorTransport
+	} else if status >= 500 {
+		kind = agent.ErrorUnavailable
+	}
+	message := strings.ToLower(detail.Error.Message)
+	if detail.Error.Code == "context_length_exceeded" || detail.Error.Type == "context_length_exceeded" || detail.Error.Type == "context_window_exceeded" ||
+		((status == 400 || status == 413 || status == 422) && (strings.Contains(message, "prompt is too long") || strings.Contains(message, "context length") || strings.Contains(message, "maximum context") || strings.Contains(message, "context window"))) {
+		kind = agent.ErrorContextOverflow
+	}
+	return &agent.ModelError{Kind: kind, Err: &modelwire.HTTPError{Status: status}}
+}
+
+// Stream usage fields are cumulative snapshots. Omitted fields retain the
+// previous snapshot; an explicitly reported zero replaces it.
+type streamUsage struct {
+	InputTokens      *int `json:"input_tokens"`
+	OutputTokens     *int `json:"output_tokens"`
+	CacheReadTokens  *int `json:"cache_read_input_tokens"`
+	CacheWriteTokens *int `json:"cache_creation_input_tokens"`
+}
+
+func mergeUsage(dst **agent.Usage, src *streamUsage) {
+	if src == nil {
+		return
+	}
+	if *dst == nil {
+		*dst = &agent.Usage{}
+	}
+	if src.InputTokens != nil {
+		(*dst).InputTokens = *src.InputTokens
+	}
+	if src.OutputTokens != nil {
+		(*dst).OutputTokens = *src.OutputTokens
+	}
+	if src.CacheReadTokens != nil {
+		(*dst).CacheReadTokens = *src.CacheReadTokens
+	}
+	if src.CacheWriteTokens != nil {
+		(*dst).CacheWriteTokens = *src.CacheWriteTokens
+	}
+}
+func consumeSSE(ctx context.Context, reader io.Reader, emit agent.Emit) (agent.Message, error) {
+	m := agent.Message{Role: "assistant", Content: []agent.Block{}}
+	parts := map[int]*strings.Builder{}
+	type blockText struct {
+		text, thinking, signature strings.Builder
+	}
+	// Pointers keep live builders from being copied when the slice grows.
+	var textParts []*blockText
+	started := false
+	stopped := false
+	scan := bufio.NewScanner(reader)
+	scan.Buffer(make([]byte, 64<<10), 8<<20)
+	var lines []string
+	consume := func() error {
+		if len(lines) == 0 {
+			return nil
+		}
+		data := strings.Join(lines, "\n")
+		lines = nil
+		if data == "[DONE]" {
+			return nil
+		}
+		var e struct {
+			Type    string      `json:"type"`
+			Index   int         `json:"index"`
+			Block   agent.Block `json:"content_block"`
+			Message struct {
+				Usage *streamUsage `json:"usage"`
+			} `json:"message"`
+			Usage *streamUsage `json:"usage"`
+			Error struct {
+				Type    string `json:"type"`
+				Message string `json:"message"`
+			} `json:"error"`
+			Delta struct {
+				Type      string `json:"type"`
+				Text      string `json:"text"`
+				Partial   string `json:"partial_json"`
+				Thinking  string `json:"thinking"`
+				Signature string `json:"signature"`
+				Stop      string `json:"stop_reason"`
+			} `json:"delta"`
+		}
+		if err := json.Unmarshal([]byte(data), &e); err != nil {
+			return fmt.Errorf("invalid model stream event: %w", err)
+		}
+		switch e.Type {
+		case "message_start":
+			if started {
+				return errors.New("duplicate message_start")
+			}
+			started = true
+			mergeUsage(&m.Usage, e.Message.Usage)
+		case "content_block_start":
+			if !started || e.Index != len(m.Content) || e.Index > 4096 {
+				return errors.New("invalid content block index")
+			}
+			m.Content = append(m.Content, e.Block)
+			text := &blockText{}
+			text.text.WriteString(e.Block.Text)
+			text.thinking.WriteString(e.Block.Thinking)
+			text.signature.WriteString(e.Block.Signature)
+			textParts = append(textParts, text)
+			if e.Block.Type == "tool_use" {
+				parts[e.Index] = &strings.Builder{}
+			}
+		case "content_block_delta":
+			if e.Index < 0 || e.Index >= len(m.Content) {
+				return errors.New("delta without content block")
+			}
+			b := &m.Content[e.Index]
+			switch e.Delta.Type {
+			case "text_delta":
+				if b.Type != "text" {
+					return errors.New("text delta for a non-text block")
+				}
+				textParts[e.Index].text.WriteString(e.Delta.Text)
+				// String is a zero-copy view. Publish every fragment so early
+				// error returns retain the same partial response as completion.
+				b.Text = textParts[e.Index].text.String()
+				if emit != nil {
+					emit(agent.Event{Type: "text_delta", Text: e.Delta.Text})
+				}
+			case "input_json_delta":
+				if parts[e.Index] == nil {
+					return errors.New("tool delta without tool block")
+				}
+				parts[e.Index].WriteString(e.Delta.Partial)
+				if emit != nil {
+					emit(agent.Event{Type: "tool_delta", ToolID: b.ID, ToolName: b.Name, Text: e.Delta.Partial})
+				}
+			case "thinking_delta":
+				textParts[e.Index].thinking.WriteString(e.Delta.Thinking)
+				b.Thinking = textParts[e.Index].thinking.String()
+			case "signature_delta":
+				textParts[e.Index].signature.WriteString(e.Delta.Signature)
+				b.Signature = textParts[e.Index].signature.String()
+			}
+		case "message_delta":
+			mergeUsage(&m.Usage, e.Usage)
+			if e.Delta.Stop != "" {
+				m.StopReason = e.Delta.Stop
+			}
+		case "message_stop":
+			stopped = true
+		case "error":
+			status := 400
+			if e.Error.Type == "overloaded_error" || e.Error.Type == "api_error" {
+				status = 503
+			}
+			if e.Error.Type == "rate_limit_error" {
+				status = 429
+			}
+			return classifyEndpointError(status, []byte(data))
+		}
+		return nil
+	}
+	for scan.Scan() {
+		if err := ctx.Err(); err != nil {
+			return m, err
+		}
+		line := strings.TrimSuffix(scan.Text(), "\r")
+		if line == "" {
+			if err := consume(); err != nil {
+				return m, err
+			}
+			if stopped {
+				break
+			}
+			continue
+		}
+		if strings.HasPrefix(line, "data:") {
+			lines = append(lines, strings.TrimPrefix(strings.TrimPrefix(line, "data:"), " "))
+		}
+	}
+	if err := scan.Err(); err != nil {
+		kind := agent.ErrorProvider
+		if retryableTransport(err) {
+			kind = agent.ErrorTransport
+		}
+		return m, &agent.ModelError{Kind: kind, Err: fmt.Errorf("model stream read failed: %w", err)}
+	}
+	if err := consume(); err != nil {
+		return m, err
+	}
+	if !started || !stopped || len(m.Content) == 0 || m.StopReason == "" {
+		return m, &agent.ModelError{Kind: agent.ErrorTransport, Err: errors.New("model stream ended before message_stop")}
+	}
+	for i, part := range parts {
+		if part.Len() > 0 {
+			raw := json.RawMessage(part.String())
+			if !json.Valid(raw) {
+				if m.StopReason != "max_tokens" && m.StopReason != "length" {
+					return m, &agent.ModelError{Kind: agent.ErrorToolArguments, Err: errors.New("invalid streamed tool arguments")}
+				}
+				raw = json.RawMessage(`{}`)
+			}
+			m.Content[i].Input = raw
+		}
+	}
+	seen := map[string]bool{}
+	for _, b := range m.Content {
+		if b.Type == "tool_use" && (b.ID == "" || b.Name == "") {
+			return m, errors.New("tool call missing id or name")
+		}
+		if b.Type == "tool_use" {
+			if seen[b.ID] {
+				return m, errors.New("duplicate streamed tool call id")
+			}
+			seen[b.ID] = true
+		}
+	}
+	return m, nil
+}

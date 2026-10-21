@@ -1,0 +1,737 @@
+// Package docker uses the Docker Engine HTTP API through its Unix socket.
+package docker
+
+import (
+	"archive/tar"
+	"bytes"
+	"context"
+	"crypto/rand"
+	"encoding/binary"
+	"encoding/hex"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"io"
+	"net"
+	"net/http"
+	"net/url"
+	"path"
+	"slices"
+	"sort"
+	"strings"
+	"sync"
+	"time"
+
+	board "pwnmesh/internal/board/model"
+	"pwnmesh/internal/config"
+	"pwnmesh/internal/launchbridge"
+	"pwnmesh/internal/modelrpc"
+	"pwnmesh/internal/protocol"
+	"pwnmesh/internal/provider"
+)
+
+type Client struct {
+	Config          config.Container
+	http            *http.Client
+	locks           sync.Map
+	graphMu         sync.RWMutex
+	graphHandler    func(context.Context, protocol.Job, protocol.GraphRequest) (any, error)
+	inputReader     func(context.Context, protocol.Job, board.InputFile) (io.ReadCloser, error)
+	lookupProxyHost func(context.Context, string) ([]net.IPAddr, error)
+	ownerMu         sync.RWMutex
+	owner           string
+	requiresOwner   bool
+	pendingStops    sync.Map // run directory -> pendingStop; removed only after confirmed exit.
+	modelFactory    func(context.Context, config.Worker, protocol.Job) (*provider.Client, error)
+	modelOnce       sync.Once
+	modelSlots      chan struct{}
+}
+type APIError struct{ Status int }
+
+func (e *APIError) Error() string { return fmt.Sprintf("Docker Engine returned HTTP %d", e.Status) }
+func New(c config.Container) *Client {
+	transport := &http.Transport{DialContext: func(ctx context.Context, _, _ string) (net.Conn, error) {
+		return (&net.Dialer{}).DialContext(ctx, "unix", c.Socket)
+	}, ResponseHeaderTimeout: 30 * time.Second}
+	return &Client{Config: c, http: &http.Client{Transport: transport}, requiresOwner: true}
+}
+func (c *Client) Close() { c.http.CloseIdleConnections() }
+
+// One dispatcher client shares upstream capacity across every Worker launch.
+func (c *Client) modelAdmission() chan struct{} {
+	c.modelOnce.Do(func() { c.modelSlots = make(chan struct{}, launchbridge.MaxModelConcurrency) })
+	return c.modelSlots
+}
+func (c *Client) name(id string) string { return c.ContainerName(id) }
+func (c *Client) lock(id string) func() {
+	value, _ := c.locks.LoadOrStore(id, &sync.Mutex{})
+	mu := value.(*sync.Mutex)
+	mu.Lock()
+	return mu.Unlock
+}
+func (c *Client) request(ctx context.Context, method, route string, body io.Reader, content string) (*http.Response, error) {
+	req, err := http.NewRequestWithContext(ctx, method, "http://docker"+route, body)
+	if err != nil {
+		return nil, err
+	}
+	if content != "" {
+		req.Header.Set("Content-Type", content)
+	}
+	res, err := c.http.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	if res.StatusCode >= 300 {
+		res.Body.Close()
+		return nil, &APIError{res.StatusCode}
+	}
+	return res, nil
+}
+func (c *Client) json(ctx context.Context, method, route string, input, output any) error {
+	var body io.Reader
+	if input != nil {
+		raw, err := json.Marshal(input)
+		if err != nil {
+			return err
+		}
+		body = bytes.NewReader(raw)
+	}
+	res, err := c.request(ctx, method, route, body, "application/json")
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+	if output != nil {
+		return json.NewDecoder(io.LimitReader(res.Body, 16<<20)).Decode(output)
+	}
+	_, err = io.Copy(io.Discard, res.Body)
+	return err
+}
+func status(err error, code int) bool { var e *APIError; return errors.As(err, &e) && e.Status == code }
+func (c *Client) ensure(ctx context.Context, id string, secrets ...string) (string, error) {
+	if err := c.requireOwner(); err != nil {
+		return "", err
+	}
+	unlock := c.lock(id)
+	defer unlock()
+	if err := c.confirmPendingStops(ctx, id); err != nil {
+		return "", err
+	}
+	name := c.name(id)
+	const modelBoundary = "dispatcher-v1"
+	hasModelEnvironment := func(env []string) bool {
+		for _, entry := range env {
+			key, value, _ := strings.Cut(entry, "=")
+			upper := strings.ToUpper(key)
+			if ((strings.HasPrefix(upper, "ANTHROPIC_") || strings.HasPrefix(upper, "OPENAI_") || upper == "PWNMESH_MODEL_PROTOCOL") && value != "") || launchbridge.ContainsCredential(entry, secrets...) {
+				return true
+			}
+		}
+		return false
+	}
+	var info struct {
+		Image  string           `json:"Image"`
+		Mounts []workspaceMount `json:"Mounts"`
+		Config struct {
+			Labels map[string]string `json:"Labels"`
+			Env    []string          `json:"Env"`
+		} `json:"Config"`
+		State struct {
+			Running bool `json:"Running"`
+		} `json:"State"`
+		HostConfig struct {
+			NetworkMode string   `json:"NetworkMode"`
+			CapAdd      []string `json:"CapAdd"`
+		} `json:"HostConfig"`
+	}
+	err := c.json(ctx, "GET", "/containers/"+url.PathEscape(name)+"/json", nil, &info)
+	if err == nil && !c.owns(info.Config.Labels, id) {
+		return "", errors.New("container name belongs to a different project or dispatcher namespace")
+	}
+	missing := status(err, 404)
+	if err != nil && !missing {
+		return "", err
+	}
+	checkBoundary := func() error {
+		if info.Config.Labels["pwnmesh.model-boundary"] != modelBoundary {
+			return fmt.Errorf("project %s container predates or differs from the dispatcher model boundary; preserve and migrate its workspace before recreating the container", id)
+		}
+		if hasModelEnvironment(info.Config.Env) {
+			return fmt.Errorf("project %s container contains model provider environment; preserve and migrate its workspace before recreating the container without provider settings", id)
+		}
+		return nil
+	}
+	if !missing {
+		if err := checkBoundary(); err != nil {
+			return "", err
+		}
+	}
+	// A mutable tag may now name a different binary or runtime. Resolve it on
+	// every launch and compare immutable IDs before touching a saved workspace.
+	var desired struct {
+		ID     string `json:"Id"`
+		Config struct {
+			Env []string `json:"Env"`
+		} `json:"Config"`
+	}
+	if err = c.json(ctx, "GET", "/images/"+url.PathEscape(c.Config.Image)+"/json", nil, &desired); err != nil {
+		return "", fmt.Errorf("resolve configured worker image %q locally: %w", c.Config.Image, err)
+	}
+	if desired.ID == "" {
+		return "", errors.New("Docker returned an empty ID for the configured worker image")
+	}
+	if hasModelEnvironment(desired.Config.Env) {
+		return "", errors.New("worker image contains model provider environment; rebuild it without provider settings and keep model configuration in the dispatcher")
+	}
+	var workspaceRuntime map[string]string
+	if c.ownerID() != "" {
+		workspaceRuntime, err = c.workspaceRuntime(ctx, desired.ID)
+		if err != nil {
+			return "", err
+		}
+	}
+	if missing {
+		if err := c.checkLegacyContainer(ctx, id); err != nil {
+			return "", err
+		}
+		hostConfig := map[string]any{"NetworkMode": c.Config.Network, "CapAdd": c.Config.CapAdd, "Init": true}
+		// Docker rejects ExtraHosts with container:<id> networking. That mode
+		// shares the target container's hosts file, so its owner supplies any
+		// host.docker.internal mapping needed by a proxy.
+		if !strings.HasPrefix(c.Config.Network, "container:") {
+			hostConfig["ExtraHosts"] = []string{"host.docker.internal:host-gateway"}
+		}
+		labels := c.labels(id, modelBoundary)
+		if c.ownerID() != "" {
+			volume, err := c.ensureWorkspace(ctx, id, workspaceRuntime)
+			if err != nil {
+				return "", err
+			}
+			labels[workspaceVolumeLabel] = volume
+			hostConfig["NetworkMode"] = workspaceRuntime["pwnmesh.workspace-network"]
+			// Default copy-up preserves the image's initialized /workspace/.git.
+			hostConfig["Mounts"] = []map[string]any{{"Type": "volume", "Source": volume, "Target": "/workspace"}}
+		}
+		input := map[string]any{"Image": desired.ID, "Entrypoint": []string{"/bin/sh", "-c"}, "Cmd": []string{"exec sleep infinity"}, "WorkingDir": "/workspace", "Labels": labels, "HostConfig": hostConfig}
+		err = c.json(ctx, "POST", "/containers/create?name="+url.QueryEscape(name), input, nil)
+		if status(err, 409) {
+			missing = false
+			err = c.json(ctx, "GET", "/containers/"+url.PathEscape(name)+"/json", nil, &info)
+			if err == nil && !c.owns(info.Config.Labels, id) {
+				return "", errors.New("container creation raced with a different project or dispatcher namespace")
+			}
+			if err == nil {
+				err = checkBoundary()
+			}
+		}
+	}
+	if err != nil {
+		return "", err
+	}
+	if !missing {
+		if _, err := c.checkWorkspace(ctx, id, info.Config.Labels, info.Mounts, workspaceRuntime); err != nil {
+			return "", err
+		}
+	}
+	if !missing && info.Image != desired.ID {
+		return "", fmt.Errorf("project %s container uses image %q but configured worker image %q resolves to %q; preserve and migrate its workspace before recreating the container", id, info.Image, c.Config.Image, desired.ID)
+	}
+	if !missing {
+		sameNetwork, err := c.sameNetwork(ctx, info.HostConfig.NetworkMode, c.Config.Network)
+		if err != nil {
+			return "", err
+		}
+		if !sameNetwork || !slices.Equal(capabilities(info.HostConfig.CapAdd), capabilities(c.Config.CapAdd)) {
+			return "", fmt.Errorf("project %s container uses network %q and added capabilities %v but configured network is %q and added capabilities are %v; preserve and migrate its workspace before recreating the container", id, info.HostConfig.NetworkMode, info.HostConfig.CapAdd, c.Config.Network, c.Config.CapAdd)
+		}
+	}
+	if !info.State.Running {
+		err = c.json(ctx, "POST", "/containers/"+url.PathEscape(name)+"/start", nil, nil)
+		if status(err, 304) {
+			err = nil
+		}
+	}
+	return name, err
+}
+
+// Docker's Linux default network is bridge. Capability names are insensitive
+// to order, case and the optional CAP_ prefix; ALL subsumes individual names.
+func networkMode(value string) string {
+	if value == "" || value == "default" {
+		return "bridge"
+	}
+	return value
+}
+
+func (c *Client) sameNetwork(ctx context.Context, actual, configured string) (bool, error) {
+	actual, configured = networkMode(actual), networkMode(configured)
+	if actual == configured {
+		return true, nil
+	}
+	if !strings.HasPrefix(actual, "container:") || !strings.HasPrefix(configured, "container:") {
+		return false, nil
+	}
+	// Engine records a running worker's owner as a full ID. Resolve aliases
+	// afresh so renaming/replacing an owner cannot silently change its network.
+	resolve := func(mode string) (string, error) {
+		target := strings.TrimPrefix(mode, "container:")
+		if decoded, err := hex.DecodeString(target); err == nil && len(decoded) == 32 {
+			return target, nil
+		}
+		var owner struct {
+			ID string `json:"Id"`
+		}
+		if err := c.json(ctx, "GET", "/containers/"+url.PathEscape(target)+"/json", nil, &owner); err != nil {
+			return "", fmt.Errorf("resolve shared network target %q: %w", target, err)
+		}
+		if decoded, err := hex.DecodeString(owner.ID); err != nil || len(decoded) != 32 {
+			return "", errors.New("Docker returned an invalid ID for a shared network target")
+		}
+		return owner.ID, nil
+	}
+	actualID, err := resolve(actual)
+	if err != nil {
+		return false, err
+	}
+	configuredID, err := resolve(configured)
+	return actualID == configuredID, err
+}
+
+func capabilities(values []string) []string {
+	set := map[string]bool{}
+	for _, value := range values {
+		value = strings.ToUpper(value)
+		if value == "ALL" {
+			return []string{"ALL"}
+		}
+		if !strings.HasPrefix(value, "CAP_") {
+			value = "CAP_" + value
+		}
+		set[value] = true
+	}
+	names := make([]string, 0, len(set))
+	for value := range set {
+		names = append(names, value)
+	}
+	sort.Strings(names)
+	return names
+}
+
+func (c *Client) archive(ctx context.Context, name, target string, data []byte) error {
+	if !strings.HasPrefix(target, "/workspace/.pwnmesh/runs/") || path.Clean(target) != target {
+		return errors.New("invalid run archive path")
+	}
+	var buffer bytes.Buffer
+	tw := tar.NewWriter(&buffer)
+	rel := strings.TrimPrefix(target, "/workspace/")
+	parts := strings.Split(rel, "/")
+	for n := 1; n < len(parts); n++ {
+		if err := tw.WriteHeader(&tar.Header{Name: strings.Join(parts[:n], "/"), Typeflag: tar.TypeDir, Mode: 0700}); err != nil {
+			return err
+		}
+	}
+	if err := tw.WriteHeader(&tar.Header{Name: rel, Size: int64(len(data)), Mode: 0600}); err != nil {
+		return err
+	}
+	if _, err := tw.Write(data); err != nil {
+		return err
+	}
+	if err := tw.Close(); err != nil {
+		return err
+	}
+	res, err := c.request(ctx, "PUT", "/containers/"+url.PathEscape(name)+"/archive?path=%2Fworkspace", &buffer, "application/x-tar")
+	if err != nil {
+		return err
+	}
+	res.Body.Close()
+	return nil
+}
+
+// Publish only after the complete temporary file has reached the container.
+func (c *Client) publish(ctx context.Context, name, target string, data []byte) error {
+	if err := c.archive(ctx, name, target+".tmp", data); err != nil {
+		return err
+	}
+	return c.exec(ctx, name, []string{"/bin/mv", "-T", "--", target + ".tmp", target}, nil, io.Discard)
+}
+
+// exec starts without TTY; Docker frames stdout/stderr with an 8-byte header.
+func (c *Client) exec(ctx context.Context, name string, argv, env []string, out io.Writer) error {
+	var created struct {
+		ID string `json:"Id"`
+	}
+	err := c.json(ctx, "POST", "/containers/"+url.PathEscape(name)+"/exec", map[string]any{"AttachStdout": true, "AttachStderr": true, "Tty": false, "Cmd": argv, "Env": env, "WorkingDir": "/workspace"}, &created)
+	if err != nil {
+		return err
+	}
+	if created.ID == "" {
+		return errors.New("Docker returned an empty exec ID")
+	}
+	data := strings.NewReader(`{"Detach":false,"Tty":false}`)
+	res, err := c.request(ctx, "POST", "/exec/"+created.ID+"/start", data, "application/json")
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+	for {
+		var header [8]byte
+		_, err = io.ReadFull(res.Body, header[:])
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return err
+		}
+		size := binary.BigEndian.Uint32(header[4:])
+		if size > 32<<20 {
+			return errors.New("oversized Docker stream frame")
+		}
+		destination := out
+		if header[0] != 1 {
+			destination = io.Discard
+		}
+		if _, err = io.CopyN(destination, res.Body, int64(size)); err != nil {
+			return err
+		}
+	}
+	var info struct {
+		Running bool `json:"Running"`
+		Exit    int  `json:"ExitCode"`
+	}
+	for {
+		if err = c.json(ctx, "GET", "/exec/"+created.ID+"/json", nil, &info); err != nil {
+			return err
+		}
+		if !info.Running {
+			if info.Exit != 0 {
+				return fmt.Errorf("worker process exited with code %d", info.Exit)
+			}
+			return nil
+		}
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(100 * time.Millisecond):
+		}
+	}
+}
+
+type resultSink struct {
+	runID       string
+	usageOffset int64
+	pending     []byte
+	result      protocol.Result
+	found       bool
+	graph       func(protocol.GraphRequest) error
+	model       func(modelrpc.Request) error
+	cancelModel func(string) error
+}
+
+func (s *resultSink) Write(p []byte) (int, error) {
+	n := len(p)
+	for len(p) > 0 {
+		end := bytes.IndexByte(p, '\n')
+		if end < 0 {
+			s.pending = append(s.pending, p...)
+			break
+		}
+		s.pending = append(s.pending, p[:end]...)
+		if len(s.pending) > 32<<20 {
+			return 0, errors.New("worker event too large")
+		}
+		// Most lines are model/tool journal events. Inspect their envelope once
+		// without allocating fields that the dispatcher never consumes.
+		var envelope struct {
+			Type string `json:"type"`
+		}
+		_ = json.Unmarshal(s.pending, &envelope)
+		switch envelope.Type {
+		case "usage_snapshot":
+			if len(s.pending) > 16<<10 || s.found {
+				return 0, errors.New("invalid usage snapshot boundary")
+			}
+			var snapshot protocol.UsageSnapshot
+			decoder := json.NewDecoder(bytes.NewReader(s.pending))
+			decoder.DisallowUnknownFields()
+			if err := decoder.Decode(&snapshot); err != nil {
+				return 0, err
+			}
+			m := snapshot.Metrics
+			if s.runID == "" || snapshot.RunID != s.runID || snapshot.JournalOffset <= s.usageOffset || m == nil || m.Version != 1 || m.UsageScope != "run" || m.ChildUsage != nil ||
+				m.ModelCalls < 0 || m.CompletedCalls < 0 || m.CompletedCalls > m.ModelCalls || m.UsageCalls < 0 || m.UsageCalls > m.CompletedCalls ||
+				m.SummaryCalls < 0 || m.SummaryCalls > m.ModelCalls || m.FailedCalls < 0 || m.FailedCalls > m.CompletedCalls ||
+				m.Usage.InputTokens < 0 || m.Usage.OutputTokens < 0 || m.Usage.CacheReadTokens < 0 || m.Usage.CacheWriteTokens < 0 {
+				return 0, errors.New("invalid cumulative usage snapshot")
+			}
+			s.usageOffset, s.result.Metrics = snapshot.JournalOffset, m
+		case "model_request":
+			var event modelrpc.RequestEvent
+			if err := json.Unmarshal(s.pending, &event); err != nil {
+				return 0, err
+			}
+			if s.model == nil {
+				return 0, errors.New("worker requested an unavailable model bridge")
+			}
+			if err := s.model(event.Request); err != nil {
+				return 0, err
+			}
+		case "model_cancel":
+			var event modelrpc.CancelEvent
+			if err := json.Unmarshal(s.pending, &event); err != nil {
+				return 0, err
+			}
+			if s.cancelModel == nil {
+				return 0, errors.New("model bridge is unavailable")
+			}
+			if err := s.cancelModel(event.RequestID); err != nil {
+				return 0, err
+			}
+		case "graph_request":
+			if len(s.pending) > protocol.MaxGraphRPCBytes {
+				return 0, errors.New("graph request exceeds 128 KiB")
+			}
+			var event protocol.GraphRequestEvent
+			if err := json.Unmarshal(s.pending, &event); err != nil {
+				return 0, err
+			}
+			if s.graph == nil {
+				return 0, errors.New("worker requested an unavailable graph bridge")
+			}
+			if err := s.graph(event.Request); err != nil {
+				return 0, err
+			}
+		case "result":
+			if s.found {
+				return 0, errors.New("worker emitted multiple results")
+			}
+			var result protocol.Result
+			if err := json.Unmarshal(s.pending, &result); err != nil {
+				return 0, err
+			}
+			if result.Metrics == nil {
+				result.Metrics = s.result.Metrics
+			}
+			s.result = result
+			s.found = true
+		}
+		if cap(s.pending) > 64<<10 {
+			s.pending = nil
+		} else {
+			s.pending = s.pending[:0]
+		}
+		p = p[end+1:]
+	}
+	if len(s.pending) > 32<<20 {
+		return 0, errors.New("worker event too large")
+	}
+	return n, nil
+}
+func (c *Client) Run(ctx context.Context, w config.Worker, j protocol.Job) (protocol.Result, error) {
+	if j.RunID == "" || strings.ContainsAny(j.RunID, "/\\.") {
+		return protocol.Result{}, errors.New("invalid run ID")
+	}
+	for _, ch := range j.RunID {
+		if !(ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' || ch >= '0' && ch <= '9' || ch == '-' || ch == '_') {
+			return protocol.Result{}, errors.New("invalid run ID")
+		}
+	}
+	p, err := c.configuredModel(ctx, w, j)
+	if err != nil {
+		return protocol.Result{}, err
+	}
+	if p == nil {
+		return protocol.Result{}, errors.New("model factory returned no provider")
+	}
+	if p.Client != nil {
+		defer p.Client.CloseIdleConnections()
+	}
+	secrets := p.CredentialValues()
+	env, err := modelWorkerEnv(w, secrets...)
+	if err != nil {
+		return protocol.Result{}, err
+	}
+	name, err := c.ensure(ctx, j.Graph.Project.ID, secrets...)
+	if err != nil {
+		return protocol.Result{}, err
+	}
+	// A shared network's hosts file belongs to its owner, not this protocol.
+	if w.Env["PWNMESH_CONNECTION_MODE"] == "proxy" && !strings.HasPrefix(c.Config.Network, "container:") {
+		if err = c.ensureProxyHost(ctx, name, w.Env["PWNMESH_PROXY_URL"]); err != nil {
+			return protocol.Result{}, err
+		}
+	}
+	if err = c.stageInputs(ctx, name, j); err != nil {
+		return protocol.Result{}, err
+	}
+	target := "/workspace/.pwnmesh/runs/" + j.RunID + "/job.json"
+	raw, err := json.Marshal(j)
+	if err != nil {
+		return protocol.Result{}, err
+	}
+	if launchbridge.JSONContainsCredential(raw, secrets...) {
+		return protocol.Result{}, errors.New("model credential must not be included in a worker job")
+	}
+	if err = c.archive(ctx, name, target, raw); err != nil {
+		return protocol.Result{}, err
+	}
+	settings, err := json.Marshal(publicModelSettings(p))
+	if err != nil || launchbridge.JSONContainsCredential(settings, secrets...) {
+		return protocol.Result{}, errors.New("invalid public model settings")
+	}
+	if err = c.archive(ctx, name, path.Join(path.Dir(target), "model-settings.json"), settings); err != nil {
+		return protocol.Result{}, err
+	}
+	launch := make([]byte, 16)
+	if _, err = rand.Read(launch); err != nil {
+		return protocol.Result{}, err
+	}
+	launchToken := hex.EncodeToString(launch)
+	if err = c.archive(ctx, name, path.Join(path.Dir(target), "launch-token"), []byte(launchToken)); err != nil {
+		return protocol.Result{}, err
+	}
+	env = append(env, "PWNMESH_LAUNCH_TOKEN="+launchToken, "PWNMESH_NETWORK_MODE="+networkMode(c.Config.Network))
+	sort.Strings(env)
+	bridgeCtx, abortBridge := context.WithCancelCause(ctx)
+	defer abortBridge(nil)
+	bridge := launchbridge.NewModel(bridgeCtx, launchbridge.ModelOptions{Job: j,
+		MaxTokens: p.MaxTokens, Timeout: p.Timeout, NewSession: modelSessions(p),
+		Deliver: c.modelDelivery(name, path.Dir(target)), Fail: abortBridge, Admission: c.modelAdmission()})
+	defer bridge.Close()
+	sink := &resultSink{runID: j.RunID, graph: c.graphBridge(bridgeCtx, name, path.Dir(target), j), model: bridge.Start, cancelModel: bridge.Stop}
+	err = c.exec(bridgeCtx, name, []string{"/usr/local/bin/pwnmesh", "worker", "--job", target}, env, sink)
+	if bridgeCtx.Err() != nil && ctx.Err() == nil {
+		err = context.Cause(bridgeCtx)
+	}
+	if err == nil && ctx.Err() == nil {
+		if len(sink.pending) > 0 {
+			_, err = sink.Write([]byte{'\n'})
+		}
+		if err == nil && !sink.found {
+			err = errors.New("worker exited without a result")
+		}
+	}
+	if err != nil || ctx.Err() != nil {
+		// Usage already received remains an observation even when execution fails.
+		// Keep business content discarded and cancellation/stop errors authoritative.
+		observed := protocol.Result{Metrics: sink.result.Metrics}
+		dir := path.Dir(target)
+		hard := ctx.Err() != nil && !errors.Is(context.Cause(ctx), protocol.ErrInterrupted)
+		c.pendingStops.Store(dir, pendingStop{project: j.Graph.Project.ID, hard: hard})
+		var stopErr error
+		if hard {
+			stopErr = c.cancel(name, dir)
+		} else {
+			stopErr = c.interrupt(name, dir)
+		}
+		if stopErr != nil {
+			return observed, errors.Join(err, ctx.Err(), fmt.Errorf("execution stop is unconfirmed; project remains quarantined: %w", stopErr))
+		}
+		c.pendingStops.Delete(dir)
+		if ctx.Err() != nil {
+			return observed, ctx.Err()
+		}
+		return observed, err
+	}
+	return sink.result, nil
+}
+
+func (c *Client) interrupt(name, runDir string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 8*time.Second)
+	defer cancel()
+	return c.exec(ctx, name, []string{"/usr/local/bin/pwnmesh", "worker", "--interrupt", runDir}, nil, io.Discard)
+}
+func (c *Client) cancel(name, runDir string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 12*time.Second)
+	defer cancel()
+	_ = c.exec(ctx, name, []string{"/usr/local/bin/pwnmesh", "worker", "--cancel", runDir}, nil, io.Discard)
+	timer := time.NewTimer(time.Second)
+	defer timer.Stop()
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-timer.C:
+	}
+	return c.exec(ctx, name, []string{"/usr/local/bin/pwnmesh", "worker", "--cancel", runDir, "--force"}, nil, io.Discard)
+}
+func (c *Client) Cleanup(ctx context.Context, id, state string) error {
+	if err := c.requireOwner(); err != nil {
+		return err
+	}
+	unlock := c.lock(id)
+	defer unlock()
+	var info struct {
+		ID     string           `json:"Id"`
+		Mounts []workspaceMount `json:"Mounts"`
+		Config struct {
+			Labels map[string]string `json:"Labels"`
+		} `json:"Config"`
+	}
+	err := c.json(ctx, "GET", "/containers/"+url.PathEscape(c.name(id))+"/json", nil, &info)
+	if status(err, 404) {
+		c.clearPendingStops(id)
+		if state == "deleted" {
+			return c.removeWorkspace(ctx, id)
+		}
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	if !c.owns(info.Config.Labels, id) {
+		return errors.New("refusing to clean up a container belonging to a different project or dispatcher namespace")
+	}
+	if info.ID == "" {
+		return errors.New("Docker returned an empty container ID during cleanup")
+	}
+	durable, err := c.checkWorkspace(ctx, id, info.Config.Labels, info.Mounts, nil)
+	if err != nil {
+		return err
+	}
+	// Names can be reassigned after inspection. Target the verified, immutable
+	// container ID so a replacement with the same name is never stopped/removed.
+	route := "/containers/" + url.PathEscape(info.ID)
+	if state == "deleted" || (state == "completed" && c.Config.CompletedAction == "remove" && (durable || c.ownerID() == "")) {
+		err = c.json(ctx, "DELETE", route+"?force=true", nil, nil)
+	} else {
+		err = c.json(ctx, "POST", route+"/stop?t=1", nil, nil)
+	}
+	if status(err, 404) || status(err, 304) {
+		err = nil
+	}
+	if err == nil {
+		c.clearPendingStops(id)
+		if state == "deleted" {
+			return c.removeWorkspace(ctx, id)
+		}
+	}
+	return err
+}
+func (c *Client) Projects(ctx context.Context) ([]string, error) {
+	if err := c.requireOwner(); err != nil {
+		return nil, err
+	}
+	labels := []string{"pwnmesh.namespace=" + c.Config.Namespace}
+	if owner := c.ownerID(); owner != "" {
+		labels = append(labels, "pwnmesh.installation="+owner)
+	}
+	filters, _ := json.Marshal(map[string][]string{"label": labels})
+	var containers []struct {
+		Labels map[string]string `json:"Labels"`
+	}
+	if err := c.json(ctx, "GET", "/containers/json?all=true&filters="+url.QueryEscape(string(filters)), nil, &containers); err != nil {
+		return nil, err
+	}
+	ids := []string{}
+	for _, item := range containers {
+		if id := item.Labels["pwnmesh.project"]; id != "" && c.owns(item.Labels, id) {
+			ids = append(ids, id)
+		}
+	}
+	volumes, err := c.workspaceProjects(ctx, labels)
+	if err != nil {
+		return nil, err
+	}
+	ids = append(ids, volumes...)
+	sort.Strings(ids)
+	return slices.Compact(ids), nil
+}
