@@ -1,0 +1,13 @@
+interface:
+  display_name: webounty
+  short_description: 在单会话 Wiki 中积累证据并检索能力，持续推进漏洞链验证与复核
+  default_prompt: 使用 $webounty 维护本次研究的 Wiki，找出当前缺口能关联到的已有能力，并推进有证据支持的验证。
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true

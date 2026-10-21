@@ -1,0 +1,93 @@
+{
+  "notice": "All records, environments and results are fictional evaluation data. Scores measure candidate relevance, not factual correctness, evidence validity or vulnerability confirmation. This small authored suite is not an independent production benchmark.",
+  "grading": {
+    "0": "Unrelated, redundant mirror, or insufficient to answer the specific query.",
+    "1": "Complementary context, including another environment or an opposing observation.",
+    "2": "Useful relevant material.",
+    "3": "Directly relevant material under the stated query conditions.",
+    "mirrors": "Generated mirrors receive no additional credit beyond their canonical record, so duplicate results consume the same top-5 budget. Explicit mirror requests are evaluated by their own block ID.",
+    "empty_relevance": "The corpus contains no answer; a returned candidate counts against strict no-answer accuracy, even when its topic is related."
+  },
+  "datasets": {
+    "bilingual": {
+      "records": [
+        {"id": "F-TRANSFER-EN", "summary": "Members download exported report files belonging to their tenant after the job finishes."},
+        {"id": "F-TRANSFER-ZH", "summary": "任务完成后，成员可下载所属租户的导出报告文件。"},
+        {"id": "F-LAYOUT", "summary": "The report designer aligns chart labels and changes page colors."},
+        {"id": "F-DNS", "summary": "An authoritative DNS zone uses a sixty second TTL for edge routing."},
+        {"id": "F-BILLING", "summary": "The invoice ledger reconciles payment batches at midnight."},
+        {"id": "F-CALLBACK-EN", "summary": "The upload callback confirms a completed image transfer using a signed request."},
+        {"id": "F-CALLBACK-ZH", "summary": "图片上传完成后，服务通过带签名的回调请求确认接收。"}
+      ]
+    },
+    "proximity": {
+      "records": [
+        {"id": "F-SCATTERED", "summary": "The report layout changed. A mobile download uses a separate workflow. The permission editor is under maintenance."},
+        {"id": "F-AUTHORIZATION", "summary": "A report download permission check compares the requested file owner with the authenticated member."},
+        {"id": "F-OPERATIONS", "summary": "Download counters are retained for diagnostics. A report lists service permissions rather than member file access."},
+        {"id": "F-ISOLATION", "summary": "A tenant isolation failure allowed a sandbox member to inspect another tenant's resource."},
+        {"id": "F-RESILIENCE", "summary": "Failure isolation preserved tenant traffic during a simulated worker outage."}
+      ]
+    },
+    "exact": {
+      "records": [
+        {"id": "F-ENDPOINT-17", "summary": "GET /v2/reports/download checks the signed artifact owner."},
+        {"id": "F-ENDPOINT-18", "summary": "GET /v2/reports lists a member's saved report metadata."},
+        {"id": "F-ENDPOINT-19", "summary": "GET /v2/download serves public application installers."},
+        {"id": "F-ENDPOINT-20", "summary": "下载公开安装程序无需报告权限。"}
+      ]
+    },
+    "negation": {
+      "records": [
+        {"id": "F-ALLOWED", "summary": "A member can download a report owned by another tenant when an administrator issued an explicit sharing grant."},
+        {"id": "F-DENIED", "summary": "A member cannot download a report owned by another tenant without an explicit sharing grant."},
+        {"id": "F-OTHER-OP", "summary": "An administrator can rotate a service credential after a maintenance window."}
+      ]
+    },
+    "conditions": {
+      "records": [
+        {"id": "F-A-PRODUCTION", "summary": "The artifact retrieval response includes an ownership decision.", "conditions": {"environment": "production"}},
+        {"id": "F-B-UNRECORDED", "summary": "The artifact retrieval response includes an ownership decision."},
+        {"id": "F-C-STAGING", "summary": "The artifact retrieval response includes an ownership decision.", "conditions": {"environment": "staging"}}
+      ]
+    },
+    "counterevidence": {
+      "records": [
+        {"id": "F-CURRENT", "summary": "Report download authorization validates the owner on the current route.", "keywords": ["report", "download", "authorization"]},
+        {"id": "F-OLDER", "summary": "An archived report download experiment suggested unrestricted reuse of an old link.", "status": "refuted"},
+        {"id": "F-RECHECK", "summary": "A replicated experiment invalidated the earlier claim: the fixture had an accidental sharing grant.", "contradicts": ["F-OLDER"]},
+        {"id": "F-WORKER", "summary": "The report worker writes compression statistics after download preparation."}
+      ]
+    },
+    "mirrors": {
+      "records": [
+        {"id": "F-OWNER", "revision": 2, "summary": "File export authorization checks bind the artifact to its owner."},
+        {"id": "F-INDEPENDENT", "revision": 1, "summary": "File export authorization failures retain a distinct denial code for the requesting member."}
+      ],
+      "pages": [{"page_id": "P-EXPORT", "title": "Generated research notes"}],
+      "blocks": [
+        {"page_id": "P-EXPORT", "block_id": "COPY-ONE", "representation": "record", "text": "File export authorization checks bind the artifact to its owner.", "source_refs": [{"id": "F-OWNER", "revision": 2}]},
+        {"page_id": "P-EXPORT", "block_id": "COPY-TWO", "representation": "record", "text": "File export authorization checks bind the artifact to its owner.", "source_refs": [{"id": "F-OWNER", "revision": 2}]},
+        {"page_id": "P-EXPORT", "block_id": "COPY-THREE", "representation": "record", "text": "File export authorization checks bind the artifact to its owner.", "source_refs": [{"id": "F-OWNER", "revision": 2}]}
+      ]
+    }
+  },
+  "cases": [
+    {"id": "bilingual-zh", "dataset": "bilingual", "query": "租户导出报告下载", "description": "Chinese research query should recover relevant material written in both languages.", "relevance": {"record:F-TRANSFER-EN": 3, "record:F-TRANSFER-ZH": 3}},
+    {"id": "bilingual-en", "dataset": "bilingual", "query": "tenant report download", "description": "English query with a native-language counterpart and unrelated topic distractors.", "relevance": {"record:F-TRANSFER-EN": 3, "record:F-TRANSFER-ZH": 3}},
+    {"id": "callback-zh", "dataset": "bilingual", "query": "上传回调签名", "description": "A second operation and callback context, rather than only report terminology.", "relevance": {"record:F-CALLBACK-EN": 3, "record:F-CALLBACK-ZH": 3}},
+    {"id": "unmapped-paraphrase", "dataset": "bilingual", "query": "retrieve generated documents of an organization", "description": "Deliberately difficult paraphrase without shared domain wording; documents the lexical method's remaining limit.", "relevance": {"record:F-TRANSFER-EN": 3, "record:F-TRANSFER-ZH": 3}},
+    {"id": "unrelated-topic", "dataset": "bilingual", "query": "authoritative DNS TTL routing", "description": "Exact technical vocabulary should stay focused despite unrelated bilingual records.", "relevance": {"record:F-DNS": 3}},
+    {"id": "proximity", "dataset": "proximity", "query": "report download permission", "description": "An ownership check is more useful than terms scattered across unrelated sentences.", "relevance": {"record:F-AUTHORIZATION": 3}},
+    {"id": "word-order", "dataset": "proximity", "query": "tenant isolation failure", "description": "Distinguish failed tenant isolation from infrastructure failure isolation.", "relevance": {"record:F-ISOLATION": 3}},
+    {"id": "exact-path", "dataset": "exact", "query": "/v2/reports/download", "description": "A complete endpoint should outrank routes sharing only individual components.", "relevance": {"record:F-ENDPOINT-17": 3}},
+    {"id": "exact-id", "dataset": "exact", "query": "F-ENDPOINT-18", "description": "An explicit record identifier selects the requested saved finding.", "relevance": {"record:F-ENDPOINT-18": 3}},
+    {"id": "negation", "dataset": "negation", "query": "member cannot download report another tenant", "description": "Preserve the denial and retrieve the conditional opposing observation as context.", "relevance": {"record:F-DENIED": 3, "record:F-ALLOWED": 1}},
+    {"id": "environment", "dataset": "conditions", "query": "artifact retrieval ownership", "current_conditions": {"environment": "staging"}, "description": "An explicitly selected environment should lead, while unknown and conflicting environments remain context.", "relevance": {"record:F-C-STAGING": 3, "record:F-B-UNRECORDED": 1, "record:F-A-PRODUCTION": 1}},
+    {"id": "secondary-counterevidence", "dataset": "counterevidence", "query": "report download authorization", "description": "The correction to a lower-ranked older claim belongs beside the primary current finding.", "relevance": {"record:F-CURRENT": 3, "record:F-OLDER": 2, "record:F-RECHECK": 3}},
+    {"id": "duplicate-mirrors", "dataset": "mirrors", "query": "file export authorization", "description": "Generated copies should not spend the result budget repeatedly on one source.", "relevance": {"record:F-OWNER": 3, "record:F-INDEPENDENT": 3}},
+    {"id": "explicit-mirror", "dataset": "mirrors", "query": "P-EXPORT/COPY-TWO", "description": "An explicitly requested generated block remains individually retrievable.", "relevance": {"block:P-EXPORT/COPY-TWO": 3}},
+    {"id": "no-answer-unrelated", "dataset": "bilingual", "query": "elliptic zebra quasar", "description": "There is no answer and no shared topic in this corpus.", "relevance": {}},
+    {"id": "no-answer-related", "dataset": "bilingual", "query": "tenant report retention legal deadline", "description": "Same topic but absent requested retention policy; exposes that candidate relevance alone cannot establish answerability.", "relevance": {}}
+  ]
+}

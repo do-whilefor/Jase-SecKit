@@ -1,0 +1,855 @@
+{
+  "schema_version": 1,
+  "description": "Six turns in one fictional offline conversation: paraphrase, cross-directory multi-input discovery, unrelated edit and heading rename, counterevidence, then context refresh and actual evidence reads.",
+  "goal": "复核虚构报表下载流程的前提及证据；组合始终需要独立验证。",
+  "scoring": {
+    "required": "Hand-labelled record and observation identities needed for each current question. Cursor refs count only when the replay retained their previously delivered bodies.",
+    "allowed": "Hand-labelled permitted record/observation set for this question, including the active goal, conflicting provider and negative observation. Items outside the set count as label-defined extra returns, not intrinsically irrelevant truth.",
+    "tokens": "No model call or tokenizer. host_tokens is null; Unicode JSON characters are measured.",
+    "read_policy": "Only explicitly listed read actions are executed. They are scripted verification reads, not inferred Claude behavior or an estimate of real follow-up calls."
+  },
+  "turns": [
+    {
+      "id": "initial_missing_input",
+      "batch": {
+        "entities": [],
+        "observations": [
+          {
+            "id": "O-JOB",
+            "summary": "早期任务返回了任务编号和会话引用。",
+            "content": {
+              "actor_ref": "local-replay-actor",
+              "request": {
+                "method": "GET",
+                "url": "/local/jobs"
+              },
+              "response": {
+                "status": 200,
+                "body": "早期任务返回了任务编号和会话引用。\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\n"
+              }
+            }
+          },
+          {
+            "id": "O-FOREIGN",
+            "summary": "同名下载授权仅在另一个租户中观察到。",
+            "content": {
+              "actor_ref": "local-replay-actor",
+              "request": {
+                "method": "GET",
+                "url": "/local/foreign-grant"
+              },
+              "response": {
+                "status": 200,
+                "body": "同名下载授权仅在另一个租户中观察到。\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\n"
+              }
+            }
+          },
+          {
+            "id": "O-DOWN",
+            "summary": "旧下载尝试被拒绝，当时缺少下载授权。",
+            "content": {
+              "actor_ref": "local-replay-actor",
+              "request": {
+                "method": "GET",
+                "url": "/local/export"
+              },
+              "response": {
+                "status": 403,
+                "body": "旧下载尝试被拒绝，当时缺少下载授权。\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\n"
+              }
+            }
+          },
+          {
+            "id": "O-OTHER",
+            "summary": "独立偏好设置中的主题色为蓝色。",
+            "content": {
+              "actor_ref": "local-replay-actor",
+              "request": {
+                "method": "GET",
+                "url": "/local/preferences"
+              },
+              "response": {
+                "status": 200,
+                "body": "独立偏好设置中的主题色为蓝色。\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\n"
+              }
+            }
+          }
+        ],
+        "records": [
+          {
+            "id": "R-JOB",
+            "kind": "Capability",
+            "status": "observed",
+            "summary": "早期任务输出可以提供任务编号及会话引用。",
+            "observation_refs": [
+              "O-JOB"
+            ],
+            "capability": {
+              "provides": [
+                {
+                  "type": "report-reference",
+                  "constraints": {
+                    "tenant": "lab-a",
+                    "purpose": "export"
+                  }
+                },
+                {
+                  "type": "session-reference",
+                  "constraints": {
+                    "tenant": "lab-a",
+                    "purpose": "export"
+                  }
+                }
+              ],
+              "needs": []
+            }
+          },
+          {
+            "id": "R-FOREIGN",
+            "kind": "Capability",
+            "status": "observed",
+            "summary": "下载授权已观察，但仅适用于 lab-b。",
+            "observation_refs": [
+              "O-FOREIGN"
+            ],
+            "capability": {
+              "provides": [
+                {
+                  "type": "download-grant",
+                  "constraints": {
+                    "tenant": "lab-b",
+                    "purpose": "export"
+                  }
+                }
+              ],
+              "needs": []
+            }
+          },
+          {
+            "id": "R-DOWN",
+            "kind": "Capability",
+            "status": "blocked",
+            "summary": "下载流程受阻，需要任务编号和下载授权同时满足。",
+            "observation_refs": [
+              "O-DOWN"
+            ],
+            "capability": {
+              "provides": [],
+              "needs": [
+                {
+                  "type": "report-reference",
+                  "constraints": {
+                    "tenant": "lab-a",
+                    "purpose": "export"
+                  }
+                },
+                {
+                  "type": "download-grant",
+                  "constraints": {
+                    "tenant": "lab-a",
+                    "purpose": "export"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "id": "R-OTHER",
+            "kind": "Fact",
+            "status": "observed",
+            "summary": "独立偏好设置中的主题色为蓝色。",
+            "observation_refs": [
+              "O-OTHER"
+            ]
+          }
+        ],
+        "pages": [
+          {
+            "id": "P-TASKS",
+            "title": "任务输出",
+            "blocks": []
+          },
+          {
+            "id": "P-REPORTS",
+            "title": "报表下载权限",
+            "blocks": []
+          },
+          {
+            "id": "P-IDENTITY",
+            "title": "其他租户身份",
+            "blocks": []
+          },
+          {
+            "id": "P-PREFS",
+            "title": "界面偏好设置",
+            "blocks": []
+          },
+          {
+            "id": "P-JOB",
+            "title": "验证结果",
+            "parent_page_id": "P-TASKS",
+            "record_refs": [
+              "R-JOB"
+            ],
+            "questions": [
+              "早期任务留下了什么可复用信息？"
+            ]
+          },
+          {
+            "id": "P-FOREIGN",
+            "title": "验证结果",
+            "parent_page_id": "P-IDENTITY",
+            "record_refs": [
+              "R-FOREIGN"
+            ],
+            "questions": [
+              "另一个租户的授权是否可以使用？"
+            ]
+          },
+          {
+            "id": "P-DOWN",
+            "title": "验证结果",
+            "parent_page_id": "P-REPORTS",
+            "record_refs": [
+              "R-DOWN"
+            ],
+            "questions": [
+              "拿到报表前还缺少什么？",
+              "之前被拒绝的文件获取能否继续？"
+            ]
+          },
+          {
+            "id": "P-OTHER",
+            "title": "验证结果",
+            "parent_page_id": "P-PREFS",
+            "record_refs": [
+              "R-OTHER"
+            ],
+            "questions": [
+              "主题色如何设置？"
+            ]
+          }
+        ]
+      },
+      "query": "拿到报表前还缺少什么？",
+      "anchors": [
+        "R-DOWN"
+      ],
+      "labels": {
+        "required_records": [
+          "G-001",
+          "R-JOB",
+          "R-FOREIGN",
+          "R-DOWN"
+        ],
+        "required_observations": [
+          "O-JOB",
+          "O-FOREIGN",
+          "O-DOWN"
+        ],
+        "allowed_records": [
+          "G-001",
+          "R-JOB",
+          "R-FOREIGN",
+          "R-DOWN"
+        ],
+        "allowed_observations": [
+          "O-JOB",
+          "O-FOREIGN",
+          "O-DOWN"
+        ],
+        "expected_candidates": [
+          {
+            "producer": "R-JOB",
+            "consumer": "R-DOWN",
+            "compatibility": "compatible"
+          },
+          {
+            "producer": "R-FOREIGN",
+            "consumer": "R-DOWN",
+            "compatibility": "incompatible",
+            "conflict_constraints": [
+              "tenant"
+            ]
+          }
+        ],
+        "forbidden_path_members": [
+          "R-FOREIGN"
+        ],
+        "record_statuses": {
+          "R-DOWN": "blocked"
+        },
+        "missing_on_candidate": [
+          {
+            "producer": "R-JOB",
+            "consumer": "R-DOWN",
+            "required": [
+              {
+                "record_ref": "R-DOWN",
+                "type": "download-grant"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "paraphrase_unchanged",
+      "query": "之前被拒绝的文件获取能否继续？",
+      "anchors": [],
+      "labels": {
+        "required_records": [
+          "G-001",
+          "R-JOB",
+          "R-FOREIGN",
+          "R-DOWN"
+        ],
+        "required_observations": [
+          "O-JOB",
+          "O-FOREIGN",
+          "O-DOWN"
+        ],
+        "allowed_records": [
+          "G-001",
+          "R-JOB",
+          "R-FOREIGN",
+          "R-DOWN"
+        ],
+        "allowed_observations": [
+          "O-JOB",
+          "O-FOREIGN",
+          "O-DOWN"
+        ],
+        "expected_candidates": [
+          {
+            "producer": "R-JOB",
+            "consumer": "R-DOWN",
+            "compatibility": "compatible"
+          },
+          {
+            "producer": "R-FOREIGN",
+            "consumer": "R-DOWN",
+            "compatibility": "incompatible",
+            "conflict_constraints": [
+              "tenant"
+            ]
+          }
+        ],
+        "forbidden_path_members": [
+          "R-FOREIGN"
+        ],
+        "record_statuses": {
+          "R-DOWN": "blocked"
+        },
+        "missing_on_candidate": [
+          {
+            "producer": "R-JOB",
+            "consumer": "R-DOWN",
+            "required": [
+              {
+                "record_ref": "R-DOWN",
+                "type": "download-grant"
+              }
+            ]
+          }
+        ],
+        "must_be_unchanged_records": [
+          "G-001",
+          "R-JOB",
+          "R-FOREIGN",
+          "R-DOWN"
+        ]
+      }
+    },
+    {
+      "id": "new_input_reopens_blocked",
+      "batch": {
+        "observations": [
+          {
+            "id": "O-GRANT",
+            "summary": "本轮获取了 lab-a 的下载授权，仍需检验实际组合。",
+            "content": {
+              "actor_ref": "local-replay-actor",
+              "request": {
+                "method": "GET",
+                "url": "/local/grant"
+              },
+              "response": {
+                "status": 200,
+                "body": "本轮获取了 lab-a 的下载授权，仍需检验实际组合。\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\n"
+              }
+            }
+          }
+        ],
+        "records": [
+          {
+            "id": "R-GRANT",
+            "kind": "Capability",
+            "status": "observed",
+            "summary": "新增下载授权依赖早期会话引用。",
+            "observation_refs": [
+              "O-GRANT"
+            ],
+            "capability": {
+              "provides": [
+                {
+                  "type": "download-grant",
+                  "constraints": {
+                    "tenant": "lab-a",
+                    "purpose": "export"
+                  }
+                }
+              ],
+              "needs": [
+                {
+                  "type": "session-reference",
+                  "constraints": {
+                    "tenant": "lab-a",
+                    "purpose": "export"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "pages": [
+          {
+            "id": "P-GRANTS",
+            "title": "授权签发",
+            "blocks": []
+          },
+          {
+            "id": "P-GRANT",
+            "title": "验证结果",
+            "parent_page_id": "P-GRANTS",
+            "record_refs": [
+              "R-GRANT"
+            ],
+            "questions": [
+              "新获得的信息能否补齐此前的缺口？"
+            ]
+          }
+        ]
+      },
+      "query": "新获得的信息能否补齐此前的缺口？",
+      "anchors": [
+        "R-GRANT"
+      ],
+      "labels": {
+        "required_records": [
+          "G-001",
+          "R-JOB",
+          "R-FOREIGN",
+          "R-DOWN",
+          "R-GRANT"
+        ],
+        "required_observations": [
+          "O-JOB",
+          "O-FOREIGN",
+          "O-DOWN",
+          "O-GRANT"
+        ],
+        "allowed_records": [
+          "G-001",
+          "R-JOB",
+          "R-FOREIGN",
+          "R-DOWN",
+          "R-GRANT"
+        ],
+        "allowed_observations": [
+          "O-JOB",
+          "O-FOREIGN",
+          "O-DOWN",
+          "O-GRANT"
+        ],
+        "expected_candidates": [
+          {
+            "producer": "R-JOB",
+            "consumer": "R-DOWN",
+            "compatibility": "compatible"
+          },
+          {
+            "producer": "R-FOREIGN",
+            "consumer": "R-DOWN",
+            "compatibility": "incompatible",
+            "conflict_constraints": [
+              "tenant"
+            ]
+          },
+          {
+            "producer": "R-JOB",
+            "consumer": "R-GRANT",
+            "compatibility": "compatible"
+          },
+          {
+            "producer": "R-GRANT",
+            "consumer": "R-DOWN",
+            "compatibility": "compatible"
+          }
+        ],
+        "forbidden_path_members": [
+          "R-FOREIGN"
+        ],
+        "record_statuses": {
+          "R-DOWN": "blocked"
+        },
+        "expected_paths": [
+          {
+            "record_refs": [
+              "R-JOB",
+              "R-GRANT",
+              "R-DOWN"
+            ],
+            "missing_preconditions": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "unrelated_edit_and_rename",
+      "batch": {
+        "records": [
+          {
+            "id": "R-OTHER",
+            "summary": "独立偏好设置中的主题色改为绿色。"
+          }
+        ],
+        "pages": [
+          {
+            "id": "P-REPORTS",
+            "title": "报表获取与授权复核"
+          }
+        ]
+      },
+      "query": "新获得的信息能否补齐此前的缺口？",
+      "anchors": [
+        "R-GRANT"
+      ],
+      "labels": {
+        "required_records": [
+          "G-001",
+          "R-JOB",
+          "R-FOREIGN",
+          "R-DOWN",
+          "R-GRANT"
+        ],
+        "required_observations": [
+          "O-JOB",
+          "O-FOREIGN",
+          "O-DOWN",
+          "O-GRANT"
+        ],
+        "allowed_records": [
+          "G-001",
+          "R-JOB",
+          "R-FOREIGN",
+          "R-DOWN",
+          "R-GRANT"
+        ],
+        "allowed_observations": [
+          "O-JOB",
+          "O-FOREIGN",
+          "O-DOWN",
+          "O-GRANT"
+        ],
+        "expected_candidates": [
+          {
+            "producer": "R-JOB",
+            "consumer": "R-DOWN",
+            "compatibility": "compatible"
+          },
+          {
+            "producer": "R-FOREIGN",
+            "consumer": "R-DOWN",
+            "compatibility": "incompatible",
+            "conflict_constraints": [
+              "tenant"
+            ]
+          },
+          {
+            "producer": "R-JOB",
+            "consumer": "R-GRANT",
+            "compatibility": "compatible"
+          },
+          {
+            "producer": "R-GRANT",
+            "consumer": "R-DOWN",
+            "compatibility": "compatible"
+          }
+        ],
+        "forbidden_path_members": [
+          "R-FOREIGN"
+        ],
+        "record_statuses": {
+          "R-DOWN": "blocked"
+        },
+        "expected_paths": [
+          {
+            "record_refs": [
+              "R-JOB",
+              "R-GRANT",
+              "R-DOWN"
+            ],
+            "missing_preconditions": []
+          }
+        ],
+        "must_be_unchanged_records": [
+          "G-001",
+          "R-JOB",
+          "R-FOREIGN",
+          "R-DOWN",
+          "R-GRANT"
+        ],
+        "expected_navigation_title": "报表获取与授权复核"
+      }
+    },
+    {
+      "id": "counterevidence_changes_route",
+      "batch": {
+        "observations": [
+          {
+            "id": "O-COUNTER",
+            "summary": "新增反证：先前下载授权的用途判断不成立，需要重新复核。",
+            "content": {
+              "actor_ref": "local-replay-actor",
+              "request": {
+                "method": "GET",
+                "url": "/local/grant-check"
+              },
+              "response": {
+                "status": 403,
+                "body": "新增反证：先前下载授权的用途判断不成立，需要重新复核。\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\nSynthetic offline evidence line.\n"
+              }
+            }
+          }
+        ],
+        "records": [
+          {
+            "id": "R-COUNTER",
+            "kind": "Fact",
+            "status": "observed",
+            "summary": "新增反证要求复核此前的授权用途判断。",
+            "observation_refs": [
+              "O-COUNTER"
+            ],
+            "contradicts": [
+              "R-GRANT"
+            ]
+          }
+        ],
+        "pages": [
+          {
+            "id": "P-COUNTER",
+            "title": "验证结果",
+            "parent_page_id": "P-GRANTS",
+            "record_refs": [
+              "R-COUNTER"
+            ],
+            "questions": [
+              "新反证影响了哪些前提？"
+            ]
+          }
+        ]
+      },
+      "query": "下载前提出现反证，哪些组合需要重新检查？",
+      "anchors": [
+        "R-DOWN"
+      ],
+      "labels": {
+        "required_records": [
+          "G-001",
+          "R-JOB",
+          "R-FOREIGN",
+          "R-DOWN",
+          "R-GRANT",
+          "R-COUNTER"
+        ],
+        "required_observations": [
+          "O-JOB",
+          "O-FOREIGN",
+          "O-DOWN",
+          "O-GRANT",
+          "O-COUNTER"
+        ],
+        "allowed_records": [
+          "G-001",
+          "R-JOB",
+          "R-FOREIGN",
+          "R-DOWN",
+          "R-GRANT",
+          "R-COUNTER"
+        ],
+        "allowed_observations": [
+          "O-JOB",
+          "O-FOREIGN",
+          "O-DOWN",
+          "O-GRANT",
+          "O-COUNTER"
+        ],
+        "expected_candidates": [
+          {
+            "producer": "R-JOB",
+            "consumer": "R-DOWN",
+            "compatibility": "compatible"
+          },
+          {
+            "producer": "R-FOREIGN",
+            "consumer": "R-DOWN",
+            "compatibility": "incompatible",
+            "conflict_constraints": [
+              "tenant"
+            ]
+          },
+          {
+            "producer": "R-GRANT",
+            "consumer": "R-DOWN",
+            "compatibility": "unknown",
+            "producer_usable": false
+          }
+        ],
+        "forbidden_path_members": [
+          "R-FOREIGN",
+          "R-GRANT"
+        ],
+        "record_statuses": {
+          "R-DOWN": "blocked"
+        },
+        "counterevidence_records": [
+          "R-COUNTER"
+        ],
+        "counterevidence_observations": [
+          "O-COUNTER"
+        ],
+        "must_be_delivered_records": [
+          "R-GRANT",
+          "R-COUNTER"
+        ],
+        "missing_on_candidate": [
+          {
+            "producer": "R-GRANT",
+            "consumer": "R-DOWN",
+            "required": [
+              {
+                "record_ref": "R-DOWN",
+                "type": "download-grant"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "refresh_and_read_originals",
+      "query": "恢复报表获取的当前判断与证据。",
+      "anchors": [
+        "R-DOWN"
+      ],
+      "refresh": true,
+      "labels": {
+        "required_records": [
+          "G-001",
+          "R-JOB",
+          "R-FOREIGN",
+          "R-DOWN",
+          "R-GRANT",
+          "R-COUNTER"
+        ],
+        "required_observations": [
+          "O-JOB",
+          "O-FOREIGN",
+          "O-DOWN",
+          "O-GRANT",
+          "O-COUNTER"
+        ],
+        "allowed_records": [
+          "G-001",
+          "R-JOB",
+          "R-FOREIGN",
+          "R-DOWN",
+          "R-GRANT",
+          "R-COUNTER"
+        ],
+        "allowed_observations": [
+          "O-JOB",
+          "O-FOREIGN",
+          "O-DOWN",
+          "O-GRANT",
+          "O-COUNTER"
+        ],
+        "expected_candidates": [
+          {
+            "producer": "R-JOB",
+            "consumer": "R-DOWN",
+            "compatibility": "compatible"
+          },
+          {
+            "producer": "R-FOREIGN",
+            "consumer": "R-DOWN",
+            "compatibility": "incompatible",
+            "conflict_constraints": [
+              "tenant"
+            ]
+          },
+          {
+            "producer": "R-GRANT",
+            "consumer": "R-DOWN",
+            "compatibility": "unknown",
+            "producer_usable": false
+          }
+        ],
+        "forbidden_path_members": [
+          "R-FOREIGN",
+          "R-GRANT"
+        ],
+        "record_statuses": {
+          "R-DOWN": "blocked"
+        },
+        "counterevidence_records": [
+          "R-COUNTER"
+        ],
+        "counterevidence_observations": [
+          "O-COUNTER"
+        ],
+        "missing_on_candidate": [
+          {
+            "producer": "R-GRANT",
+            "consumer": "R-DOWN",
+            "required": [
+              {
+                "record_ref": "R-DOWN",
+                "type": "download-grant"
+              }
+            ]
+          }
+        ],
+        "must_be_delivered_records": [
+          "G-001",
+          "R-JOB",
+          "R-FOREIGN",
+          "R-DOWN",
+          "R-GRANT",
+          "R-COUNTER"
+        ],
+        "expect_no_unchanged": true
+      },
+      "reads": [
+        {
+          "ids": [
+            "O-DOWN"
+          ],
+          "observation_statuses": {
+            "O-DOWN": 403
+          }
+        },
+        {
+          "ids": [
+            "O-COUNTER"
+          ],
+          "observation_statuses": {
+            "O-COUNTER": 403
+          }
+        }
+      ]
+    }
+  ]
+}

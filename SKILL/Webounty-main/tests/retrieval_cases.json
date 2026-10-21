@@ -1,0 +1,1703 @@
+{
+  "schema_version": 1,
+  "description": "Shared synthetic offline research corpus. No live target data. Queries and primary record/observation labels are fixed independently of retrieval changes.",
+  "goal": "核对报表、身份与回调流程中的实际观察、失败条件和后续验证前提。",
+  "scoring": {
+    "rank_space": "all search_index.rank results, including blocks and entities; no deduplication or filtering",
+    "relevance": "Only the explicitly labelled record/observation IDs receive primary relevance credit. A related Wiki block alone is not an exact evidence hit.",
+    "mrr": "Mean reciprocal rank of the first primary relevant item, over answerable queries.",
+    "recall_at_5": "Mean fraction of each query primary relevant IDs present in the first five rank results, over answerable queries.",
+    "no_hit": "Queries with no primary relevant IDs are excluded from MRR/Recall and measured separately by an empty ranked result."
+  },
+  "batches": [
+    {
+      "entities": [
+        {
+          "id": "E-REPORTS",
+          "kind": "service",
+          "title": "报表服务 Reports API"
+        },
+        {
+          "id": "E-IDENTITY",
+          "kind": "service",
+          "title": "Identity and invitations"
+        },
+        {
+          "id": "E-CALLBACK",
+          "kind": "endpoint",
+          "title": "回调投递 Callback delivery"
+        },
+        {
+          "id": "E-WEBHOOK",
+          "kind": "endpoint",
+          "title": "Webhook verification"
+        },
+        {
+          "id": "E-STORAGE",
+          "kind": "service",
+          "title": "对象存储 Object storage"
+        },
+        {
+          "id": "E-AUDIT",
+          "kind": "service",
+          "title": "Audit API"
+        }
+      ],
+      "observations": [
+        {
+          "id": "O-EXPORT-202",
+          "summary": "报表导出提交响应",
+          "subject_refs": [
+            "E-REPORTS"
+          ],
+          "content": {
+            "environment": "training-lab-4",
+            "request": {
+              "method": "POST",
+              "url": "https://lab.invalid/api/v2/reports/export"
+            },
+            "response": {
+              "status": 202,
+              "body": {
+                "job_id": "job-7cf2a1e9-0042",
+                "state": "queued",
+                "download_url": null
+              }
+            }
+          }
+        },
+        {
+          "id": "O-EXPORT-STATUS",
+          "summary": "任务状态轮询响应",
+          "subject_refs": [
+            "E-REPORTS"
+          ],
+          "content": {
+            "environment": "training-lab-4",
+            "request": {
+              "method": "GET",
+              "url": "https://lab.invalid/api/v2/report-exports/status"
+            },
+            "response": {
+              "status": 200,
+              "body": {
+                "state": "running",
+                "audit_log": null,
+                "progress": 37
+              }
+            }
+          }
+        },
+        {
+          "id": "O-INVITE-REJECT",
+          "summary": "成员邀请被拒绝",
+          "subject_refs": [
+            "E-IDENTITY"
+          ],
+          "content": {
+            "environment": "training-lab-4",
+            "request": {
+              "method": "POST",
+              "url": "https://lab.invalid/api/v1/invitations/accept"
+            },
+            "response": {
+              "status": 409,
+              "body": {
+                "error": "invitation_already_used",
+                "invitation_id": "inv-728c"
+              }
+            }
+          }
+        },
+        {
+          "id": "O-AUTH-1",
+          "summary": "个人资料查询成功",
+          "subject_refs": [
+            "E-IDENTITY"
+          ],
+          "content": {
+            "environment": "training-lab-4",
+            "request": {
+              "method": "GET",
+              "url": "https://lab.invalid/api/v1/profile"
+            },
+            "response": {
+              "status": 200,
+              "body": {
+                "display_name": "Demo analyst",
+                "role": "member"
+              }
+            }
+          }
+        },
+        {
+          "id": "O-AUTH-10",
+          "summary": "审计控制器拒绝成员",
+          "subject_refs": [
+            "E-AUDIT"
+          ],
+          "content": {
+            "environment": "training-lab-4",
+            "request": {
+              "method": "GET",
+              "url": "https://lab.invalid/api/v1/admin/audit"
+            },
+            "response": {
+              "status": 403,
+              "body": {
+                "error": "administrator_required",
+                "controller": "AdminAuditController"
+              }
+            }
+          }
+        },
+        {
+          "id": "O-DOWNLOAD-DENIED",
+          "summary": "跨租户下载尝试被拒绝",
+          "subject_refs": [
+            "E-STORAGE"
+          ],
+          "content": {
+            "environment": "training-lab-4",
+            "request": {
+              "method": "GET",
+              "url": "https://lab.invalid/api/v2/objects/download"
+            },
+            "response": {
+              "status": 403,
+              "body": {
+                "error": "tenant_mismatch",
+                "request_tenant": "tenant-b",
+                "owner_tenant": "tenant-a"
+              }
+            }
+          }
+        },
+        {
+          "id": "O-WEBHOOK-MISMATCH",
+          "summary": "Webhook replay rejected",
+          "subject_refs": [
+            "E-WEBHOOK"
+          ],
+          "content": {
+            "environment": "training-lab-4",
+            "request": {
+              "method": "POST",
+              "url": "https://lab.invalid/hooks/payment"
+            },
+            "response": {
+              "status": 401,
+              "body": {
+                "error": "signature_mismatch",
+                "key_generation": "previous"
+              }
+            }
+          }
+        },
+        {
+          "id": "O-DELIVERY-TRACE",
+          "summary": "后台投递工作进程的完整诊断响应",
+          "subject_refs": [
+            "E-CALLBACK"
+          ],
+          "content": {
+            "environment": "training-lab-4",
+            "request": {
+              "method": "GET",
+              "url": "https://lab.invalid/api/v1/delivery/diagnostics"
+            },
+            "response": {
+              "status": 200,
+              "body": {
+                "request_id": "trace-8842",
+                "events": [
+                  {
+                    "sequence": 0,
+                    "operation": "resolve_owner",
+                    "elapsed_ms": 3,
+                    "detail": "Worker inspected object partition 0, attempt 1, with cached metadata revision 11."
+                  },
+                  {
+                    "sequence": 1,
+                    "operation": "load_metadata",
+                    "elapsed_ms": 10,
+                    "detail": "Worker inspected object partition 1, attempt 1, with cached metadata revision 12."
+                  },
+                  {
+                    "sequence": 2,
+                    "operation": "check_membership",
+                    "elapsed_ms": 17,
+                    "detail": "Worker inspected object partition 2, attempt 1, with cached metadata revision 13."
+                  },
+                  {
+                    "sequence": 3,
+                    "operation": "read_object_policy",
+                    "elapsed_ms": 24,
+                    "detail": "Worker inspected object partition 3, attempt 1, with cached metadata revision 14."
+                  },
+                  {
+                    "sequence": 4,
+                    "operation": "queue_delivery",
+                    "elapsed_ms": 31,
+                    "detail": "Worker inspected object partition 4, attempt 1, with cached metadata revision 15."
+                  },
+                  {
+                    "sequence": 5,
+                    "operation": "write_audit_entry",
+                    "elapsed_ms": 9,
+                    "detail": "Worker inspected object partition 5, attempt 1, with cached metadata revision 11."
+                  },
+                  {
+                    "sequence": 6,
+                    "operation": "dispatch_callback",
+                    "elapsed_ms": 16,
+                    "detail": "Worker inspected object partition 6, attempt 1, with cached metadata revision 12."
+                  },
+                  {
+                    "sequence": 7,
+                    "operation": "release_lock",
+                    "elapsed_ms": 23,
+                    "detail": "Worker inspected object partition 7, attempt 1, with cached metadata revision 13."
+                  },
+                  {
+                    "sequence": 8,
+                    "operation": "resolve_owner",
+                    "elapsed_ms": 30,
+                    "detail": "Worker inspected object partition 8, attempt 1, with cached metadata revision 14."
+                  },
+                  {
+                    "sequence": 9,
+                    "operation": "load_metadata",
+                    "elapsed_ms": 8,
+                    "detail": "Worker inspected object partition 9, attempt 1, with cached metadata revision 15."
+                  },
+                  {
+                    "sequence": 10,
+                    "operation": "check_membership",
+                    "elapsed_ms": 15,
+                    "detail": "Worker inspected object partition 10, attempt 1, with cached metadata revision 11."
+                  },
+                  {
+                    "sequence": 11,
+                    "operation": "read_object_policy",
+                    "elapsed_ms": 22,
+                    "detail": "Worker inspected object partition 0, attempt 1, with cached metadata revision 12."
+                  },
+                  {
+                    "sequence": 12,
+                    "operation": "queue_delivery",
+                    "elapsed_ms": 29,
+                    "detail": "Worker inspected object partition 1, attempt 1, with cached metadata revision 13."
+                  },
+                  {
+                    "sequence": 13,
+                    "operation": "write_audit_entry",
+                    "elapsed_ms": 7,
+                    "detail": "Worker inspected object partition 2, attempt 1, with cached metadata revision 14."
+                  },
+                  {
+                    "sequence": 14,
+                    "operation": "dispatch_callback",
+                    "elapsed_ms": 14,
+                    "detail": "Worker inspected object partition 3, attempt 1, with cached metadata revision 15."
+                  },
+                  {
+                    "sequence": 15,
+                    "operation": "release_lock",
+                    "elapsed_ms": 21,
+                    "detail": "Worker inspected object partition 4, attempt 1, with cached metadata revision 11."
+                  },
+                  {
+                    "sequence": 16,
+                    "operation": "resolve_owner",
+                    "elapsed_ms": 28,
+                    "detail": "Worker inspected object partition 5, attempt 1, with cached metadata revision 12."
+                  },
+                  {
+                    "sequence": 17,
+                    "operation": "load_metadata",
+                    "elapsed_ms": 6,
+                    "detail": "Worker inspected object partition 6, attempt 1, with cached metadata revision 13."
+                  },
+                  {
+                    "sequence": 18,
+                    "operation": "check_membership",
+                    "elapsed_ms": 13,
+                    "detail": "Worker inspected object partition 7, attempt 1, with cached metadata revision 14."
+                  },
+                  {
+                    "sequence": 19,
+                    "operation": "read_object_policy",
+                    "elapsed_ms": 20,
+                    "detail": "Worker inspected object partition 8, attempt 1, with cached metadata revision 15."
+                  },
+                  {
+                    "sequence": 20,
+                    "operation": "queue_delivery",
+                    "elapsed_ms": 27,
+                    "detail": "Worker inspected object partition 9, attempt 1, with cached metadata revision 11."
+                  },
+                  {
+                    "sequence": 21,
+                    "operation": "write_audit_entry",
+                    "elapsed_ms": 5,
+                    "detail": "Worker inspected object partition 10, attempt 1, with cached metadata revision 12."
+                  },
+                  {
+                    "sequence": 22,
+                    "operation": "dispatch_callback",
+                    "elapsed_ms": 12,
+                    "detail": "Worker inspected object partition 0, attempt 1, with cached metadata revision 13."
+                  },
+                  {
+                    "sequence": 23,
+                    "operation": "release_lock",
+                    "elapsed_ms": 19,
+                    "detail": "Worker inspected object partition 1, attempt 1, with cached metadata revision 14."
+                  },
+                  {
+                    "sequence": 24,
+                    "operation": "resolve_owner",
+                    "elapsed_ms": 26,
+                    "detail": "Worker inspected object partition 2, attempt 1, with cached metadata revision 15."
+                  },
+                  {
+                    "sequence": 25,
+                    "operation": "load_metadata",
+                    "elapsed_ms": 4,
+                    "detail": "Worker inspected object partition 3, attempt 1, with cached metadata revision 11."
+                  },
+                  {
+                    "sequence": 26,
+                    "operation": "check_membership",
+                    "elapsed_ms": 11,
+                    "detail": "Worker inspected object partition 4, attempt 1, with cached metadata revision 12."
+                  },
+                  {
+                    "sequence": 27,
+                    "operation": "read_object_policy",
+                    "elapsed_ms": 18,
+                    "detail": "Worker inspected object partition 5, attempt 1, with cached metadata revision 13."
+                  },
+                  {
+                    "sequence": 28,
+                    "operation": "queue_delivery",
+                    "elapsed_ms": 25,
+                    "detail": "Worker inspected object partition 6, attempt 1, with cached metadata revision 14."
+                  },
+                  {
+                    "sequence": 29,
+                    "operation": "write_audit_entry",
+                    "elapsed_ms": 3,
+                    "detail": "Worker inspected object partition 7, attempt 1, with cached metadata revision 15."
+                  },
+                  {
+                    "sequence": 30,
+                    "operation": "dispatch_callback",
+                    "elapsed_ms": 10,
+                    "detail": "Worker inspected object partition 8, attempt 1, with cached metadata revision 11."
+                  },
+                  {
+                    "sequence": 31,
+                    "operation": "release_lock",
+                    "elapsed_ms": 17,
+                    "detail": "Worker inspected object partition 9, attempt 1, with cached metadata revision 12."
+                  },
+                  {
+                    "sequence": 32,
+                    "operation": "resolve_owner",
+                    "elapsed_ms": 24,
+                    "detail": "Worker inspected object partition 10, attempt 1, with cached metadata revision 13."
+                  },
+                  {
+                    "sequence": 33,
+                    "operation": "load_metadata",
+                    "elapsed_ms": 31,
+                    "detail": "Worker inspected object partition 0, attempt 1, with cached metadata revision 14."
+                  },
+                  {
+                    "sequence": 34,
+                    "operation": "check_membership",
+                    "elapsed_ms": 9,
+                    "detail": "Worker inspected object partition 1, attempt 1, with cached metadata revision 15."
+                  },
+                  {
+                    "sequence": 35,
+                    "operation": "read_object_policy",
+                    "elapsed_ms": 16,
+                    "detail": "Worker inspected object partition 2, attempt 1, with cached metadata revision 11."
+                  },
+                  {
+                    "sequence": 36,
+                    "operation": "queue_delivery",
+                    "elapsed_ms": 23,
+                    "detail": "Worker inspected object partition 3, attempt 1, with cached metadata revision 12."
+                  },
+                  {
+                    "sequence": 37,
+                    "operation": "write_audit_entry",
+                    "elapsed_ms": 30,
+                    "detail": "Worker inspected object partition 4, attempt 1, with cached metadata revision 13."
+                  },
+                  {
+                    "sequence": 38,
+                    "operation": "dispatch_callback",
+                    "elapsed_ms": 8,
+                    "detail": "Worker inspected object partition 5, attempt 1, with cached metadata revision 14."
+                  },
+                  {
+                    "sequence": 39,
+                    "operation": "release_lock",
+                    "elapsed_ms": 15,
+                    "detail": "Worker inspected object partition 6, attempt 1, with cached metadata revision 15."
+                  },
+                  {
+                    "sequence": 40,
+                    "operation": "resolve_owner",
+                    "elapsed_ms": 22,
+                    "detail": "Worker inspected object partition 7, attempt 2, with cached metadata revision 11."
+                  },
+                  {
+                    "sequence": 41,
+                    "operation": "load_metadata",
+                    "elapsed_ms": 29,
+                    "detail": "Worker inspected object partition 8, attempt 2, with cached metadata revision 12."
+                  },
+                  {
+                    "sequence": 42,
+                    "operation": "check_membership",
+                    "elapsed_ms": 7,
+                    "detail": "Worker inspected object partition 9, attempt 2, with cached metadata revision 13."
+                  },
+                  {
+                    "sequence": 43,
+                    "operation": "read_object_policy",
+                    "elapsed_ms": 14,
+                    "detail": "Worker inspected object partition 10, attempt 2, with cached metadata revision 14."
+                  },
+                  {
+                    "sequence": 44,
+                    "operation": "queue_delivery",
+                    "elapsed_ms": 21,
+                    "detail": "Worker inspected object partition 0, attempt 2, with cached metadata revision 15."
+                  },
+                  {
+                    "sequence": 45,
+                    "operation": "write_audit_entry",
+                    "elapsed_ms": 28,
+                    "detail": "Worker inspected object partition 1, attempt 2, with cached metadata revision 11."
+                  },
+                  {
+                    "sequence": 46,
+                    "operation": "dispatch_callback",
+                    "elapsed_ms": 6,
+                    "detail": "Worker inspected object partition 2, attempt 2, with cached metadata revision 12."
+                  },
+                  {
+                    "sequence": 47,
+                    "operation": "release_lock",
+                    "elapsed_ms": 13,
+                    "detail": "Worker inspected object partition 3, attempt 2, with cached metadata revision 13."
+                  },
+                  {
+                    "sequence": 48,
+                    "operation": "resolve_owner",
+                    "elapsed_ms": 20,
+                    "detail": "Worker inspected object partition 4, attempt 2, with cached metadata revision 14."
+                  },
+                  {
+                    "sequence": 49,
+                    "operation": "load_metadata",
+                    "elapsed_ms": 27,
+                    "detail": "Worker inspected object partition 5, attempt 2, with cached metadata revision 15."
+                  },
+                  {
+                    "sequence": 50,
+                    "operation": "check_membership",
+                    "elapsed_ms": 5,
+                    "detail": "Worker inspected object partition 6, attempt 2, with cached metadata revision 11."
+                  },
+                  {
+                    "sequence": 51,
+                    "operation": "read_object_policy",
+                    "elapsed_ms": 12,
+                    "detail": "Worker inspected object partition 7, attempt 2, with cached metadata revision 12."
+                  },
+                  {
+                    "sequence": 52,
+                    "operation": "queue_delivery",
+                    "elapsed_ms": 19,
+                    "detail": "Worker inspected object partition 8, attempt 2, with cached metadata revision 13."
+                  },
+                  {
+                    "sequence": 53,
+                    "operation": "write_audit_entry",
+                    "elapsed_ms": 26,
+                    "detail": "Worker inspected object partition 9, attempt 2, with cached metadata revision 14."
+                  },
+                  {
+                    "sequence": 54,
+                    "operation": "dispatch_callback",
+                    "elapsed_ms": 4,
+                    "detail": "Worker inspected object partition 10, attempt 2, with cached metadata revision 15."
+                  },
+                  {
+                    "sequence": 55,
+                    "operation": "release_lock",
+                    "elapsed_ms": 11,
+                    "detail": "Worker inspected object partition 0, attempt 2, with cached metadata revision 11."
+                  },
+                  {
+                    "sequence": 56,
+                    "operation": "resolve_owner",
+                    "elapsed_ms": 18,
+                    "detail": "Worker inspected object partition 1, attempt 2, with cached metadata revision 12."
+                  },
+                  {
+                    "sequence": 57,
+                    "operation": "load_metadata",
+                    "elapsed_ms": 25,
+                    "detail": "Worker inspected object partition 2, attempt 2, with cached metadata revision 13."
+                  },
+                  {
+                    "sequence": 58,
+                    "operation": "check_membership",
+                    "elapsed_ms": 3,
+                    "detail": "Worker inspected object partition 3, attempt 2, with cached metadata revision 14."
+                  },
+                  {
+                    "sequence": 59,
+                    "operation": "read_object_policy",
+                    "elapsed_ms": 10,
+                    "detail": "Worker inspected object partition 4, attempt 2, with cached metadata revision 15."
+                  },
+                  {
+                    "sequence": 60,
+                    "operation": "queue_delivery",
+                    "elapsed_ms": 17,
+                    "detail": "Worker inspected object partition 5, attempt 2, with cached metadata revision 11."
+                  },
+                  {
+                    "sequence": 61,
+                    "operation": "write_audit_entry",
+                    "elapsed_ms": 24,
+                    "detail": "Worker inspected object partition 6, attempt 2, with cached metadata revision 12."
+                  },
+                  {
+                    "sequence": 62,
+                    "operation": "dispatch_callback",
+                    "elapsed_ms": 31,
+                    "detail": "Worker inspected object partition 7, attempt 2, with cached metadata revision 13."
+                  },
+                  {
+                    "sequence": 63,
+                    "operation": "release_lock",
+                    "elapsed_ms": 9,
+                    "detail": "Worker inspected object partition 8, attempt 2, with cached metadata revision 14."
+                  },
+                  {
+                    "sequence": 64,
+                    "operation": "resolve_owner",
+                    "elapsed_ms": 16,
+                    "detail": "Worker inspected object partition 9, attempt 2, with cached metadata revision 15."
+                  },
+                  {
+                    "sequence": 65,
+                    "operation": "load_metadata",
+                    "elapsed_ms": 23,
+                    "detail": "Worker inspected object partition 10, attempt 2, with cached metadata revision 11."
+                  },
+                  {
+                    "sequence": 66,
+                    "operation": "check_membership",
+                    "elapsed_ms": 30,
+                    "detail": "Worker inspected object partition 0, attempt 2, with cached metadata revision 12."
+                  },
+                  {
+                    "sequence": 67,
+                    "operation": "read_object_policy",
+                    "elapsed_ms": 8,
+                    "detail": "Worker inspected object partition 1, attempt 2, with cached metadata revision 13."
+                  },
+                  {
+                    "sequence": 68,
+                    "operation": "queue_delivery",
+                    "elapsed_ms": 15,
+                    "detail": "Worker inspected object partition 2, attempt 2, with cached metadata revision 14."
+                  },
+                  {
+                    "sequence": 69,
+                    "operation": "write_audit_entry",
+                    "elapsed_ms": 22,
+                    "detail": "Worker inspected object partition 3, attempt 2, with cached metadata revision 15."
+                  },
+                  {
+                    "sequence": 70,
+                    "operation": "dispatch_callback",
+                    "elapsed_ms": 29,
+                    "detail": "Worker inspected object partition 4, attempt 2, with cached metadata revision 11."
+                  },
+                  {
+                    "sequence": 71,
+                    "operation": "release_lock",
+                    "elapsed_ms": 7,
+                    "detail": "Worker inspected object partition 5, attempt 2, with cached metadata revision 12."
+                  },
+                  {
+                    "sequence": 72,
+                    "operation": "resolve_owner",
+                    "elapsed_ms": 14,
+                    "detail": "Worker inspected object partition 6, attempt 2, with cached metadata revision 13."
+                  },
+                  {
+                    "sequence": 73,
+                    "operation": "load_metadata",
+                    "elapsed_ms": 21,
+                    "detail": "Worker inspected object partition 7, attempt 2, with cached metadata revision 14."
+                  },
+                  {
+                    "sequence": 74,
+                    "operation": "check_membership",
+                    "elapsed_ms": 28,
+                    "detail": "Worker inspected object partition 8, attempt 2, with cached metadata revision 15."
+                  },
+                  {
+                    "sequence": 75,
+                    "operation": "read_object_policy",
+                    "elapsed_ms": 6,
+                    "detail": "Worker inspected object partition 9, attempt 2, with cached metadata revision 11."
+                  },
+                  {
+                    "sequence": 76,
+                    "operation": "queue_delivery",
+                    "elapsed_ms": 13,
+                    "detail": "Worker inspected object partition 10, attempt 2, with cached metadata revision 12."
+                  },
+                  {
+                    "sequence": 77,
+                    "operation": "write_audit_entry",
+                    "elapsed_ms": 20,
+                    "detail": "Worker inspected object partition 0, attempt 2, with cached metadata revision 13."
+                  },
+                  {
+                    "sequence": 78,
+                    "operation": "dispatch_callback",
+                    "elapsed_ms": 27,
+                    "detail": "Worker inspected object partition 1, attempt 2, with cached metadata revision 14."
+                  },
+                  {
+                    "sequence": 79,
+                    "operation": "release_lock",
+                    "elapsed_ms": 5,
+                    "detail": "Worker inspected object partition 2, attempt 2, with cached metadata revision 15."
+                  },
+                  {
+                    "sequence": 80,
+                    "operation": "resolve_owner",
+                    "elapsed_ms": 12,
+                    "detail": "Worker inspected object partition 3, attempt 3, with cached metadata revision 11."
+                  },
+                  {
+                    "sequence": 81,
+                    "operation": "load_metadata",
+                    "elapsed_ms": 19,
+                    "detail": "Worker inspected object partition 4, attempt 3, with cached metadata revision 12."
+                  },
+                  {
+                    "sequence": 82,
+                    "operation": "check_membership",
+                    "elapsed_ms": 26,
+                    "detail": "Worker inspected object partition 5, attempt 3, with cached metadata revision 13."
+                  },
+                  {
+                    "sequence": 83,
+                    "operation": "read_object_policy",
+                    "elapsed_ms": 4,
+                    "detail": "Worker inspected object partition 6, attempt 3, with cached metadata revision 14."
+                  },
+                  {
+                    "sequence": 84,
+                    "operation": "queue_delivery",
+                    "elapsed_ms": 11,
+                    "detail": "Worker inspected object partition 7, attempt 3, with cached metadata revision 15."
+                  },
+                  {
+                    "sequence": 85,
+                    "operation": "write_audit_entry",
+                    "elapsed_ms": 18,
+                    "detail": "Worker inspected object partition 8, attempt 3, with cached metadata revision 11."
+                  },
+                  {
+                    "sequence": 86,
+                    "operation": "dispatch_callback",
+                    "elapsed_ms": 25,
+                    "detail": "Worker inspected object partition 9, attempt 3, with cached metadata revision 12."
+                  },
+                  {
+                    "sequence": 87,
+                    "operation": "release_lock",
+                    "elapsed_ms": 3,
+                    "detail": "Worker inspected object partition 10, attempt 3, with cached metadata revision 13."
+                  },
+                  {
+                    "sequence": 88,
+                    "operation": "resolve_owner",
+                    "elapsed_ms": 10,
+                    "detail": "Worker inspected object partition 0, attempt 3, with cached metadata revision 14."
+                  },
+                  {
+                    "sequence": 89,
+                    "operation": "load_metadata",
+                    "elapsed_ms": 17,
+                    "detail": "Worker inspected object partition 1, attempt 3, with cached metadata revision 15."
+                  },
+                  {
+                    "sequence": 90,
+                    "operation": "check_membership",
+                    "elapsed_ms": 24,
+                    "detail": "Worker inspected object partition 2, attempt 3, with cached metadata revision 11."
+                  },
+                  {
+                    "sequence": 91,
+                    "operation": "read_object_policy",
+                    "elapsed_ms": 31,
+                    "detail": "Worker inspected object partition 3, attempt 3, with cached metadata revision 12."
+                  },
+                  {
+                    "sequence": 92,
+                    "operation": "queue_delivery",
+                    "elapsed_ms": 9,
+                    "detail": "Worker inspected object partition 4, attempt 3, with cached metadata revision 13."
+                  },
+                  {
+                    "sequence": 93,
+                    "operation": "write_audit_entry",
+                    "elapsed_ms": 16,
+                    "detail": "Worker inspected object partition 5, attempt 3, with cached metadata revision 14."
+                  },
+                  {
+                    "sequence": 94,
+                    "operation": "dispatch_callback",
+                    "elapsed_ms": 23,
+                    "detail": "Worker inspected object partition 6, attempt 3, with cached metadata revision 15."
+                  },
+                  {
+                    "sequence": 95,
+                    "operation": "release_lock",
+                    "elapsed_ms": 30,
+                    "detail": "Worker inspected object partition 7, attempt 3, with cached metadata revision 11."
+                  },
+                  {
+                    "sequence": 96,
+                    "operation": "resolve_owner",
+                    "elapsed_ms": 8,
+                    "detail": "Worker inspected object partition 8, attempt 3, with cached metadata revision 12."
+                  },
+                  {
+                    "sequence": 97,
+                    "operation": "load_metadata",
+                    "elapsed_ms": 15,
+                    "detail": "Worker inspected object partition 9, attempt 3, with cached metadata revision 13."
+                  },
+                  {
+                    "sequence": 98,
+                    "operation": "check_membership",
+                    "elapsed_ms": 22,
+                    "detail": "Worker inspected object partition 10, attempt 3, with cached metadata revision 14."
+                  },
+                  {
+                    "sequence": 99,
+                    "operation": "read_object_policy",
+                    "elapsed_ms": 29,
+                    "detail": "Worker inspected object partition 0, attempt 3, with cached metadata revision 15."
+                  },
+                  {
+                    "sequence": 100,
+                    "operation": "queue_delivery",
+                    "elapsed_ms": 7,
+                    "detail": "Worker inspected object partition 1, attempt 3, with cached metadata revision 11."
+                  },
+                  {
+                    "sequence": 101,
+                    "operation": "write_audit_entry",
+                    "elapsed_ms": 14,
+                    "detail": "Worker inspected object partition 2, attempt 3, with cached metadata revision 12."
+                  },
+                  {
+                    "sequence": 102,
+                    "operation": "dispatch_callback",
+                    "elapsed_ms": 21,
+                    "detail": "Worker inspected object partition 3, attempt 3, with cached metadata revision 13."
+                  },
+                  {
+                    "sequence": 103,
+                    "operation": "release_lock",
+                    "elapsed_ms": 28,
+                    "detail": "Worker inspected object partition 4, attempt 3, with cached metadata revision 14."
+                  },
+                  {
+                    "sequence": 104,
+                    "operation": "resolve_owner",
+                    "elapsed_ms": 6,
+                    "detail": "Worker inspected object partition 5, attempt 3, with cached metadata revision 15."
+                  },
+                  {
+                    "sequence": 105,
+                    "operation": "load_metadata",
+                    "elapsed_ms": 13,
+                    "detail": "Worker inspected object partition 6, attempt 3, with cached metadata revision 11."
+                  },
+                  {
+                    "sequence": 106,
+                    "operation": "check_membership",
+                    "elapsed_ms": 20,
+                    "detail": "Worker inspected object partition 7, attempt 3, with cached metadata revision 12."
+                  },
+                  {
+                    "sequence": 107,
+                    "operation": "read_object_policy",
+                    "elapsed_ms": 27,
+                    "detail": "Worker inspected object partition 8, attempt 3, with cached metadata revision 13."
+                  },
+                  {
+                    "sequence": 108,
+                    "operation": "queue_delivery",
+                    "elapsed_ms": 5,
+                    "detail": "Worker inspected object partition 9, attempt 3, with cached metadata revision 14."
+                  },
+                  {
+                    "sequence": 109,
+                    "operation": "write_audit_entry",
+                    "elapsed_ms": 12,
+                    "detail": "Worker inspected object partition 10, attempt 3, with cached metadata revision 15."
+                  },
+                  {
+                    "sequence": 110,
+                    "operation": "dispatch_callback",
+                    "elapsed_ms": 19,
+                    "detail": "Worker inspected object partition 0, attempt 3, with cached metadata revision 11."
+                  },
+                  {
+                    "sequence": 111,
+                    "operation": "release_lock",
+                    "elapsed_ms": 26,
+                    "detail": "Worker inspected object partition 1, attempt 3, with cached metadata revision 12."
+                  },
+                  {
+                    "sequence": 112,
+                    "operation": "resolve_owner",
+                    "elapsed_ms": 4,
+                    "detail": "Worker inspected object partition 2, attempt 3, with cached metadata revision 13."
+                  },
+                  {
+                    "sequence": 113,
+                    "operation": "load_metadata",
+                    "elapsed_ms": 11,
+                    "detail": "Worker inspected object partition 3, attempt 3, with cached metadata revision 14."
+                  },
+                  {
+                    "sequence": 114,
+                    "operation": "check_membership",
+                    "elapsed_ms": 18,
+                    "detail": "Worker inspected object partition 4, attempt 3, with cached metadata revision 15."
+                  },
+                  {
+                    "sequence": 115,
+                    "operation": "read_object_policy",
+                    "elapsed_ms": 25,
+                    "detail": "Worker inspected object partition 5, attempt 3, with cached metadata revision 11."
+                  },
+                  {
+                    "sequence": 116,
+                    "operation": "queue_delivery",
+                    "elapsed_ms": 3,
+                    "detail": "Worker inspected object partition 6, attempt 3, with cached metadata revision 12."
+                  },
+                  {
+                    "sequence": 117,
+                    "operation": "write_audit_entry",
+                    "elapsed_ms": 10,
+                    "detail": "Worker inspected object partition 7, attempt 3, with cached metadata revision 13."
+                  },
+                  {
+                    "sequence": 118,
+                    "operation": "dispatch_callback",
+                    "elapsed_ms": 17,
+                    "detail": "Worker inspected object partition 8, attempt 3, with cached metadata revision 14."
+                  },
+                  {
+                    "sequence": 119,
+                    "operation": "release_lock",
+                    "elapsed_ms": 24,
+                    "detail": "Worker inspected object partition 9, attempt 3, with cached metadata revision 15."
+                  }
+                ],
+                "final_result": {
+                  "error_code": "stale_parent_revision",
+                  "retry_allowed": false,
+                  "message": "The object parent changed after enqueue; delivery was cancelled."
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "O-DOWNLOAD-CONTRACT",
+          "summary": "下载入口校验条件",
+          "subject_refs": [
+            "E-STORAGE"
+          ],
+          "content": {
+            "environment": "training-lab-4",
+            "request": {
+              "method": "GET",
+              "url": "https://lab.invalid/api/v2/objects/download/schema"
+            },
+            "response": {
+              "status": 200,
+              "body": {
+                "required": [
+                  "download_credential",
+                  "object_id"
+                ],
+                "credential_audience": "reports-service",
+                "accepted_formats": [
+                  "signed-reference"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "O-CALLBACK-INITIAL",
+          "summary": "初次回调测试结果",
+          "subject_refs": [
+            "E-CALLBACK"
+          ],
+          "content": {
+            "environment": "training-lab-4",
+            "request": {
+              "method": "POST",
+              "url": "https://lab.invalid/api/v1/callback/test"
+            },
+            "response": {
+              "status": 400,
+              "body": {
+                "error": "initial_host_not_allowed",
+                "target": "https://outside.invalid/"
+              }
+            }
+          }
+        },
+        {
+          "id": "O-OBJECT-INITIAL",
+          "summary": "同租户对象读取基线",
+          "subject_refs": [
+            "E-STORAGE"
+          ],
+          "content": {
+            "environment": "training-lab-4",
+            "request": {
+              "method": "GET",
+              "url": "https://lab.invalid/api/v2/objects/obj-19"
+            },
+            "response": {
+              "status": 200,
+              "body": {
+                "owner_user": "user-a",
+                "tenant": "tenant-a",
+                "content": "example report"
+              }
+            }
+          }
+        },
+        {
+          "id": "O-CSRF-LOGOUT",
+          "summary": "注销后的请求被拒绝",
+          "subject_refs": [
+            "E-IDENTITY"
+          ],
+          "content": {
+            "environment": "training-lab-4",
+            "request": {
+              "method": "POST",
+              "url": "https://lab.invalid/api/v1/profile/email"
+            },
+            "response": {
+              "status": 401,
+              "body": {
+                "error": "session_expired",
+                "csrf_checked": false
+              }
+            }
+          }
+        },
+        {
+          "id": "O-AVATAR-UPLOAD",
+          "summary": "头像上传返回图片引用",
+          "subject_refs": [
+            "E-STORAGE"
+          ],
+          "content": {
+            "environment": "training-lab-4",
+            "request": {
+              "method": "POST",
+              "url": "https://lab.invalid/api/v1/avatar"
+            },
+            "response": {
+              "status": 201,
+              "body": {
+                "image_ref": "img-62a",
+                "detected_type": "image/png"
+              }
+            }
+          }
+        },
+        {
+          "id": "O-SEARCH-EMPTY",
+          "summary": "报表名称搜索无结果",
+          "subject_refs": [
+            "E-REPORTS"
+          ],
+          "content": {
+            "environment": "training-lab-4",
+            "request": {
+              "method": "GET",
+              "url": "https://lab.invalid/api/v1/reports/search"
+            },
+            "response": {
+              "status": 200,
+              "body": {
+                "matches": [],
+                "query": "Quarterly operations"
+              }
+            }
+          }
+        },
+        {
+          "id": "O-INVITE-PREVIEW",
+          "summary": "邀请预览只返回工作区名称",
+          "subject_refs": [
+            "E-IDENTITY"
+          ],
+          "content": {
+            "environment": "training-lab-4",
+            "request": {
+              "method": "GET",
+              "url": "https://lab.invalid/api/v1/invitations/preview"
+            },
+            "response": {
+              "status": 200,
+              "body": {
+                "workspace_name": "Demo workspace",
+                "member_list": null
+              }
+            }
+          }
+        },
+        {
+          "id": "O-AUDIT-CURSOR",
+          "summary": "审计游标格式错误",
+          "subject_refs": [
+            "E-AUDIT"
+          ],
+          "content": {
+            "environment": "training-lab-4",
+            "request": {
+              "method": "GET",
+              "url": "https://lab.invalid/api/v1/audit/events"
+            },
+            "response": {
+              "status": 400,
+              "body": {
+                "error": "invalid_cursor",
+                "expected_format": "opaque-base64"
+              }
+            }
+          }
+        }
+      ],
+      "records": [
+        {
+          "id": "F-EXPORT-202",
+          "kind": "Fact",
+          "status": "observed",
+          "title": "导出任务受理",
+          "summary": "POST /api/v2/reports/export 返回受理响应与任务标识。队列已接收请求，后台完成和可下载结果尚未观察到。",
+          "observation_refs": [
+            "O-EXPORT-202"
+          ],
+          "subject_refs": [
+            "E-REPORTS"
+          ],
+          "limitations": [
+            "HTTP 202 只能证明提交已受理。"
+          ]
+        },
+        {
+          "id": "F-EXPORT-STATUS",
+          "kind": "Fact",
+          "status": "observed",
+          "title": "轮询报表任务状态",
+          "summary": "GET /api/v2/report-exports/status 显示任务仍在运行，状态接口不提供下载凭据。",
+          "observation_refs": [
+            "O-EXPORT-STATUS"
+          ],
+          "subject_refs": [
+            "E-REPORTS"
+          ]
+        },
+        {
+          "id": "F-INVITE-USED",
+          "kind": "Fact",
+          "status": "observed",
+          "title": "一次性邀请已消费",
+          "summary": "重复接受成员邀请返回冲突；未观察到第二次授予成员权限。",
+          "observation_refs": [
+            "O-INVITE-REJECT"
+          ],
+          "subject_refs": [
+            "E-IDENTITY"
+          ]
+        },
+        {
+          "id": "F-AUTH-1",
+          "kind": "Fact",
+          "status": "observed",
+          "title": "成员个人资料接口",
+          "summary": "普通成员能查询自己的个人资料；这次请求没有管理员审计信息。",
+          "observation_refs": [
+            "O-AUTH-1"
+          ],
+          "subject_refs": [
+            "E-IDENTITY"
+          ]
+        },
+        {
+          "id": "F-AUTH-10",
+          "kind": "Fact",
+          "status": "observed",
+          "title": "管理员审计权限检查",
+          "summary": "AdminAuditController 拒绝普通成员读取管理员审计日志，返回权限不足。",
+          "observation_refs": [
+            "O-AUTH-10"
+          ],
+          "subject_refs": [
+            "E-AUDIT"
+          ]
+        },
+        {
+          "id": "F-DOWNLOAD-DENIED",
+          "kind": "Fact",
+          "status": "observed",
+          "title": "跨租户下载失败",
+          "summary": "持有任务标识仍不能跨租户下载对象；服务拒绝了租户不匹配的会话。",
+          "observation_refs": [
+            "O-DOWNLOAD-DENIED"
+          ],
+          "subject_refs": [
+            "E-STORAGE"
+          ]
+        },
+        {
+          "id": "S-TENANT-DOWNLOAD",
+          "kind": "Step",
+          "status": "blocked",
+          "title": "下载验证重开条件",
+          "summary": "跨租户下载路径目前失败；取得同租户会话后，应重新验证对象权限是否仍受限制。",
+          "observation_refs": [
+            "O-DOWNLOAD-DENIED"
+          ],
+          "subject_refs": [
+            "E-STORAGE"
+          ],
+          "source_refs": [
+            "F-DOWNLOAD-DENIED"
+          ],
+          "reopen_when": [
+            "取得属于对象所在租户的有效会话。"
+          ],
+          "limitations": [
+            "失败不证明同租户访问一定安全。"
+          ]
+        },
+        {
+          "id": "S-WEBHOOK-RETEST",
+          "kind": "Step",
+          "status": "blocked",
+          "title": "Webhook signature retest",
+          "summary": "The replay failed with signature mismatch after key rotation. Refresh the signing key and retry with a fresh timestamp before judging replay protection.",
+          "observation_refs": [
+            "O-WEBHOOK-MISMATCH"
+          ],
+          "subject_refs": [
+            "E-WEBHOOK"
+          ],
+          "reopen_when": [
+            "Obtain the current signing key and a timestamp inside the validity window."
+          ]
+        },
+        {
+          "id": "F-DELIVERY-TRACE",
+          "kind": "Fact",
+          "status": "observed",
+          "title": "后台投递最终状态待定位",
+          "summary": "已保存投递诊断的完整响应，需要从工作进程事件中确认结束原因。",
+          "observation_refs": [
+            "O-DELIVERY-TRACE"
+          ],
+          "subject_refs": [
+            "E-CALLBACK"
+          ]
+        },
+        {
+          "id": "C-EXPORT-HANDLE",
+          "kind": "Capability",
+          "status": "observed",
+          "title": "报表任务句柄",
+          "summary": "受理响应中的标识可以用于后续查询任务。尚未验证它能否直接授权对象下载。",
+          "observation_refs": [
+            "O-EXPORT-202"
+          ],
+          "subject_refs": [
+            "E-REPORTS"
+          ],
+          "aliases": [
+            "export handle",
+            "导出任务句柄"
+          ],
+          "capability": {
+            "provides": [
+              {
+                "type": "report-job-id",
+                "aliases": [
+                  "export handle",
+                  "任务句柄"
+                ],
+                "description": "提交导出任务后获得的句柄",
+                "constraints": {
+                  "environment": "training-lab-4",
+                  "purpose": "report-export",
+                  "tenant": "tenant-a"
+                }
+              }
+            ],
+            "needs": [],
+            "control": "可选择本账号拥有的报表"
+          }
+        },
+        {
+          "id": "C-DOWNLOAD-CONSUMER",
+          "kind": "Capability",
+          "status": "observed",
+          "title": "下载入口消费条件",
+          "summary": "对象下载需要有效下载凭据，凭据受众必须是报表服务 reports-service；另需对应的对象标识。",
+          "observation_refs": [
+            "O-DOWNLOAD-CONTRACT"
+          ],
+          "subject_refs": [
+            "E-STORAGE"
+          ],
+          "capability": {
+            "provides": [],
+            "needs": [
+              {
+                "type": "download-credential",
+                "description": "受众为报表服务的下载凭据",
+                "constraints": {
+                  "environment": "training-lab-4",
+                  "audience": "reports-service"
+                }
+              },
+              {
+                "type": "object-id",
+                "description": "目标对象的完整标识",
+                "constraints": {
+                  "environment": "training-lab-4"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "F-CALLBACK-OLD",
+          "kind": "Fact",
+          "status": "observed",
+          "title": "回调地址校验初步结论",
+          "summary": "回调入口阻止非允许主机。初步认为回调地址限制覆盖整个请求流程，尚未测试跟随重定向。",
+          "observation_refs": [
+            "O-CALLBACK-INITIAL"
+          ],
+          "subject_refs": [
+            "E-CALLBACK"
+          ]
+        },
+        {
+          "id": "F-OBJECT-OWNER",
+          "kind": "Fact",
+          "status": "observed",
+          "title": "对象归属检查",
+          "summary": "同租户账号读取自有对象成功，其他对象访问尚未测试。",
+          "observation_refs": [
+            "O-OBJECT-INITIAL"
+          ],
+          "subject_refs": [
+            "E-STORAGE"
+          ]
+        },
+        {
+          "id": "F-CSRF-LOGOUT",
+          "kind": "Fact",
+          "status": "observed",
+          "title": "注销后请求未进入 CSRF 检查",
+          "summary": "The request after logout was rejected because the session expired. This result does not establish whether the CSRF token was invalidated.",
+          "observation_refs": [
+            "O-CSRF-LOGOUT"
+          ],
+          "subject_refs": [
+            "E-IDENTITY"
+          ]
+        },
+        {
+          "id": "F-AVATAR-UPLOAD",
+          "kind": "Fact",
+          "status": "observed",
+          "title": "头像上传基线",
+          "summary": "PNG 头像上传成功并返回图片引用；没有观察到执行上传内容的能力。",
+          "observation_refs": [
+            "O-AVATAR-UPLOAD"
+          ],
+          "subject_refs": [
+            "E-STORAGE"
+          ]
+        },
+        {
+          "id": "F-SEARCH-EMPTY",
+          "kind": "Fact",
+          "status": "observed",
+          "title": "报表搜索空结果",
+          "summary": "按名称搜索返回空集合；接口未提供其他租户报表，不能由此断言所有报表对象都受相同权限控制。",
+          "observation_refs": [
+            "O-SEARCH-EMPTY"
+          ],
+          "subject_refs": [
+            "E-REPORTS"
+          ]
+        },
+        {
+          "id": "F-INVITE-PREVIEW",
+          "kind": "Fact",
+          "status": "observed",
+          "title": "邀请预览信息范围",
+          "summary": "邀请预览显示工作区名称，没有返回成员名单或会话凭据。",
+          "observation_refs": [
+            "O-INVITE-PREVIEW"
+          ],
+          "subject_refs": [
+            "E-IDENTITY"
+          ]
+        },
+        {
+          "id": "F-AUDIT-CURSOR",
+          "kind": "Fact",
+          "status": "observed",
+          "title": "审计分页游标",
+          "summary": "普通审计事件接口拒绝格式错误的分页游标，尚未验证有效游标是否绑定查询用户。",
+          "observation_refs": [
+            "O-AUDIT-CURSOR"
+          ],
+          "subject_refs": [
+            "E-AUDIT"
+          ]
+        }
+      ]
+    },
+    {
+      "observations": [
+        {
+          "id": "O-CALLBACK-REDIRECT",
+          "summary": "允许主机重定向后的回调观察",
+          "subject_refs": [
+            "E-CALLBACK"
+          ],
+          "content": {
+            "environment": "training-lab-4",
+            "request": {
+              "method": "POST",
+              "url": "https://lab.invalid/api/v1/callback/test",
+              "target": "https://allowed.lab.invalid/redirect"
+            },
+            "response": {
+              "status": 200,
+              "body": {
+                "redirectBlocked": false,
+                "final_host": "outside.invalid",
+                "delivery_received": true
+              }
+            }
+          }
+        },
+        {
+          "id": "O-OBJECT-OTHER-OWNER",
+          "summary": "相同租户内访问其他所有者对象被拒绝",
+          "subject_refs": [
+            "E-STORAGE"
+          ],
+          "content": {
+            "environment": "training-lab-4",
+            "request": {
+              "method": "GET",
+              "url": "https://lab.invalid/api/v2/objects/obj-20"
+            },
+            "response": {
+              "status": 403,
+              "body": {
+                "error": "owner_mismatch",
+                "tenant": "tenant-a",
+                "owner_user": "user-b"
+              }
+            }
+          }
+        }
+      ],
+      "records": [
+        {
+          "id": "F-CALLBACK-OLD",
+          "status": "refuted",
+          "change_reason": "初步结论没有覆盖重定向后的目的主机。"
+        },
+        {
+          "id": "F-CALLBACK-CURRENT",
+          "kind": "Fact",
+          "status": "observed",
+          "title": "回调地址校验的当前更正",
+          "summary": "回调只校验初始地址；允许主机返回重定向后，跟随请求到达外部主机。旧的全程主机限制结论已被新观察推翻。",
+          "subject_refs": [
+            "E-CALLBACK"
+          ],
+          "observation_refs": [
+            "O-CALLBACK-REDIRECT"
+          ],
+          "contradicts": [
+            "F-CALLBACK-OLD"
+          ]
+        },
+        {
+          "id": "F-OBJECT-OWNER",
+          "status": "observed",
+          "summary": "对象归属校验要求请求者是对象所有者；即便租户相同，读取其他所有者的对象仍被拒绝。",
+          "observation_refs": [
+            "O-OBJECT-INITIAL",
+            "O-OBJECT-OTHER-OWNER"
+          ],
+          "change_reason": "增加同租户、不同所有者的对照，收窄原基线结论。"
+        }
+      ]
+    }
+  ],
+  "queries": [
+    {
+      "id": "exact_record",
+      "category": "精确记录定位",
+      "query": "请读 F-EXPORT-202，说明当前能证明什么。",
+      "anchors": [],
+      "primary_relevant": [
+        {
+          "kind": "record",
+          "id": "F-EXPORT-202"
+        }
+      ],
+      "expect_no_hit": false
+    },
+    {
+      "id": "exact_observation",
+      "category": "精确原始观察",
+      "query": "Find the original response in O-INVITE-REJECT.",
+      "anchors": [],
+      "primary_relevant": [
+        {
+          "kind": "observation",
+          "id": "O-INVITE-REJECT"
+        }
+      ],
+      "expect_no_hit": false
+    },
+    {
+      "id": "zh_export",
+      "category": "中文业务查询",
+      "query": "导出任务的受理响应能证明后台已经完成了吗？",
+      "anchors": [],
+      "primary_relevant": [
+        {
+          "kind": "record",
+          "id": "F-EXPORT-202"
+        }
+      ],
+      "expect_no_hit": false
+    },
+    {
+      "id": "en_endpoint",
+      "category": "英文接口名称",
+      "query": "What did POST /api/v2/reports/export return when the job was accepted?",
+      "anchors": [],
+      "primary_relevant": [
+        {
+          "kind": "observation",
+          "id": "O-EXPORT-202"
+        }
+      ],
+      "expect_no_hit": false
+    },
+    {
+      "id": "complete_job_id",
+      "category": "完整业务标识符",
+      "query": "查找 job-7cf2a1e9-0042 的原始返回。",
+      "anchors": [],
+      "primary_relevant": [
+        {
+          "kind": "observation",
+          "id": "O-EXPORT-202"
+        }
+      ],
+      "expect_no_hit": false
+    },
+    {
+      "id": "similar_record_id",
+      "category": "区分近似记录 ID",
+      "query": "F-AUTH-10 的管理员审计权限检查结果是什么？",
+      "anchors": [],
+      "primary_relevant": [
+        {
+          "kind": "record",
+          "id": "F-AUTH-10"
+        }
+      ],
+      "expect_no_hit": false
+    },
+    {
+      "id": "similar_endpoint",
+      "category": "区分近似接口名",
+      "query": "GET /api/v2/report-exports/status 是什么状态？",
+      "anchors": [],
+      "primary_relevant": [
+        {
+          "kind": "record",
+          "id": "F-EXPORT-STATUS"
+        }
+      ],
+      "expect_no_hit": false
+    },
+    {
+      "id": "negative_reopen_zh",
+      "category": "中文负结果与重开",
+      "query": "跨租户下载失败后，拿到同租户会话是否应该重新验证？",
+      "anchors": [],
+      "primary_relevant": [
+        {
+          "kind": "record",
+          "id": "S-TENANT-DOWNLOAD"
+        }
+      ],
+      "expect_no_hit": false
+    },
+    {
+      "id": "negative_reopen_en",
+      "category": "英文负结果与重开",
+      "query": "The webhook replay had a signature mismatch. What must change before a useful retest?",
+      "anchors": [],
+      "primary_relevant": [
+        {
+          "kind": "record",
+          "id": "S-WEBHOOK-RETEST"
+        }
+      ],
+      "expect_no_hit": false
+    },
+    {
+      "id": "raw_tail",
+      "category": "原始响应尾部",
+      "query": "Which diagnostic response ended with stale_parent_revision?",
+      "anchors": [],
+      "primary_relevant": [
+        {
+          "kind": "observation",
+          "id": "O-DELIVERY-TRACE"
+        }
+      ],
+      "expect_no_hit": false
+    },
+    {
+      "id": "capability_alias",
+      "category": "能力别名",
+      "query": "Where did we obtain the export handle, and what can it provide?",
+      "anchors": [],
+      "primary_relevant": [
+        {
+          "kind": "record",
+          "id": "C-EXPORT-HANDLE"
+        }
+      ],
+      "expect_no_hit": false
+    },
+    {
+      "id": "consumer_needs",
+      "category": "消费者前提",
+      "query": "下载入口需要什么凭据受众和对象标识？",
+      "anchors": [],
+      "primary_relevant": [
+        {
+          "kind": "record",
+          "id": "C-DOWNLOAD-CONSUMER"
+        }
+      ],
+      "expect_no_hit": false
+    },
+    {
+      "id": "current_correction",
+      "category": "当前更正可找回",
+      "query": "回调跟随重定向以后是否还校验目的主机？找当前更正结论。",
+      "anchors": [],
+      "primary_relevant": [
+        {
+          "kind": "record",
+          "id": "F-CALLBACK-CURRENT"
+        }
+      ],
+      "expect_no_hit": false
+    },
+    {
+      "id": "stable_id_revision",
+      "category": "同 ID 修订可找回",
+      "query": "同一个租户的不同对象所有者能互相读取吗？对象归属校验的最新对照是什么？",
+      "anchors": [],
+      "primary_relevant": [
+        {
+          "kind": "record",
+          "id": "F-OBJECT-OWNER"
+        }
+      ],
+      "expect_no_hit": false
+    },
+    {
+      "id": "structured_null",
+      "category": "原始结构化空值",
+      "query": "Which task status response contained audit_log null?",
+      "anchors": [],
+      "primary_relevant": [
+        {
+          "kind": "observation",
+          "id": "O-EXPORT-STATUS"
+        }
+      ],
+      "expect_no_hit": false
+    },
+    {
+      "id": "no_hit",
+      "category": "不存在的主题",
+      "query": "PKCS11 HSM slot enumeration",
+      "anchors": [],
+      "primary_relevant": [],
+      "expect_no_hit": true
+    }
+  ]
+}

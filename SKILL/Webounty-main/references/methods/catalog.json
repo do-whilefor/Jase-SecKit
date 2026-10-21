@@ -1,0 +1,800 @@
+[
+  {
+    "id": "baseline-authz",
+    "title": "Business baseline and authorization comparison",
+    "keywords": [
+      "baseline",
+      "authorization",
+      "permission",
+      "tenant",
+      "owner",
+      "identity",
+      "session",
+      "denial",
+      "200",
+      "403",
+      "基线",
+      "权限",
+      "越权",
+      "租户",
+      "身份",
+      "拒绝",
+      "账单",
+      "对照"
+    ],
+    "path": "references/methods/baseline-authz.md",
+    "intents": [
+      "business-baseline"
+    ],
+    "signals": [
+      "owner baseline",
+      "actor-action-object",
+      "合法业务基线",
+      "对象所有者"
+    ],
+    "source_refs": [
+      {
+        "path": "references/http-auth-filter-testing.md",
+        "section": "3. Token-chain reachability matrix; Token-type verification",
+        "line_start": 62,
+        "line_end": 116,
+        "sha256": "df78247ecbd9af6f5fe31bd02084abfa09d1d70fd2234847d2e71dbcdcf0cba7"
+      }
+    ]
+  },
+  {
+    "id": "flow-chain",
+    "title": "Multi-stage business and protocol chains",
+    "keywords": [
+      "flow",
+      "stage",
+      "protocol",
+      "chain",
+      "asynchronous",
+      "export",
+      "job",
+      "token",
+      "consumer",
+      "202",
+      "流程",
+      "阶段",
+      "协议",
+      "链路",
+      "后台",
+      "异步",
+      "导出",
+      "任务",
+      "凭证",
+      "消费",
+      "签发"
+    ],
+    "path": "references/methods/flow-chain.md",
+    "intents": [
+      "business-flow"
+    ],
+    "signals": [
+      "asynchronous stages",
+      "job consumer",
+      "异步阶段",
+      "后台作业"
+    ],
+    "source_refs": [
+      {
+        "path": "references/http-auth-filter-testing.md",
+        "section": "5. Magic-link flow testing: chain and stop points",
+        "line_start": 136,
+        "line_end": 168,
+        "sha256": "df78247ecbd9af6f5fe31bd02084abfa09d1d70fd2234847d2e71dbcdcf0cba7"
+      }
+    ]
+  },
+  {
+    "id": "static-dynamic-retest",
+    "title": "Static-dynamic linkage and conditional retesting",
+    "keywords": [
+      "static",
+      "dynamic",
+      "source",
+      "javascript",
+      "openapi",
+      "deployment",
+      "version",
+      "policy",
+      "retest",
+      "patch",
+      "cache",
+      "静态",
+      "动态",
+      "源码",
+      "部署",
+      "版本",
+      "政策",
+      "策略",
+      "复测",
+      "修复",
+      "条件",
+      "环境",
+      "入口"
+    ],
+    "path": "references/methods/static-dynamic-retest.md",
+    "intents": [
+      "conditional-retest"
+    ],
+    "signals": [
+      "static-runtime mismatch",
+      "conditional retest",
+      "静态动态不一致",
+      "条件复测"
+    ],
+    "source_refs": [
+      {
+        "path": "references/methodology-lessons.md",
+        "section": "LESSON 3 — Post-Patch Re-Verification Protocol",
+        "line_start": 38,
+        "line_end": 59,
+        "sha256": "79b54952753c5a387d2cc506db5ba301577f49d26bc609df37087ae1de4bd462"
+      }
+    ]
+  },
+  {
+    "id": "observer-validity",
+    "title": "Observer validity and differential controls",
+    "keywords": [
+      "observer",
+      "differential",
+      "enumeration",
+      "membership",
+      "cooldown",
+      "counter",
+      "timing",
+      "noise",
+      "观察器",
+      "差异",
+      "枚举",
+      "存在性",
+      "冷却",
+      "计数",
+      "负对照"
+    ],
+    "path": "references/methods/observer-validity.md",
+    "intents": [
+      "observer-validity",
+      "differential-control"
+    ],
+    "signals": [
+      "negative control",
+      "existence oracle",
+      "time_total",
+      "lockout",
+      "timing noise",
+      "negative-control-harness",
+      "负对照",
+      "阴性对照",
+      "负控制",
+      "时序噪声",
+      "枚举差异",
+      "锁定计数"
+    ],
+    "source_refs": [
+      {
+        "path": "references/methodology-lessons.md",
+        "section": "LESSON 1 — Negative-Control Methodology for Enumeration Oracles",
+        "line_start": 7,
+        "line_end": 13,
+        "sha256": "79b54952753c5a387d2cc506db5ba301577f49d26bc609df37087ae1de4bd462"
+      },
+      {
+        "path": "scripts/negative-control-harness.sh",
+        "section": "Negative candidate generation and output cleanup",
+        "line_start": 44,
+        "line_end": 50,
+        "sha256": "3bd2edfbd4336658964417f620d7c079b27460ab6b33c95ec518b9ecc36b2081"
+      },
+      {
+        "path": "scripts/negative-control-harness.sh",
+        "section": "run_one and differential analysis",
+        "line_start": 58,
+        "line_end": 116,
+        "sha256": "3bd2edfbd4336658964417f620d7c079b27460ab6b33c95ec518b9ecc36b2081"
+      }
+    ]
+  },
+  {
+    "id": "controller-reach",
+    "title": "Filter, route, and controller reach",
+    "keywords": [
+      "controller",
+      "handler",
+      "filter",
+      "routing",
+      "schema",
+      "validation",
+      "normalization",
+      "HTML",
+      "JSON",
+      "控制器",
+      "处理器",
+      "过滤层",
+      "路由",
+      "校验",
+      "规范化",
+      "映射"
+    ],
+    "path": "references/methods/controller-reach.md",
+    "intents": [
+      "controller-reach",
+      "request-validity"
+    ],
+    "signals": [
+      "SPA fallback",
+      "SPA-FALLBACK",
+      "empty body",
+      "ConstraintViolationException",
+      "case-variant",
+      "filter bypass",
+      "控制器可达",
+      "控制器到达",
+      "空请求体",
+      "过滤器绕过",
+      "路由映射",
+      "静态回退"
+    ],
+    "source_refs": [
+      {
+        "path": "references/http-auth-filter-testing.md",
+        "section": "1. Auth-filter vs controller-mapping test",
+        "line_start": 7,
+        "line_end": 38,
+        "sha256": "df78247ecbd9af6f5fe31bd02084abfa09d1d70fd2234847d2e71dbcdcf0cba7"
+      },
+      {
+        "path": "references/bypass-catalogue.md",
+        "section": "A. Path-filter / path-normalization bypass",
+        "line_start": 13,
+        "line_end": 54,
+        "sha256": "d6f92e7c3ed40fbc0c3734d3307ddc8526132a4538fbc46ea38ec2c4854e6fc8"
+      },
+      {
+        "path": "scripts/path-bypass-fuzzer.sh",
+        "section": "Request loop, verdict heuristic, and verdict key",
+        "line_start": 80,
+        "line_end": 130,
+        "sha256": "d5ebb3e5ba88520c8a26498411089ceda9ed08e97f006d94226a0f57a31e6b11"
+      }
+    ]
+  },
+  {
+    "id": "capability-consumer",
+    "title": "Credential capability and its final consumer",
+    "keywords": [
+      "capability",
+      "credential",
+      "mint",
+      "issuance",
+      "grant",
+      "consumer",
+      "revocation",
+      "lifetime",
+      "能力",
+      "凭据",
+      "签发",
+      "交换",
+      "消费端",
+      "吊销",
+      "有效期",
+      "前置依赖"
+    ],
+    "path": "references/methods/capability-consumer.md",
+    "intents": [
+      "capability-consumer",
+      "dormant-capability"
+    ],
+    "signals": [
+      "dormant",
+      "mintability",
+      "unexpiring",
+      "recognized secret",
+      "cannot mint",
+      "grant disabled",
+      "install token",
+      "休眠能力",
+      "休眠凭据",
+      "无限签发",
+      "永久有效",
+      "签发原语",
+      "无法换取",
+      "秘密有效"
+    ],
+    "source_refs": [
+      {
+        "path": "references/methodology-lessons.md",
+        "section": "LESSON 7 — Token Chain Reasoning: Persistence Primitive vs Dormant",
+        "line_start": 120,
+        "line_end": 128,
+        "sha256": "79b54952753c5a387d2cc506db5ba301577f49d26bc609df37087ae1de4bd462"
+      },
+      {
+        "path": "references/methodology-lessons.md",
+        "section": "LESSON 10 — Methodology Gaps Acknowledged",
+        "line_start": 176,
+        "line_end": 188,
+        "sha256": "79b54952753c5a387d2cc506db5ba301577f49d26bc609df37087ae1de4bd462"
+      },
+      {
+        "path": "references/methodology-lessons.md",
+        "section": "LESSON 11 — The 5-stage credential chain through Stage 5",
+        "line_start": 204,
+        "line_end": 270,
+        "sha256": "79b54952753c5a387d2cc506db5ba301577f49d26bc609df37087ae1de4bd462"
+      },
+      {
+        "path": "references/http-auth-filter-testing.md",
+        "section": "10. Workstation / Install / Magic token chain",
+        "line_start": 418,
+        "line_end": 462,
+        "sha256": "df78247ecbd9af6f5fe31bd02084abfa09d1d70fd2234847d2e71dbcdcf0cba7"
+      }
+    ]
+  },
+  {
+    "id": "protocol-binding",
+    "title": "Protocol challenge, principal, and consumer binding",
+    "keywords": [
+      "protocol",
+      "challenge",
+      "origin",
+      "ceremony",
+      "nonce",
+      "credential",
+      "replay",
+      "binding",
+      "协议",
+      "挑战",
+      "来源域",
+      "注册",
+      "断言",
+      "重放",
+      "绑定",
+      "认证仪式"
+    ],
+    "path": "references/methods/protocol-binding.md",
+    "intents": [
+      "protocol-binding",
+      "replay-binding"
+    ],
+    "signals": [
+      "WebAuthn",
+      "FIDO",
+      "rpAppId",
+      "rpId",
+      "attestation",
+      "assertion",
+      "fmt:none",
+      "session fixation",
+      "会话固定",
+      "挑战绑定",
+      "协议绑定",
+      "凭据注入",
+      "sessionId echo"
+    ],
+    "source_refs": [
+      {
+        "path": "references/fido-webauthn-testing.md",
+        "section": "rpAppId binding; blocker triad; CC-admin login ceremony",
+        "line_start": 106,
+        "line_end": 146,
+        "sha256": "08ebd0557c3ead1d024b4b94698fb6718f2d8bd6dd5e69b3b9fe07e88abf1cb1"
+      },
+      {
+        "path": "references/fido-webauthn-testing.md",
+        "section": "Generic FIDO testing methodology",
+        "line_start": 203,
+        "line_end": 247,
+        "sha256": "08ebd0557c3ead1d024b4b94698fb6718f2d8bd6dd5e69b3b9fe07e88abf1cb1"
+      },
+      {
+        "path": "references/methodology-lessons.md",
+        "section": "LESSON 10 — Device dependencies and claim corrections",
+        "line_start": 176,
+        "line_end": 188,
+        "sha256": "79b54952753c5a387d2cc506db5ba301577f49d26bc609df37087ae1de4bd462"
+      }
+    ]
+  },
+  {
+    "id": "patch-differential",
+    "title": "Patch differential and deployment conditions",
+    "keywords": [
+      "patch",
+      "differential",
+      "rollout",
+      "tenant",
+      "toggle",
+      "version",
+      "deployment",
+      "reproducer",
+      "修复",
+      "差异",
+      "发布",
+      "租户",
+      "开关",
+      "版本",
+      "部署",
+      "正常功能",
+      "补丁"
+    ],
+    "path": "references/methods/patch-differential.md",
+    "intents": [
+      "patch-differential",
+      "deployment-drift"
+    ],
+    "signals": [
+      "tenant toggle",
+      "feature toggle",
+      "patch rollout",
+      "PATCHED",
+      "patch-verify",
+      "configuration mitigation",
+      "修复差异",
+      "开关缓解",
+      "租户开关",
+      "灰度修复",
+      "修复发布",
+      "配置缓解",
+      "补丁",
+      "补丁复测",
+      "修复后",
+      "正常业务也失败"
+    ],
+    "source_refs": [
+      {
+        "path": "references/methodology-lessons.md",
+        "section": "LESSON 3 — Post-Patch Re-Verification Protocol",
+        "line_start": 38,
+        "line_end": 59,
+        "sha256": "79b54952753c5a387d2cc506db5ba301577f49d26bc609df37087ae1de4bd462"
+      },
+      {
+        "path": "references/methodology-lessons.md",
+        "section": "LESSON 8 — Differential Testing (Cross-Tenant + Version)",
+        "line_start": 132,
+        "line_end": 150,
+        "sha256": "79b54952753c5a387d2cc506db5ba301577f49d26bc609df37087ae1de4bd462"
+      },
+      {
+        "path": "scripts/patch-verify.sh",
+        "section": "Credential issuance, cross-tenant token reuse, and verdict",
+        "line_start": 67,
+        "line_end": 127,
+        "sha256": "6ca1cfd3c8293322845451f0045b01c82326a6321dc976224d6284e0f78b6824"
+      }
+    ]
+  },
+  {
+    "id": "authorization-context",
+    "title": "Authorization scope and operation semantics",
+    "keywords": [
+      "authorization",
+      "scope",
+      "namespace",
+      "method",
+      "permission",
+      "sharing",
+      "token",
+      "outlier",
+      "授权",
+      "作用域",
+      "命名空间",
+      "方法",
+      "权限",
+      "共享",
+      "身份类型",
+      "离群"
+    ],
+    "path": "references/methods/authorization-context.md",
+    "intents": [
+      "authorization-context",
+      "scope-semantics"
+    ],
+    "signals": [
+      "scope matrix",
+      "token × endpoint",
+      "token x endpoint",
+      "missing @PreAuthorize",
+      "authz-matrix",
+      "namespace outlier",
+      "作用域矩阵",
+      "令牌矩阵",
+      "权限矩阵",
+      "注解缺失",
+      "方法权限"
+    ],
+    "source_refs": [
+      {
+        "path": "references/http-auth-filter-testing.md",
+        "section": "3. Token-chain reachability matrix and token-type verification",
+        "line_start": 62,
+        "line_end": 116,
+        "sha256": "df78247ecbd9af6f5fe31bd02084abfa09d1d70fd2234847d2e71dbcdcf0cba7"
+      },
+      {
+        "path": "scripts/authz-matrix.sh",
+        "section": "Operation extraction, request construction, verdict and summary",
+        "line_start": 53,
+        "line_end": 128,
+        "sha256": "30ddef3c11add806f03904f308a4e50a8e1139b4bf9abfe61829de2dd09ba634"
+      }
+    ]
+  },
+  {
+    "id": "evidence-linkage",
+    "title": "Execution linkage and fingerprint uncertainty",
+    "keywords": [
+      "linkage",
+      "runtime",
+      "fingerprint",
+      "correlation",
+      "egress",
+      "receiver",
+      "consumer",
+      "source",
+      "归因",
+      "运行时",
+      "指纹",
+      "关联",
+      "出站",
+      "接收",
+      "消费",
+      "静态源码"
+    ],
+    "path": "references/methods/evidence-linkage.md",
+    "intents": [
+      "evidence-linkage",
+      "static-runtime"
+    ],
+    "signals": [
+      "User-Agent",
+      "OkHttp",
+      "Frida",
+      "receiver hit",
+      "microservice boundary",
+      "error envelope",
+      "direct invocation",
+      "two-sided",
+      "出站归因",
+      "微服务边界",
+      "错误封装",
+      "直接调用",
+      "执行归因",
+      "双侧证据"
+    ],
+    "source_refs": [
+      {
+        "path": "references/methodology-lessons.md",
+        "section": "LESSON 9 — Dynamic-Verification Standard (Frida Closed-Loop)",
+        "line_start": 154,
+        "line_end": 168,
+        "sha256": "79b54952753c5a387d2cc506db5ba301577f49d26bc609df37087ae1de4bd462"
+      },
+      {
+        "path": "references/http-auth-filter-testing.md",
+        "section": "6. FIDO1 UAF: architectural signal",
+        "line_start": 236,
+        "line_end": 238,
+        "sha256": "df78247ecbd9af6f5fe31bd02084abfa09d1d70fd2234847d2e71dbcdcf0cba7"
+      },
+      {
+        "path": "references/http-auth-filter-testing.md",
+        "section": "7. Java HTTP client fetch signatures",
+        "line_start": 269,
+        "line_end": 291,
+        "sha256": "df78247ecbd9af6f5fe31bd02084abfa09d1d70fd2234847d2e71dbcdcf0cba7"
+      },
+      {
+        "path": "references/fido-webauthn-testing.md",
+        "section": "FIDO1 UAF: architectural signal",
+        "line_start": 193,
+        "line_end": 195,
+        "sha256": "08ebd0557c3ead1d024b4b94698fb6718f2d8bd6dd5e69b3b9fe07e88abf1cb1"
+      }
+    ]
+  },
+  {
+    "id": "asset-attribution",
+    "title": "Asset attribution and discovery validity / 资产归因与发现有效性",
+    "path": "references/methods/asset-attribution.md",
+    "intents": [
+      "asset-attribution",
+      "discovery-validity"
+    ],
+    "signals": [
+      "sinkhole",
+      "NXDOMAIN",
+      "CT-log",
+      "CVE",
+      "asset attribution",
+      "资产归属",
+      "证书透明度",
+      "子域名",
+      "解析器",
+      "伪造域名",
+      "版本适用"
+    ],
+    "keywords": [
+      "asset",
+      "attribution",
+      "discovery",
+      "DNS",
+      "CT",
+      "certificate",
+      "wildcard",
+      "sinkhole",
+      "resolver",
+      "NXDOMAIN",
+      "CVE",
+      "advisory",
+      "fingerprint",
+      "OpenAPI",
+      "APK",
+      "ownership",
+      "reachability",
+      "资产",
+      "归属",
+      "证书",
+      "子域名",
+      "解析器",
+      "可达性",
+      "版本",
+      "适用性",
+      "观察器"
+    ],
+    "source_refs": [
+      {
+        "path": "references/osint-asset-discovery.md",
+        "section": "Cross-cutting caveat; Master table; Honesty notes",
+        "line_start": 5,
+        "line_end": 62,
+        "sha256": "884dcaa52a8423403c4be8a1fc3f61c4f94ad5e5bce4e435c4cc36eb3bfcf1f9"
+      },
+      {
+        "path": "references/cve-watchlist.md",
+        "section": "Watchlist honesty note",
+        "line_start": 1,
+        "line_end": 5,
+        "sha256": "77232da7ee05f2ef37f2a903575260f9767a60fe2af488a1451d8b3cb15105e5"
+      },
+      {
+        "path": "references/cve-watchlist.md",
+        "section": "Testing discipline for the watchlist",
+        "line_start": 107,
+        "line_end": 116,
+        "sha256": "77232da7ee05f2ef37f2a903575260f9767a60fe2af488a1451d8b3cb15105e5"
+      },
+      {
+        "path": "scripts/sinkhole-detector.sh",
+        "section": "Fake name resolution and verdict implementation",
+        "line_start": 27,
+        "line_end": 84,
+        "sha256": "4f06f79d324ea958c6317c3e5afd55d83c9cf14db0323d94c4203d732b69806d"
+      },
+      {
+        "path": "LICENSE",
+        "section": "MIT License",
+        "line_start": 1,
+        "line_end": 21,
+        "sha256": "121f00b62f0f76708ec48b368ee79316840a264b06ee49fb108d1d77143a6fc7"
+      }
+    ]
+  },
+  {
+    "id": "impact-assessment",
+    "title": "Web-Vulnhunt impact assessment and project scoring",
+    "keywords": [
+      "CVSS",
+      "评分",
+      "评级",
+      "影响",
+      "severity",
+      "integrity",
+      "confidentiality",
+      "availability",
+      "metric",
+      "vector"
+    ],
+    "signals": [
+      "CVSS",
+      "Scope Changed",
+      "I:H",
+      "I:L",
+      "C:H",
+      "C:L",
+      "评分",
+      "评级",
+      "计算器",
+      "影响指标"
+    ],
+    "intents": [
+      "impact-assessment",
+      "scoring-validity"
+    ],
+    "path": "references/methods/impact-assessment.md",
+    "source_refs": [
+      {
+        "path": "references/cvss-scoring-methodology.md",
+        "section": "Formula and prerequisite/impact rules",
+        "line_start": 8,
+        "line_end": 152,
+        "sha256": "e2ce624a95f5387a5fa48a21d10854cd721dfe3fb48f81b82d71e651f54f8f67"
+      },
+      {
+        "path": "scripts/cvss31-calculator.js",
+        "section": "Parsing, Scope Changed formula and base score",
+        "line_start": 32,
+        "line_end": 88,
+        "sha256": "180e5d57a68558a72fe86ba0bba77af61b4063571738e3487ebfd3f063a3bc0c"
+      },
+      {
+        "path": "references/report-structure.md",
+        "section": "Negative control versus impact text",
+        "line_start": 65,
+        "line_end": 100,
+        "sha256": "d669e2b541c876134879f1e36bd07ccb1aee5ecc151ff3a0219d1e3f96f1c5e4"
+      }
+    ]
+  },
+  {
+    "id": "hypothesis-lifecycle",
+    "title": "Conditional hypothesis closure and report corrections",
+    "keywords": [
+      "假设",
+      "关闭",
+      "重开",
+      "反证",
+      "修正",
+      "closure",
+      "hypothesis",
+      "reopen",
+      "correction",
+      "历史"
+    ],
+    "signals": [
+      "关闭假设",
+      "重开条件",
+      "历史结论",
+      "关闭漏洞",
+      "反证后",
+      "矛盾报告",
+      "条件关闭",
+      "negative hypothesis",
+      "killed hypothesis"
+    ],
+    "intents": [
+      "hypothesis-closure",
+      "conditional-reopen"
+    ],
+    "path": "references/methods/hypothesis-lifecycle.md",
+    "source_refs": [
+      {
+        "path": "references/killed-hypotheses.md",
+        "section": "Records of negative hypotheses",
+        "line_start": 1,
+        "line_end": 224,
+        "sha256": "7718695517430d263d32ddde84d85bc9504279d45fa0a6596ae8777e7c49c035"
+      },
+      {
+        "path": "references/review-log.md",
+        "section": "Revision history and later changes",
+        "line_start": 1,
+        "line_end": 152,
+        "sha256": "2fe98d8af420f89a9a1475b35bbe641cb014bc178ec96d6205dee7fb0743fbe8"
+      },
+      {
+        "path": "references/report-structure.md",
+        "section": "Counterevidence and unsupported version interpretation",
+        "line_start": 65,
+        "line_end": 128,
+        "sha256": "d669e2b541c876134879f1e36bd07ccb1aee5ecc151ff3a0219d1e3f96f1c5e4"
+      }
+    ]
+  }
+]

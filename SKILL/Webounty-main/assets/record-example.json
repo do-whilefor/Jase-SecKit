@@ -1,0 +1,109 @@
+{
+  "entities": [
+    {
+      "id": "E-API",
+      "kind": "endpoint",
+      "title": "虚构演练报表入口"
+    },
+    {
+      "id": "E-USER",
+      "kind": "actor",
+      "title": "演练成员甲"
+    }
+  ],
+  "observations": [
+    {
+      "id": "O-001",
+      "summary": "虚构示例：成员甲的正常报表提交返回任务标识",
+      "subject_refs": [
+        "E-API",
+        "E-USER"
+      ],
+      "content": {
+        "fixture": true,
+        "environment": "lab-v1",
+        "actor_ref": "E-USER",
+        "session_generation": "1",
+        "stage": "submit",
+        "request": {
+          "method": "POST",
+          "url": "https://training.invalid/export"
+        },
+        "response": {
+          "status": 202,
+          "body": {
+            "job_id": "DEMO-JOB"
+          }
+        }
+      }
+    }
+  ],
+  "records": [
+    {
+      "id": "C-001",
+      "kind": "Capability",
+      "title": "正常提交产生报表任务标识",
+      "status": "observed",
+      "summary": "虚构示例：已取得正常提交响应中的任务标识，后台处理及下载尚未验证。",
+      "subject_refs": [
+        "E-API",
+        "E-USER"
+      ],
+      "observation_refs": [
+        "O-001"
+      ],
+      "capability": {
+        "provides": [
+          {
+            "type": "report-job-id",
+            "aliases": [
+              "导出任务标识"
+            ],
+            "description": "提交响应返回的任务标识",
+            "constraints": {
+              "environment": "lab-v1",
+              "tenant": "tenant-a",
+              "purpose": "report-export"
+            }
+          }
+        ],
+        "needs": [],
+        "control": "本成员可提交自己的报表"
+      },
+      "limitations": [
+        "受理响应不证明处理成功或越权"
+      ],
+      "reopen_when": [
+        "身份、对象范围或部署条件改变"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "id": "WK-REPORTS",
+      "kind": "flow",
+      "title": "报表服务",
+      "blocks": []
+    },
+    {
+      "id": "WK-C-001",
+      "kind": "capability",
+      "title": "正常提交产生任务标识",
+      "parent_page_id": "WK-REPORTS",
+      "record_refs": ["C-001"],
+      "questions": ["正常提交返回了哪些可继续检查的对象？"],
+      "blocks": [
+        {
+          "id": "B-C-001",
+          "title": "任务标识的适用范围",
+          "summary": "本成员正常提交获得任务标识；后台处理、下载及跨对象访问尚未验证。",
+          "text": "虚构示例：成员甲在 lab-v1 正常提交自己的报表后，响应中包含任务标识。本次观察只支持已取得标识，不证明后台处理成功、下载成功或越权。下一步缺口是下载流程是否实际接受该标识及所需身份条件；原始提交观察为 O-001。",
+          "questions": ["提交得到的任务标识能否满足下载流程的前提？"],
+          "keywords": ["导出", "任务标识", "下载前提"],
+          "conditions": {"environment": "lab-v1", "tenant": "tenant-a"},
+          "source_refs": ["C-001"]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="760" viewBox="0 0 1440 760" role="img" aria-labelledby="title desc">
+  <title id="title">Webounty — Keep evidence. Connect the next step.</title>
+  <desc id="desc">Workflow illustration, not a product screenshot. Record original evidence, retrieve local knowledge through lexical and explicit relationship search, and verify candidate connections.</desc>
+  <defs>
+    <linearGradient id="backdrop" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#f5e9dc" /><stop offset=".55" stop-color="#e4c4a4" /><stop offset="1" stop-color="#d69d7f" />
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#262a2d" /><stop offset="1" stop-color="#171b1e" />
+    </linearGradient>
+    <linearGradient id="prompt" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#353432" /><stop offset="1" stop-color="#262b2e" />
+    </linearGradient>
+  </defs>
+  <rect width="1440" height="760" rx="26" fill="url(#backdrop)" />
+  <rect x="67" y="68" width="1306" height="641" rx="23" fill="#38281e" opacity=".10" />
+  <rect x="67" y="57" width="1306" height="641" rx="23" fill="#38281e" opacity=".12" />
+  <rect x="64" y="48" width="1312" height="640" rx="22" fill="url(#panel)" stroke="#f9efe5" stroke-opacity=".3" />
+  <path d="M64 104H1376" stroke="#ffffff" stroke-opacity=".08" />
+  <g fill="#72716b">
+    <circle cx="96" cy="77" r="6" /><circle cx="118" cy="77" r="6" /><circle cx="140" cy="77" r="6" />
+  </g>
+  <g font-family="DejaVu Sans, Arial, sans-serif">
+    <text x="172" y="83" fill="#cac8c1" font-size="17">webounty / research workspace</text>
+    <text x="1322" y="83" text-anchor="end" fill="#acaba4" font-size="14" letter-spacing="2">WORKFLOW OVERVIEW</text>
+    <g transform="translate(110 150) scale(3.2)">
+      <path d="M3 13.5C3 12.1193 4.11929 11 5.5 11H9V21H5.5C4.11929 21 3 19.8807 3 18.5V13.5Z" fill="#FFD400" />
+      <path d="M15 7H18.5C19.8807 7 21 8.11929 21 9.5V18.5C21 19.8807 19.8807 21 18.5 21H15V7Z" fill="#F75858" />
+      <path d="M9 5.5C9 4.11929 10.1193 3 11.5 3H12.5C13.8807 3 15 4.11929 15 5.5V21H9V5.5Z" fill="#FFA43D" />
+    </g>
+    <text x="207" y="214" fill="#f7f4ed" font-size="76" font-weight="700" letter-spacing="-3">Webounty</text>
+    <text x="116" y="268" fill="#c9c8c1" font-size="26">Keep evidence. Connect the next step.</text>
+    <text x="1320" y="192" fill="#a8aaa5" font-size="15" letter-spacing="2" text-anchor="end">SECURITY RESEARCH SKILL</text>
+    <rect x="112" y="310" width="1216" height="66" rx="9" fill="url(#prompt)" stroke="#ffffff" stroke-opacity=".07" />
+    <g font-family="DejaVu Sans Mono, monospace" font-size="23">
+      <text x="136" y="351" fill="#ffa43d">/webounty</text>
+      <text x="300" y="351" fill="#ece8df">What is missing from this chain?</text>
+      <rect x="1239" y="335" width="12" height="23" rx="1" fill="#ffa43d" opacity=".85" />
+    </g>
+    <g stroke="#ffffff" stroke-opacity=".10">
+      <path d="M518 418V575" /><path d="M942 418V575" />
+    </g>
+    <g font-size="16" letter-spacing="2" font-weight="700">
+      <text x="116" y="436" fill="#ffd400">01 / RECORD</text>
+      <text x="558" y="436" fill="#ffa43d">02 / RETRIEVE</text>
+      <text x="982" y="436" fill="#f98b80">03 / VERIFY</text>
+    </g>
+    <g fill="#f7f4ed" font-size="28" font-weight="700" letter-spacing="-.5">
+      <text x="116" y="482">Keep the evidence.</text>
+      <text x="558" y="482">Recall what matters.</text>
+      <text x="982" y="482">Check the link.</text>
+    </g>
+    <g fill="#b8bab4" font-size="20">
+      <text x="116" y="527">Original observations.</text>
+      <text x="116" y="557">Claims with their conditions.</text>
+      <text x="558" y="527">Local Wiki and source refs.</text>
+      <text x="558" y="557">Lexical + relationship search.</text>
+      <text x="982" y="527">Inputs. Constraints.</text>
+      <text x="982" y="557">Evidence for each connection.</text>
+    </g>
+    <path d="M112 604H1328" stroke="#ffffff" stroke-opacity=".1" />
+    <text x="116" y="645" fill="#b1b3ac" font-size="15" letter-spacing="2">LOCAL WIKI</text>
+    <circle cx="261" cy="639" r="2" fill="#ffa43d" />
+    <text x="282" y="645" fill="#b1b3ac" font-size="15" letter-spacing="2">TRACEABLE EVIDENCE</text>
+    <circle cx="516" cy="639" r="2" fill="#ffa43d" />
+    <text x="537" y="645" fill="#b1b3ac" font-size="15" letter-spacing="2">ONE RESEARCH SESSION</text>
+    <text x="1324" y="645" text-anchor="end" fill="#dda77c" font-size="15">Built for Claude Code</text>
+  </g>
+</svg>

@@ -1,0 +1,315 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:xloom:wiki-block-knowledge:2",
+  "title": "Optional Wiki block knowledge annotations",
+  "description": "Human-authored navigation over current-run sources. This annotation is not independent evidence. Never infer a finding status, impact rating, tested control, or closed hypothesis from a historical pattern or an HTTP status. Empty facets mean not structured, not proof that evidence is absent. Structured reasoning is optional and is checked mechanically; unknown observers, controls or version prerequisites require review. Lifecycle states are conditional authored claims, never safety or severity ratings.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "actor_refs": {
+          "$ref": "#/$defs/refs"
+        },
+        "entrypoint_refs": {
+          "$ref": "#/$defs/refs"
+        },
+        "object_refs": {
+          "$ref": "#/$defs/refs"
+        },
+        "relationship": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        },
+        "trusted_fields": {
+          "$ref": "#/$defs/strings"
+        },
+        "expectation": {
+          "type": "string"
+        }
+      }
+    },
+    "controls": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "owner_baseline",
+              "negative_control",
+              "contrast"
+            ]
+          },
+          "observation_refs": {
+            "$ref": "#/$defs/refs"
+          },
+          "record_refs": {
+            "$ref": "#/$defs/refs"
+          },
+          "note": {
+            "type": "string"
+          },
+          "validity": {
+            "enum": [
+              "valid",
+              "invalid",
+              "unknown"
+            ]
+          },
+          "context": {
+            "$ref": "#/$defs/context"
+          }
+        },
+        "anyOf": [
+          {
+            "required": [
+              "observation_refs"
+            ],
+            "properties": {
+              "observation_refs": {
+                "minItems": 1
+              }
+            }
+          },
+          {
+            "required": [
+              "record_refs"
+            ],
+            "properties": {
+              "record_refs": {
+                "minItems": 1
+              }
+            }
+          }
+        ]
+      }
+    },
+    "supporting_refs": {
+      "$ref": "#/$defs/refs"
+    },
+    "counterevidence_refs": {
+      "$ref": "#/$defs/refs"
+    },
+    "limitations": {
+      "$ref": "#/$defs/strings"
+    },
+    "reopen_when": {
+      "$ref": "#/$defs/strings"
+    },
+    "next_discriminator": {
+      "type": "string"
+    },
+    "experiments": {
+      "type": "array",
+      "description": "Falsifiable experiments with explicit controls. Declared assessment is retained; effective assessment becomes inconclusive when premises fail. Enumeration requires both normal and negative controls.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "claim_kind",
+          "changed_variable",
+          "expected",
+          "falsifier",
+          "observation_refs",
+          "control_indexes",
+          "observer",
+          "assessment",
+          "context"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "claim_kind": {
+            "enum": [
+              "enumeration",
+              "authorization",
+              "reachability",
+              "capability",
+              "impact",
+              "retest"
+            ]
+          },
+          "changed_variable": {
+            "type": "string"
+          },
+          "expected": {
+            "type": "string"
+          },
+          "falsifier": {
+            "type": "string"
+          },
+          "observation_refs": {
+            "$ref": "#/$defs/refs"
+          },
+          "control_indexes": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": "Zero-based indexes into this block knowledge.controls, never controls in neighboring blocks."
+          },
+          "observer": {
+            "enum": [
+              "valid",
+              "invalid",
+              "unknown"
+            ]
+          },
+          "assessment": {
+            "enum": [
+              "supports",
+              "refutes",
+              "inconclusive"
+            ]
+          },
+          "context": {
+            "$ref": "#/$defs/context"
+          },
+          "confounders": {
+            "$ref": "#/$defs/strings"
+          }
+        }
+      }
+    },
+    "capability_links": {
+      "type": "array",
+      "description": "Authored output/input connections. Producer and consumer refs must be records in this block source closure. A reachable route or minted credential does not establish capability, downstream impact or a complete chain. A matched connection must cite original observations for both producer and consumer; this establishes provenance coverage only, not semantic compatibility.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "producer_refs",
+          "consumer_refs",
+          "from_stage",
+          "to_stage",
+          "output",
+          "required_input",
+          "compatibility",
+          "observation_refs",
+          "unresolved_preconditions"
+        ],
+        "properties": {
+          "producer_refs": {
+            "$ref": "#/$defs/refs"
+          },
+          "consumer_refs": {
+            "$ref": "#/$defs/refs"
+          },
+          "from_stage": {
+            "enum": [
+              "reachability",
+              "capability",
+              "impact"
+            ]
+          },
+          "to_stage": {
+            "enum": [
+              "reachability",
+              "capability",
+              "impact"
+            ]
+          },
+          "output": {
+            "type": "string"
+          },
+          "required_input": {
+            "type": "string"
+          },
+          "compatibility": {
+            "enum": [
+              "matched",
+              "mismatched",
+              "unknown"
+            ]
+          },
+          "observation_refs": {
+            "$ref": "#/$defs/refs"
+          },
+          "unresolved_preconditions": {
+            "$ref": "#/$defs/strings"
+          }
+        }
+      }
+    },
+    "lifecycle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state",
+        "basis_refs",
+        "experiment_ids",
+        "context"
+      ],
+      "description": "Conditional authored state. Closed states require source basis, valid refuting experiments, exact current context and existing reopen_when. Retest also requires original reproduction under a different version and disclosure of every changed context dimension. Unknown premises prevent effective closure.",
+      "properties": {
+        "state": {
+          "enum": [
+            "open",
+            "closed_for_conditions",
+            "retest_pending",
+            "retested_for_conditions",
+            "unknown"
+          ]
+        },
+        "basis_refs": {
+          "$ref": "#/$defs/refs"
+        },
+        "experiment_ids": {
+          "$ref": "#/$defs/strings"
+        },
+        "context": {
+          "$ref": "#/$defs/context"
+        },
+        "changed_variables": {
+          "$ref": "#/$defs/strings"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "refs": {
+      "description": "IDs must resolve in the current run and belong to the block's validated source closure. Similarity, adjacent text, and external cases do not establish provenance.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "strings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "context": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Non-secret environment, deployment version and credential generation labels. Missing or unknown dimensions require review; values must match selected observations and controls.",
+      "properties": {
+        "environment": {
+          "type": "string"
+        },
+        "target_version": {
+          "type": "string"
+        },
+        "credential_generation": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
