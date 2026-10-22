@@ -9,6 +9,8 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow" alt="License: MIT"></a>
 </p>
 
+> 语言：简体中文 | [English](README_EN.md) | [日本語](README_JA.md)
+
 `Jase-SecKit` 是一个面向漏洞赏金、授权 Web 安全测试和 AI 辅助漏洞研究的个人仓库。
 
 本仓库对漏洞赏金 Skills 和安全研究资料进行重新整理、精简、转译与工程化改造：删除重复或低价值内容，移除面向 Word 报告自动生成的冗余模块，统一英文 Skill 内容，同时补充全局行为约束、状态文件机制、Prompt 以及 Burp MCP、Chrome DevTools MCP 的使用配置。
@@ -67,7 +69,7 @@ Prompt 更适合作为阶段性引导。可结合全局约束文件使用，在�
 
 - `AI辅助漏洞挖掘系统设计指南.pdf`
 - `围绕Loop的AI SRC系统设计.pptx`
-- `客户端漏洞挖掘 Agent 的设计与实践--w1th0ut.md`
+- `客户端漏洞挖掘 Agent 的设计与实践.md`
 
 这三份资料可用于继续提炼统一的漏洞挖掘 Skill，例如将其中的 Loop、状态管理、动态验证、证据审计、盲区复盘和 Agent 编排方法合并为一套更轻量的入口 Skill。
 
@@ -78,28 +80,34 @@ Prompt 更适合作为阶段性引导。可结合全局约束文件使用，在�
 ```text
 Jase-SecKit/
 ├── SKILL/
-│   ├── Web-Vulnhunt/              # 自主 Web 渗透测试、状态文件与动态验证工作流
-│   ├── flounder/             # 代码审计 Skill
-│   └── src-report/                   # 漏洞报告撰写Skill
+│   ├── Web-Vulnhunt/                # 自主 Web 渗透测试、状态文件与动态验证工作流
+│   ├── Webounty-main/               # Web 漏洞赏金自动化测试 Skill
+│   ├── flounder/                    # 代码审计 Skill
+│   └── src-report/                  # 漏洞报告撰写 Skill
 ├── refer/
-│   ├── ARTEX-main/              # ARTEX
-│   └── Cairn-main/             # Cairn
+│   ├── ARTEX-main/                  # ARTEX 参考项目
+│   ├── Cairn-main/                  # Cairn 参考项目
+│   └── PwnMesh-main/                # PwnMesh 参考项目
 ├── 约束文件/
-│   ├── AGENTS.md                  # 中文全局 Agent 约束
-│   ├── CLAUDE.md                  # 英文全局 Agent 约束
-│   └── state/                     # 黑板及状态文件模板
+│   ├── AGENTS.md                    # 中文全局 Agent 约束
+│   ├── CLAUDE.md                    # 英文全局 Agent 约束
+│   └── state/                       # 黑板及状态文件模板
 ├── 设置/
-│   ├── claude-code/               # Claude Code MCP 与运行设置
-│   ├── codex/                     # Codex 配置与指令文件
-│   ├── rules/                     # 客户端规则配置
-│   ├── zcode/                     # ZCode 配置
-│   └── .claude.json               # Claude 本地配置参考
-├── Prompt.md                      # 漏洞挖掘与网站架构分析 Prompt
-├── 常见漏洞.md                    # 常见漏洞方向与研究参考
+│   ├── ASC_MCP/                     # ASC MCP 服务配置与脚本
+│   ├── claude-code/                 # Claude Code MCP 与运行设置
+│   ├── codex/                       # Codex 配置与指令文件
+│   ├── rules/                       # 客户端规则配置
+│   ├── zcode/                       # ZCode 配置
+│   └── 注册Chrome-CLI.md            # Chrome CLI 注册说明
+├── Prompt.md                        # 漏洞挖掘与网站架构分析 Prompt
+├── 常见漏洞.md                      # 常见漏洞方向与研究参考
 ├── AI辅助漏洞挖掘系统设计指南.pdf
 ├── 围绕Loop的AI SRC系统设计.pptx
 ├── 客户端漏洞挖掘 Agent 的设计与实践.md
 ├── README.md
+├── README_EN.md
+├── README_JA.md
+├── SECURITY.md
 └── LICENSE
 ```
 
@@ -132,7 +140,7 @@ Jase-SecKit/
 Claude Code 示例配置位于：
 
 ```text
-/claude-code/managed-mcp.json
+/设置/claude-code/managed-mcp.json
 ```
 
 使用前需要修改：
