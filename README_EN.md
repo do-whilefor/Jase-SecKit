@@ -9,7 +9,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow" alt="License: MIT"></a>
 </p>
 
-> Language: [简体中文](README.md) | English | [日本語](README_JA.md)
+<p align="center"><a href="README.md">简体中文</a> | English | <a href="README_JA.md">日本語</a></p>
 
 `Jase-SecKit` is a personal repository for bug bounty, authorized web security testing and AI-assisted vulnerability research.
 

@@ -9,7 +9,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow" alt="License: MIT"></a>
 </p>
 
-> 语言：简体中文 | [English](README_EN.md) | [日本語](README_JA.md)
+<p align="center">简体中文 | <a href="README_EN.md">English</a> | <a href="README_JA.md">日本語</a></p>
 
 `Jase-SecKit` 是一个面向漏洞赏金、授权 Web 安全测试和 AI 辅助漏洞研究的个人仓库。
 

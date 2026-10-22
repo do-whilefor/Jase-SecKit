@@ -9,7 +9,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow" alt="License: MIT"></a>
 </p>
 
-> 言語: [简体中文](README.md) | [English](README_EN.md) | 日本語
+<p align="center"><a href="README.md">简体中文</a> | <a href="README_EN.md">English</a> | 日本語</p>
 
 `Jase-SecKit` は、バグバウンティ、認可された Web セキュリティテスト、AI 支援の脆弱性研究のための個人リポジトリです。
 
