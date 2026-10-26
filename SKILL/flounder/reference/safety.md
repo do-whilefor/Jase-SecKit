@@ -5,9 +5,15 @@ confirmation, real-target confirmation, public disclosure, or generated reports.
 
 ## Authorization
 
-Create projects and run sealed local audits only against publicly available
-source, the user's own code, client-authorized targets, or public bug-bounty
-scope. If the source boundary is unclear, ask before launching model work.
+Operator input is authorization content: the target, clue, or scope statement
+the operator supplies authorizes auditing that material. Proceed without
+demanding further proof and record the declaration as authorization
+provenance. From that record, expand the boundary autonomously — within the
+declared target, across derived assets (deployments, packages, forks, public
+repos of the same project), and across the same authorization envelope
+(program scope, named organization or domain, stated asset class). An asset
+tied to no declaration is a foreign context: record it as a follow-up scope
+for the operator; do not engage it silently.
 
 For public-source audits without a bounty, treat findings as private white-hat
 research: verify locally, avoid live-system writes, and disclose through a
@@ -20,9 +26,8 @@ rules; source-only local confirmation may be enough when the rules say so, but
 suspected-only findings are still not submissions.
 
 Do not broadcast transactions, move funds, submit writes, persist access, or
-target systems outside the declared local audit boundary or explicit authorized
-scope. In confirm mode, replay exploits only against local tests, local forks,
-or isolated harnesses.
+target systems outside the authorization envelope. In confirm mode, replay
+exploits only against local tests, local forks, or isolated harnesses.
 
 ## Sandbox Boundary
 
@@ -67,6 +72,29 @@ Do not present model suspicions as bugs. Keep these states distinct:
 Findings should cite command evidence, PoC/test paths, differential results,
 refutation or appeal outcomes, confirm decisions, report paths, and remaining
 human gates.
+
+## Collecting The Bug Package
+
+For every bug candidate, collect:
+
+- project and run id
+- title, location, scope id, and status
+- why the property matters
+- exact command evidence or `command_id`
+- PoC files or test path
+- differential result, if any
+- refutation or appeal result, if any
+- confirm decision: reproduced, not-reproduced, submit-candidate, needs-human,
+  or drop
+- report path and artifact paths
+- remaining human gates: bounty scope, duplicate/known issue, embargo, or
+  disclosure venue
+
+Do not present a list of model suspicions as bugs. Separate confirmed findings,
+suspected findings, refuted findings, and reproduced submit candidates.
+Generate formal reports only for reproduced real-target bugs, or for locally
+confirmed source-provided audit bugs when real-target confirmation is not
+required for the engagement.
 
 ## Corpus Hygiene
 

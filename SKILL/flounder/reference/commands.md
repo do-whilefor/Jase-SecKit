@@ -17,6 +17,7 @@ provider, API, budget, output, and pi extension details.
 - [Outputs](#outputs)
 - [Pi Extension](#pi-extension)
 - [Local Storage](#local-storage)
+- [Troubleshooting](#troubleshooting)
 
 ## Product Surfaces
 
@@ -105,18 +106,10 @@ CLI naming convention:
 
 ## Engagement Config
 
-Set `config.engagement.kind` on dashboard/API projects when the reportability
-rules matter:
-
-- `standard`: default authorized review.
-- `bug-bounty`: normal bounty work; keep real-target Confirm when a live target
-  exists and gate reports on official scope, evidence, and mandatory submission
-  terms. Record private duplicate and reward uncertainty separately.
-- `bug-bounty-contest`: time-limited contest work; run short settled batches,
-  optionally skip real-target Confirm when source-only rules allow it, and
-  append-map novel scopes when the inventory is exhausted.
-
-Contest strategy fields:
+Set `config.engagement.kind` on dashboard/API projects when reportability
+rules matter; the semantics of `standard`, `bug-bounty`, and
+`bug-bounty-contest` are defined in [product.md](product.md). Contest
+strategy fields:
 
 ```json
 {
@@ -193,15 +186,11 @@ visible coverage gaps rather than evidence of safety.
 | `--prepare-timeout-ms <n>` | Warm-up timeout |
 
 Real execution-confirming audits use a sandbox engine plus a built or pulled
-sandbox image. Default `auto` mode prefers Apple's `container` runtime on Apple
+sandbox image. Default `auto` prefers Apple's `container` runtime on Apple
 silicon macOS when the selected image and sealed network are ready, then falls
-back to Docker-backed OCI. For the Docker path, build the default image with
-`npm run sandbox:build`.
-
-On Apple silicon macOS daemon hosts, `auto` can select Apple's `container`
-runtime after it is installed, started, and has the selected sandbox image
-available. Use `--sandbox-backend apple-container` to require that path
-explicitly.
+back to Docker-backed OCI — the standard path on Linux and Windows daemon
+hosts (install/start Docker, then `npm run sandbox:build`). Use
+`--sandbox-backend apple-container` to require the Apple path explicitly.
 
 Build curated target-specific images when a bounty target needs native
 confirmation tools that are not in the baseline image:
@@ -258,19 +247,13 @@ profile the project can use.
 Settings -> Providers can mark any profile as the local runtime default. New
 projects, evaluations, and ad-hoc API/CLI launches inherit it when they do not
 make an explicit model selection. Resetting the preference restores the
-packaged `openai-codex · gpt-5.6-sol · xhigh` fallback; existing projects remain
-pinned to their saved profile.
+packaged product default; existing projects remain pinned to their saved
+profile.
 
-Fresh stores seed starter profiles named `openai-codex · gpt-5.6-sol · xhigh`,
-`openai-codex · gpt-6-astra · medium`, and `claude-code · opus 4.8 max`.
-
-The optional `openai-codex · gpt-6-astra · medium` starter profile does not replace
-the Sol product default. Selecting Astra in the provider editor initializes
-`medium` thinking; the operator may override it. Custom model ids use a known
-same-provider **Compatibility base** for transport, context, tool, and reasoning
-metadata. The job carries the definition to the selected daemon in memory;
-credentials remain daemon-local, and no matching daemon-local pi models file is
-needed. The provider must actually authorize the custom model id.
+Seeded starter profiles and the Compatibility-base mechanism for custom model
+ids are described in [models.md](models.md). Model ids and profile names
+follow the installed pi catalog — verify current names against the catalog
+instead of assuming them from documentation.
 
 ## REST API
 
@@ -434,3 +417,18 @@ those retained rows do not restore deleted PoCs or transcripts. Active work is
 refused. `compact` only removes paired per-command inspection copies from
 terminal runs, retaining reports, findings, PoCs, and transcripts. Review the
 preview and the user's retention intent before applying cleanup.
+
+## Troubleshooting
+
+| Symptom | Likely cause | Recovery |
+| --- | --- | --- |
+| No daemon can claim a queued job | Project is pinned to an offline daemon | Start that daemon or edit the project daemon. |
+| Provider auth missing | Credentials live on the daemon, not the server | Use OAuth login or daemon-local API key configuration, then `check`; see [models.md](models.md). |
+| Docker-backed OCI sandbox unavailable | Default image missing or Docker stopped | Start Docker and run `npm run sandbox:build`; host fallback needs explicit trusted-local approval. |
+| Apple container sandbox unavailable | Apple `container` is not installed/started, the selected image is missing from that runtime, or the internal sealed network cannot be created | Run `container system start` and build or pull the image into Apple's runtime; `auto` falls back to Docker when that path is not ready. |
+| `prepareSummary.quality=limited` | Source is usable but has caveats | Continue unless blocking issues exist; preserve caveats for confirm/report. |
+| `prepareSummary.quality=invalid/missing` | No usable staged source or contaminated material | Repair prepare inputs before audit. |
+| Verify rejects selected findings for material drift | New Prepare changed the current material boundary | Re-select current findings or pass the explicit expert override only after checking drift. |
+| Confirm returns `not-reproduced` | PoC was not attacker-real on the real target, or environment is incomplete | Treat as not submission-ready unless the user approves more reproduction work. |
+| Report action says no findings are missing reports | All reportable rows already have formal reports, or selected rows are not reproduced/confirmed | Use `flounder report --project <uuid|name> --all` to regenerate existing reports, select eligible findings, or inspect Active/Ignored tracking filters. |
+| Node native crash during repo tooling | Unsupported Node version | Use Node 24 LTS from `.nvmrc` / `.node-version`. |

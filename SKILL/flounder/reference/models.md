@@ -115,3 +115,21 @@ Report credential checks and actual model-call results separately.
 When pi already supplies the provider, transport, and compatible model metadata,
 Flounder does not need a vendor-specific adapter. New pi catalog support may still
 require upgrading the installed runtime; it is not fetched automatically online.
+
+## Seeded Provider Profiles And Defaults
+
+Fresh stores seed starter profiles — for example an `openai-codex` flagship
+profile at `xhigh` thinking as the packaged product default, a lighter
+medium-thinking variant on the same provider, and a top-tier `claude-code`
+profile. Exact model ids and profile names are pinned to the installed
+Flounder/pi catalog and change between releases: treat
+`GET /api/pi/providers` and `GET /api/pi/models/<provider>` as the source of
+truth instead of assuming a specific model id from documentation.
+
+Selecting a lighter starter variant in the provider editor initializes its
+lower thinking level; the operator may override it. **Set default** makes a
+profile the local default for new projects, evaluations, and API/CLI launches
+that omit an explicit model; **Use product default** restores the packaged
+fallback without changing existing projects. For the exact stored fields and
+default-profile management API, see the Provider Profiles section in
+[commands.md](commands.md).

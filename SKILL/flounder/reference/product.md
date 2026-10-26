@@ -16,13 +16,12 @@ REST automation, or artifact layout.
 
 ## Product Surfaces
 
-- `flounder ui`: local control plane, dashboard, REST API, SQLite store, and
-  optional co-located daemon.
-- `flounder daemon start`: execution plane that claims jobs, owns provider auth
-  and target source, and streams progress back to the server.
-- CLI workflow verbs: thin clients that enqueue jobs and stream daemon logs.
-- REST API: agent-drivable surface. Fetch `GET /api` first.
-- pi extension: mirrors the top-level workflow verbs when loaded through pi.
+`flounder ui` is the control plane (dashboard, REST API, SQLite store,
+optional co-located daemon); `flounder daemon start` is the execution plane
+that claims jobs and owns provider auth and target source; CLI workflow verbs
+are thin clients; the REST API is the agent-drivable surface (`GET /api`
+first); the pi extension mirrors the workflow verbs. Exact commands:
+[commands.md](commands.md).
 
 ## Project Lifecycle
 
@@ -142,43 +141,17 @@ to `open`.
 
 ## REST Automation
 
-Start with:
+Fetch `GET /api` first; the catalog is the endpoint source of truth. The full
+call list — projects, backlog, findings, confirm decisions, run logs, runtime
+settings — is in [commands.md](commands.md). Workflow-specific forms:
 
-```bash
-curl http://127.0.0.1:4500/api
-```
-
-Common calls:
-
-```bash
-curl http://127.0.0.1:4500/api/projects
-curl http://127.0.0.1:4500/api/providers
-curl http://127.0.0.1:4500/api/daemons
-curl http://127.0.0.1:4500/api/projects/<uuid>
-curl 'http://127.0.0.1:4500/api/projects/<uuid>/backlog?status=open'
-curl 'http://127.0.0.1:4500/api/projects/<uuid>/findings?tracking=active'
-curl 'http://127.0.0.1:4500/api/projects/<uuid>/findings?tracking=ignored'
-curl http://127.0.0.1:4500/api/projects/<uuid>/confirm-decisions
-curl http://127.0.0.1:4500/api/runs/<id>/log
-```
-
-Selected report regeneration:
-
-```bash
-flounder report --project <uuid> --finding 123 --finding 456
-flounder report --project <uuid> --all
-
-curl -X POST http://127.0.0.1:4500/api/projects/<uuid>/runs \
-  -H 'content-type: application/json' \
-  -d '{"verb":"report","findingIds":[123,456]}'
-
-curl -X POST http://127.0.0.1:4500/api/projects/<uuid>/runs \
-  -H 'content-type: application/json' \
-  -d '{"verb":"report","regenerateReports":true}'
-```
-
-Without `--finding`, `--all`, `findingIds`, or `regenerateReports:true`, report
-runs generate only missing formal reports.
+- Pipeline run or Continue: `POST /api/projects/<uuid>/runs` with
+  `{"verb":"run"}`.
+- Selected findings: pass `findingId`/`findingIds` with verbs such as
+  `verify`, `confirm`, or `report` (dashboard equivalent: More actions on
+  selected findings).
+- `{"verb":"report","regenerateReports":true}` (CLI `--all`) regenerates
+  existing reports; without it, report runs only fill in missing ones.
 
 ## Artifact Model
 
@@ -190,26 +163,12 @@ Default local state lives under `~/.flounder`:
 - `workspace/`: default daemon project directories;
 - `agent/auth.json`: daemon-local provider auth.
 
-Run artifacts include `audit_scopes.json`, `audit_findings.json`,
-`audit_hypotheses.json`, `audit_command_runs.json`, `run_health.json`,
-`coverage_gaps.json`, `resource_requests.json`, `followup_scopes.json`,
-`events.jsonl`, `audit_transcript.json`, `summary.json`, and report files.
-Confirm artifacts include `confirm_provenance.json`, `confirm_decision.json`,
-`confirm_report.md`, and `confirm_equivalence.json`.
+Per-run and per-confirm artifact filenames are enumerated in
+[commands.md](commands.md) Outputs.
 
 ## Evidence Boundary And Submission Advice
 
-Keep four axes separate: mandatory program compliance, the technical evidence
-boundary, submission advice, and reward/duplicate adjudication risk. A
-`reproduced` row must record whether execution was source-only local,
-local integration, a local fork, or the real published target. Official terms
-may accept pinned source-only evidence; never invent a live-deployment gate for
-that engagement. An unknown private duplicate or award amount is not itself a
-failed technical confirmation or a failed mandatory submission term.
-
-Attacker reachability, the claimed end-to-end effect, and impact bounds still
-require evidence. Privileged access alone proves neither exploitability nor
-safety. Preserve current-state/control evidence and distinguish a conditional
-mechanism from a currently reproduced attack. `submit-candidate` is advice,
-not authorization to disclose. Submission/disclosure requires the user's
-explicit authorization and the appropriate private venue.
+The four-axis separation — mandatory program compliance, technical evidence
+boundary, submission advice, reward/duplicate adjudication risk — and its
+rules are defined in [safety.md](safety.md). They govern confirm decisions
+and report eligibility on the product surfaces.
