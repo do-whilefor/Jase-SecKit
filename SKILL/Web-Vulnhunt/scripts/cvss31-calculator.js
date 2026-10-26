@@ -10,6 +10,8 @@
  * This is the calculator to run BEFORE submitting any report — strip the
  * four inflation patterns (PR:L→PR:N, UI:R→UI:N, AC:H→AC:L, narrative impact)
  * by re-reading your vector with the strictest defensible metrics.
+ *
+ * Scope: n/a — offline computation, no network, no target interaction.
  */
 
 const METRICS = {

@@ -143,7 +143,7 @@ POST /cc/dtsg97305                                              # mint CSRF toke
 → POST /login                                                   # exchanges nonce for SESSION cookie
 ```
 
-Theacmeauth-login-nonce is server-generated post-assertion and unforgeable — the entire chain cannot be completed without an enrolled `controlCenterAdmin` FIDO2 credential. This is the dominant blocker for any CC-admin-gated RCE/SSTI sink.
+The acmeauth-login-nonce is server-generated post-assertion and unforgeable — the entire chain cannot be completed without an enrolled `controlCenterAdmin` FIDO2 credential. This is the dominant blocker for any CC-admin-gated RCE/SSTI sink.
 
 ---
 

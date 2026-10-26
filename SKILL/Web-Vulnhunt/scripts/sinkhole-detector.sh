@@ -10,6 +10,8 @@
 #
 # Run this BEFORE trusting any DNS-based subdomain enum.
 #
+# Scope = the targets the operator names.
+#
 # Usage:
 #   ./sinkhole-detector.sh <domain>
 #
@@ -43,6 +45,8 @@ if [[ -z "$RESOLVED" ]]; then
   echo ""
   echo "Recommended next step:"
   echo "  curl 'https://crt.sh/?q=%25.${DOMAIN}&output=json' | jq -r '.[].name_value' | sort -u"
+  echo "  (no jq installed? python fallback:)"
+  echo "    curl -s 'https://crt.sh/?q=%25.${DOMAIN}&output=json' | python3 -c \"import sys,json; [print(n) for r in json.load(sys.stdin) for n in r.get('name_value','').split(chr(10))]\" | sort -u"
   exit 0
 fi
 
@@ -59,6 +63,7 @@ if [[ "$RESOLVED" =~ ^198\.(1[89]|2[0-9]|3[01])\. ]]; then
   echo ""
   echo "  Step 1: CT-log enumeration (no DNS)"
   echo "    curl 'https://crt.sh/?q=%25.${DOMAIN}&output=json' | jq -r '.[].name_value' | sort -u > ct-hosts.txt"
+  echo "    (no jq? python fallback: curl -s ... | python -c \"import sys,json; [print(n) for r in json.load(sys.stdin) for n in r.get('name_value','').split(chr(10))]\" | sort -u > ct-hosts.txt)"
   echo ""
   echo "  Step 2: HTTP probe each CT-discovered host"
   echo "    while read h; do"

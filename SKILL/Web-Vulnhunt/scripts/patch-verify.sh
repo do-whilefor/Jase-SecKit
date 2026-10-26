@@ -12,9 +12,17 @@
 # Usage: this is a template — copy and edit per engagement. The structure is
 # the load-bearing part; the specifics depend on what you're verifying.
 #
-# Authorized testing only.
+# Scope = the targets the operator names.
 
 set -uo pipefail
+
+command -v curl >/dev/null 2>&1 || { echo "ERROR: 'curl' not found (Git Bash for Windows ships curl; check PATH)." >&2; exit 2; }
+PYBIN=""
+for _py in python3 python py; do
+  command -v "$_py" >/dev/null 2>&1 && { PYBIN="$_py"; break; }
+done
+[[ -z "$PYBIN" ]] && { echo "ERROR: no python interpreter found (python3/python/py). Windows: python.org installer or 'winget install Python.Python.3'." >&2; exit 2; }
+unset _py
 
 # ============================================================================
 # CONFIG — edit per engagement
@@ -74,7 +82,7 @@ if [[ -n "$INSTALL_TOKEN" ]]; then
   echo "Mint response from $PRIMARY_TENANT:"
   echo "$resp" | head -c 500
   echo ""
-  FRESH_TOKEN=$(echo "$resp" | python3 -c "import sys,json; print(json.load(sys.stdin).get('token',''))" 2>/dev/null || echo "")
+  FRESH_TOKEN=$(echo "$resp" | "$PYBIN" -c "import sys,json; print(json.load(sys.stdin).get('token',''))" 2>/dev/null || echo "")
   if [[ -n "$FRESH_TOKEN" ]]; then
     echo "✅ Fresh token minted: ${FRESH_TOKEN:0:25}... (proves issuance surface untouched)"
   else

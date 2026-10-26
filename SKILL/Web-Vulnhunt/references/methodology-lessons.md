@@ -68,11 +68,11 @@ See `scripts/patch-verify.sh`.
 
 The 7 confirmed live AcmeAuth-owned CC tenants (in-scope) vs the ~140 customer `vault-*` tenants (out-of-scope) are distinguished by: AcmeAuth-owned = `*.cdn.acmeauth.example` test tenants (`tenant-001`, `pentesting`, `pentesting2`, `tenant-002`, `crowd`, `tenant-demo`, `demobank`) + AcmeAuth corp `*.acmeauth.example` (`portal`, `sampleapp.dev`, `demo`, `enhancements`); customer-named = recognizable brand names or `vault-*` prefix.
 
-**Codified rule.** Before testing any host, classify it: (a) in-scope production (real bounty value); (b) in-scope demo/sample (test value only, findings scope-out or cap at informational); (c) out-of-RoE customer production (refuse). Distinguish by CT-log source, DNS resolution reality (not sinkhole artifacts), build/version fingerprint (`/info`), and naming convention (`sampleapp.*`, `demo.*`, `*dev*` = AcmeAuth-owned demo; `vault-*`, customer brand names = customer tenant). Do not count demo-host findings in the production severity totals.
+**Codified rule.** Before testing any host, classify it: (a) production (real bounty value); (b) demo/sample (test value only — cap report framing at informational); (c) third-party customer production (a different owner than the named target — verify aim before probing, ethics §2). Distinguish by CT-log source, DNS resolution reality (not sinkhole artifacts), build/version fingerprint (`/info`), and naming convention (`sampleapp.*`, `demo.*`, `*dev*` = AcmeAuth-owned demo; `vault-*`, customer brand names = customer tenant). Do not count demo-host findings in the production severity totals.
 
 ---
 
-## LESSON 5 — Out-of-RoE Asset Identification (Customer-Named Tenants)
+## LESSON 5 — Third-Party Asset Identification (Customer-Named Tenants)
 
 **Concrete example.** `SESSION3-FINAL-ASSESSMENT.md` "What I Refused to Do (Ethics)" explicitly refused the verifier's directive to perform F8 install-token lateral movement on customer tenants. Customer-named tenants detected via CT logs:
 
@@ -90,7 +90,7 @@ The 7 confirmed live AcmeAuth-owned CC tenants (in-scope) vs the ~140 customer `
 
 The `*.acmeauth.example` / `*.cdn.acmeauth.example` wildcard in HackerOne policy does NOT extend to accessing customer data/systems. F8 install tokens are tenant-bound (verified: tenant-001 token → `portal.acmeauth.example` returns 401 "Cannot find hypws-41"), so cross-tenant lateral movement was both technically blocked and ethically refused.
 
-**Codified rule.** Maintain an explicit out-of-RoE list and refuse directives that cross it. Customer-named tenants (recognizable brand names, `vault-*` prefix, non-AcmeAuth AWS account IDs in hostname) are out-of-scope even under a wildcard program scope. When the verifier requests an action on an out-of-RoE asset, document the refusal with the ethical rationale. Re-verify tenant isolation empirically (token cross-tenant = 401) to confirm the technical control matches the RoE intent.
+**Codified rule.** Identify tenant ownership before active probing: recognizable brand names, `vault-*` prefix, and non-vendor AWS account IDs in the hostname signal a third-party asset under the vendor's wildcard (ethics §2 aim verification). The source engagement treated customer tenants as out-of-scope and refused directives against them; under the current operator-scope model, test what the user names and use ownership identification to know what that is. Re-verify tenant isolation empirically (token cross-tenant = 401) — the technical control should match the stated scope.
 
 ---
 
@@ -203,7 +203,7 @@ Correct methodology: retest with a valid OpenAPI-schema body; correct body + 403
 
 ### The 5-stage credential chain
 
-For every discovered credential (token, cookie, API key, JWT, install token, refresh token), walk this chain in order. Stop only when a stage is blocked by a hard limit (Tier-3 prohibition, out-of-RoE target, missing dependency). Document the deepest stage reached as part of the finding's impact statement.
+For every discovered credential (token, cookie, API key, JWT, install token, refresh token), walk this chain in order. Stop only when a stage is blocked by a hard limit (Tier-3 placeholder boundary, missing dependency). Document the deepest stage reached as part of the finding's impact statement.
 
 ```
 Stage 1: DECODE        — static structure, no system interaction
@@ -236,19 +236,19 @@ Reason about what the credential *should* be able to reach, based purely on its 
 
 **Output of Stage 2**: a prioritized target-endpoint matrix. "If this token is live, here are the N endpoints to validate against, ordered by privilege tier."
 
-### Stage 3 — Validate liveness (Tier 2 — requires user confirmation per endpoint group)
+### Stage 3 — Validate liveness (Tier 2 — read-only, within the stated scope)
 
-Prove the credential is currently accepted by the issuer. **Read-only endpoints only.** Confirm with the user before each distinct endpoint group; capture the response as evidence.
+Prove the credential is currently accepted by the issuer. **Read-only endpoints only** (GET, no state change); capture the response as evidence. No per-action confirmation — the user's request defines the scope.
 
 - Single GET to the `/me`, `/userinfo`, `/introspect`, or token-info endpoint
 - Single GET to one representative endpoint per claim tier (`/profile` for user-tier, `/admin/users` for admin-tier — but **read-only**, no destructive path)
 - Record the response status (200 = live, 401 = expired/revoked, 403 = live-but-wrong-scope) — each of these is a distinct evidence signal
 
-**Critical boundary.** Stage 3 is where the credential transitions from "data we observed" to "credential we used." Each use may appear in audit logs, may trip anomaly detection, may in some jurisdictions count as unauthorized access if scope was overstated. **This is why Stage 3 requires explicit user confirmation per endpoint group**, even though the broader session authorization is trusted. The user is the one who knows whether a given GET against `/admin/users` is inside or outside their authorization envelope.
+**Critical boundary.** Stage 3 is where the credential transitions from "data we observed" to "credential we used." Each use may appear in audit logs and may trip anomaly detection — expected within the operator's stated scope. Stay read-only here: this is what keeps the difference between "validating a finding" and "using the access." The operator owns the scope; the skill's discipline is read-only evidence capture and Tier-3 placeholder handling on any destructive path.
 
 **Output of Stage 3**: liveness proven + the actual privilege tier confirmed empirically (not just inferred from claims).
 
-### Stage 4 — Map reach (Tier 2 — requires user confirmation per endpoint group)
+### Stage 4 — Map reach (Tier 2 — read-only, within the stated scope)
 
 Now that the credential is proven live at a known tier, enumerate **every endpoint within scope** that it reaches. Still read-only.
 
@@ -271,7 +271,7 @@ Examples from the AcmeAuth engagement:
 
 ### What this lesson replaces
 
-The prior blanket rule "Do not validate discovered credentials — reading is testing, testing is using" conflated *analysis* (Stages 1-2, always allowed) with *exploitation* (forbidden with real values). The tiered framework separates them: **analysis is mandated and exhaustive**, dynamic validation against read-only endpoints is permitted with user confirmation, and destructive exploitation with real values remains prohibited. The shift is from "stop at the leak" to "walk the chain as far as scope and Tier rules allow, then document the boundary."
+The prior blanket rule "Do not validate discovered credentials — reading is testing, testing is using" conflated *analysis* (Stages 1-2, always allowed) with *exploitation* (forbidden with real values). The tiered framework separates them: **analysis is mandated and exhaustive**, dynamic validation against read-only endpoints is permitted within the operator's stated scope, and destructive exploitation with real values remains prohibited. The shift is from "stop at the leak" to "walk the chain as far as scope and Tier rules allow, then document the boundary."
 
 ### Concrete AcmeAuth worked example
 

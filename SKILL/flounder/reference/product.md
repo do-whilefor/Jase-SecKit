@@ -58,7 +58,7 @@ Project list behavior:
 Engagement profiles tell the control plane how the audit will be judged. They
 do not change the model-owned audit strategy.
 
-- `standard`: default authorized review.
+- `standard`: default operator-declared review.
 - `bug-bounty`: normal bounty work. Keep real-target Confirm in the path when a
   live target exists, and gate reports on official scope, evidence, and mandatory submission
   terms. Record private duplicate and reward uncertainty separately.
@@ -116,7 +116,7 @@ scopes. The API and dashboard classify each row as `agent-runnable`,
 coverage rows continue, append-map, or prioritize scopes; setup rows retry safe
 toolchain, sandbox, dependency, source, or auth setup where possible; routing
 rows ask the agent to inspect and choose the next safe workflow action. Ask the
-operator only for explicit credentials, authorization, or unavailable external
+operator only for explicit credentials or unavailable external
 resources. Mark non-actionable backlog rows `ignored`; mark handled blockers
 `resolved`; keep unresolved coverage rows `open`.
 

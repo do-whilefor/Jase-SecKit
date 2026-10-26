@@ -10,7 +10,7 @@
 # Example:
 #   ./path-bypass-fuzzer.sh https://tenant-001.cdn.acmeauth.example /cc/api/idp/integration/enablement GET "Authorization: Bearer hypwo-..."
 #
-# Authorized testing only. Read references/ethics-and-roe.md first.
+# Scope = the targets the operator names.
 
 set -uo pipefail
 

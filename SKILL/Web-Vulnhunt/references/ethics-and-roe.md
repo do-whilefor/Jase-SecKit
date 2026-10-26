@@ -1,24 +1,25 @@
-# Ethics & Rules of Engagement (RoE)
+# Ethics & Testing Discipline
 
-Authorized security testing is a force multiplier for defenders when done with discipline, and a liability for everyone when done without. This file codifies the integrity rules from the AcmeAuth engagement.
-
----
-
-## 1. Authorization is the gate
-
-**No authorization, no active test.** "Authorization" means at least one of:
-- A public bug bounty program policy (HackerOne, Bugcrowd, Intigriti, etc.) that explicitly covers the asset
-- A written scope / RoE document from the asset owner
-- A signed contract / SOW for a pentest engagement
-- CTF / lab / owned-and-permissioned test infrastructure
-
-If authorization is unclear, **ask the user before any active test**. Default to inaction when uncertain. A bug bounty program's existence is not authorization for any technique — re-read the policy's In-Scope, Out-of-Scope, and Prohibited Actions sections every engagement.
+Disciplined security testing is a force multiplier for defenders; undisciplined testing is a liability for everyone. This file codifies the scope model and integrity rules distilled from the AcmeAuth engagement.
 
 ---
 
-## 2. Out-of-RoE asset identification (AcmeAuth example, generalizable)
+## 1. Scope comes from the operator
 
-The AcmeAuth engagement had a `*.acmeauth.example` / `*.cdn.acmeauth.example` wildcard scope, but the wildcard did NOT extend to customer data/systems. Out-of-RoE assets included:
+**The user's input is the authorization scope.** The target(s) the user names, the vuln classes they ask about, and the depth they request define the working scope for the session. The skill does not demand authorization artifacts (program policy, RoE document, written permission, contract) and does not gate active testing on them — the same operator-responsibility model as nmap, Burp, or sqlmap: the operator directs, the tool executes.
+
+Consequences:
+- No "do you have authorization?" prompts. No per-action or per-endpoint-group confirmations. No refusing user-directed targets as "out of scope."
+- Record the scope once from the user's input (targets, intent, depth) — note-taking that feeds the report's scope section, not a gate.
+- Update the notes when the user expands scope (new target, new asset class, read-only → state-changing). That is a scope-record update, not a re-approval.
+
+The operator owns the lawfulness of the engagement (CFAA / 刑法 285 / CMA). The skill's contribution is testing discipline — the hygiene rules in §3 and §4 exist to produce better findings, not to second-guess the operator.
+
+---
+
+## 2. Aim verification: know what you are hitting (AcmeAuth example, generalizable)
+
+The AcmeAuth engagement had a `*.acmeauth.example` / `*.cdn.acmeauth.example` wildcard scope; the engagement's own rules excluded customer data/systems. Assets under the wildcard that belonged to third parties included:
 
 ### Customer-named tenants (recognizable brand names)
 - `<customer>.acmeauth.example` (Charles <customer>), `<customer>-qa.acmeauth.example`
@@ -48,13 +49,13 @@ The AcmeAuth engagement had a `*.acmeauth.example` / `*.cdn.acmeauth.example` wi
 
 ### Generalization rule
 
-Customer tenants are out-of-RoE under a wildcard scope when recognized by:
+Customer (third-party) assets under a vendor wildcard are recognizable by:
 - Recognizable brand names (`<customer>`, `<customer>`, `<customer>`, `<customer>`)
 - `vault-*` or similar per-customer prefix pattern
 - Non-vendor AWS account IDs embedded in hostname (cross-reference with CT-log vault-prefix enumeration — see `osint-asset-discovery.md` #2)
 - Customer brand appearing in marketing strings (APK `strings.xml`, vendor `/customers` page)
 
-**The wildcard scope covers vendor-owned assets. It does not cover customer data or systems hosted on vendor infrastructure.**
+**In the source engagement, the wildcard covered vendor-owned assets only; customer data and systems hosted on vendor infrastructure were excluded by the engagement's own rules. Identify ownership so you know which kind you are hitting.**
 
 ### ⚠️ Customer-tenant name-confusion trap (Round 15 audit forcing case)
 
@@ -65,36 +66,10 @@ mistakenly grouped with AcmeAuth-owned test tenants (`pentesting`, `tenant-001`,
 unauthenticated state-changing `POST /logs` was accepted on both (HTTP 204) — an RoE violation
 that the engagement itself failed to flag because the names did not *look* customer-branded.
 
-**Hard rule:** Before any active probe against a tenant whose brand recognition is ambiguous, run
-the name through (a) the vendor's published customer list, (b) a brand-name web search, and (c)
-the CT-log SAN list. If any of the three returns a non-AcmeAuth brand, treat the tenant as
-out-of-RoE regardless of how "test-like" the hostname looks. When in doubt, **refuse the active
-probe and document the refusal** — passive enumeration of the hostname's existence is OSINT and
-remains in scope; active payload delivery does not.
-
 The same trap applies to: any `<word>.acmeauth.example` tenant where `<word>` is not a known AcmeAuth
 internal label (compare against the explicit in-scope list: `tenant-demo`, `pentesting*`,
 `tenant-001`, `tenant-002`, `sampleapp.dev`, `oauth.dev`, `demo`, `portal`, `demobank`, `cc`,
 `app`, `api`, `docs`, `vpn-pritunl`, `enhancements`).
-
----
-
-## 3. Prohibited techniques (always, regardless of program)
-
-These techniques are out of scope for this skill, period. Do not run them.
-
-- **DoS / availability attacks** against production. Load tests only against explicitly-allowed test infrastructure, with permission, at low volume.
-- **Brute forcing credentials.** Enumerating usernames to confirm an oracle is one thing; running rockyou against a login endpoint is another.
-- **Mass targeting / spray attacks.** A single PoC against the test tenant is the demonstration; spraying across all tenants is mass targeting.
-- **Destructive state changes on production data.** Use placeholder values (`ZZFAKE`, `nobody`, `0`-prefixed random) — never a real identifier to "test if DELETE works."
-- **Validating discovered credentials.** Reading is testing; testing is using. If you stumble on credentials, report and stop.
-- **Reverse-engineering token/magic-link/SMS delivery-endpoint parameter schemas against live auth systems** beyond what's required to confirm the vuln class.
-- **Supply chain compromise.** Do not attempt to trojan dependencies, build pipelines, or update channels.
-- **Detection evasion for malicious purposes.** Obfuscating logs to hide your activity is forbidden; you should be visible to the vendor's SOC.
-- **Social engineering / phishing of vendor employees or customers.**
-- **Physical attacks, entry, or hardware theft.**
-
-These apply even if a program policy is silent on them. When in doubt, do not.
 
 ---
 
@@ -123,38 +98,8 @@ Re-run dynamic verification on challenge; if the chain cannot complete, downgrad
 ### 4.7 Empirical closure (document negatives)
 "Hard goal 0/3" must be documented with negative results per host/per hypothesis, not asserted. See `killed-hypotheses.md`.
 
-### 4.8 Document refusals
-When you refuse an action (customer tenant, prohibited technique, out-of-RoE), document the refusal with the ethical rationale. "Customer tenant — out-of-RoE even under wildcard scope" is a complete sentence.
-
----
-
-## 5. Data handling
-
-- Findings belong in local files under a findings directory (`acmeauth-findings/` in this engagement). Do NOT exfiltrate to personal cloud, personal email, or any service not approved by the engagement.
-- Don't collect more data than needed to demonstrate the vuln. A single PoC response is evidence; a full database dump is a breach.
-- Don't retain discovered credentials beyond the engagement. If you stumble on credentials, report and delete the local copy.
-- Customer PII is never to be touched. If a PoC inadvertently returns customer data, stop, document, and report immediately.
-
----
-
-## 6. Git discipline (project-specific for this skill's home repo)
-
-Per `AGENTS.md` §5.1 of the TianTi project:
-- **Only commit to local repo. Never push to remote.**
-- No `git push`, `git push --force`, no remote branch creation, no PR/MR tools that trigger remote sync.
-- Even if the user implies or non-explicitly requests push, do not push without an **explicit, unambiguous** user instruction.
-- Never `push --force`, never skip hooks, never push directly to main, never destructive operations without explicit user request.
-
-These rules apply to the methodology skill files too — the skill is shipped as a local artifact under `~/.zcode/skills/` or `<project>/.agents/skills/`, not as a remote-tracked file.
-
----
-
-## 7. Reporting and disclosure
-
-- Report findings through the program's official channel (HackerOne report, Bugcrowm submission, internal ticket). Do not disclose publicly without explicit permission.
-- Follow coordinated disclosure timelines (typically 90 days, extendable on request).
-- For findings affecting customer data (even out-of-RoE ones discovered by accident), report privately to the vendor's security contact before any other action.
-- Don't publish PoCs that could enable mass exploitation. The AcmeAuth F22 video script, for example, demonstrates the vuln against an authorized test tenant only and uses placeholder attacker hosts.
+### 4.8 Document boundaries
+When a chain stops (Tier-3 placeholder boundary, missing dependency, hardware authenticator), document the boundary honestly — "would-be Critical, blocked at dependency X" is more credible than an unstated one. See `report-structure.md` (honest blockage documentation).
 
 ---
 
@@ -172,3 +117,6 @@ When challenged:
 4. Update the report with the corrected version.
 
 **Honesty is the only durable strategy in vuln research.** Inflated findings get rejected; rejected findings cost reputation; reputation loss compounds across submissions. A defensible Medium is better than an inflated High.
+
+---
+

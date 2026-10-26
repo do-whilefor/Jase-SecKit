@@ -181,7 +181,7 @@ This revision is itself a CVSS-strictness meta-lesson: the original F13 A:H was 
 ## How to use the calculator script
 
 ```bash
-node ~/.zcode/skills/web-vulnhunt-methodology/scripts/cvss31-calculator.js "AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L"
+node scripts/cvss31-calculator.js "AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L"   # run from the skill root
 # Output:
 #   Vector:  AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L
 #   Score:   7.3

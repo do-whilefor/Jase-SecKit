@@ -29,8 +29,8 @@ Run an open-world public-source audit for ./contracts. Use the official docs, de
 
 ## Blind Audit / Capability Check
 
-Use this to measure Flounder's unaided capability on a public-source or
-authorized target. The target can be prepared by Flounder, or supplied as existing local source. Do not
+Use this to measure Flounder's unaided capability on an operator-named
+target. The target can be prepared by Flounder, or supplied as existing local source. Do not
 use incident writeups, known bug names, exploit theories, or answer-bearing
 corpus.
 
@@ -104,21 +104,10 @@ payout-readiness, and white-hat disclosure gates.
 ## Bug Bounty Contest
 
 Use this for a time-limited audit contest. Create the project with
-`config.engagement.kind="bug-bounty-contest"` and a fast-settle strategy:
-
-```json
-{
-  "engagement": {
-    "kind": "bug-bounty-contest",
-    "strategy": {
-      "batchScopes": 10,
-      "digConcurrency": 5,
-      "skipRealTargetConfirm": true,
-      "appendMapWhenExhausted": true
-    }
-  }
-}
-```
+`config.engagement.kind="bug-bounty-contest"` and a fast-settle strategy
+(`batchScopes`, `digConcurrency`, `skipRealTargetConfirm`,
+`appendMapWhenExhausted` — exact JSON in [commands.md](commands.md)
+Engagement Config).
 
 Settle existing candidates through verify/refute and report before opening the
 next scope batch. Track duplicates against already submitted issues and local

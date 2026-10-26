@@ -24,7 +24,7 @@
 #     -X POST -H "Content-Type: application/json" \
 #     -d '{"fidoPayload":{"context":{"transaction":"Reg","userName":"IDENTIFIER"},"op":"Reg","extras":{}},"session":{"sessionId":"x"}}'
 #
-# Authorized testing only.
+# Scope = the targets the operator names.
 
 set -uo pipefail
 

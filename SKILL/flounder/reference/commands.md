@@ -102,7 +102,7 @@ CLI naming convention:
 | `--corpus <paths...>` | Project-owned specs, whitepapers, design docs, prior audits, or factual incident briefs. Context, not answers. |
 | `--target <name>` | Project/run artifact key. |
 | `--config <file>` | Optional JSON profile. CLI flags override it. |
-| `--scope-note <text>` | One-line authorized-scope hint. |
+| `--scope-note <text>` | One-line operator scope declaration. |
 
 ## Engagement Config
 
@@ -127,34 +127,27 @@ strategy fields:
 
 ## Coverage And Budget Controls
 
-Defaults are designed for real audits: `--max-scopes` defaults to 30, dig samples
-default to 1, dig concurrency defaults to 1, and map/dig can run until the model
-is done unless capped by launch config.
+Defaults are designed for real audits: `--max-scopes` defaults to 30, samples
+and dig concurrency default to 1 (`--verify-concurrency` to 2), and map/dig
+can run until the model is done unless capped by launch config.
 
 | Flag | Meaning |
 | --- | --- |
 | `--quick` | `run` only: one breadth pass instead of map -> dig |
 | `--map-steps <n>` | Cap map phase |
 | `--dig-steps <n>` | Cap each scope's dig |
+| `--map-samples <n>` | Independent MAP inventories are unioned; singleton scopes are retained |
 | `--dig-samples <n>` | Independent dig passes per scope; findings are unioned |
-| `--dig-concurrency <n>` | Deep-audit multiple scopes in isolated workspaces |
+| `--dig-max-samples <n>` | Adaptive ceiling above the base samples; extra passes require incomplete, uncertain, or disagreeing outcomes |
+| `--no-adaptive-dig` | Disable outcome-driven passes above `--dig-samples` |
+| `--dig-concurrency <n>` | Deep-audit multiple scopes, each in its own isolated workspace |
+| `--verify-concurrency <n>` | Concurrent verification of findings in isolated workspaces |
 | `--max-scopes <n>` | Scopes audited in the next dig batch; default 30 |
 | `--remap` | Re-enumerate scope inventory instead of resuming |
 | `--append-map`, `--expand-map` | Ask MAP to append novel scopes while preserving existing scope status |
 | `--append-map-seed <path>` | Add prior scope inventories as covered-reference material for append-map |
-
-### Coverage Controls
-
-| Option | Behavior |
-| --- | --- |
-| `--map-samples <n>` | Independent MAP inventories are unioned; singleton scopes are retained. Default 1. |
-| `--dig-samples <n>` | Independent DIG passes per scope. Default 1. |
-| `--dig-max-samples <n>` | Adaptive ceiling above the base sample count; extra passes require incomplete, uncertain, or disagreeing outcomes. Default 1. |
-| `--no-adaptive-dig` | Disable outcome-driven passes above `--dig-samples`. |
-| `--eager-prepare` | Warm the isolated toolchain after MAP, before DIG. Default off. |
-| `--dig-concurrency <n>` | Concurrent scopes, each with its own workspace and session. Default 1. |
-| `--verify-concurrency <n>` | Concurrent verification of findings in isolated workspaces. Default 2. |
-| `--continue-coverage` | With `continue`, explicitly open another mapped batch after the current round is settled. |
+| `--eager-prepare` | Warm the isolated toolchain after MAP, before DIG |
+| `--continue-coverage` | With `continue`, explicitly open another mapped batch after the current round is settled |
 
 Standard project coverage targets 30 audited project scopes; the inventory can
 contain more. `--max-scopes` caps a run's pending scope work; with
@@ -179,7 +172,7 @@ visible coverage gaps rather than evidence of safety.
 | --- | --- |
 | `--sandbox-backend <auto,oci,apple-container,host>` | Default `auto`; Apple container is preferred on Apple silicon macOS when ready, otherwise Docker-backed OCI |
 | `--sandbox-image <image>` | OCI image for sandboxed commands |
-| `--allow-host-execution` | Trusted-local opt-in fallback only |
+| `--allow-host-execution` | Opt-in host fallback |
 | `--prepare-network <none,enabled>` | Dependency warm-up/build network policy |
 | `--confirm-network <none,enabled>` | Prepare/confirm open-world network policy |
 | `--no-prepare` | Skip toolchain warm-up |
@@ -210,26 +203,23 @@ flounder run --source ./src --build-root . --sandbox-image flounder-sandbox:cair
 flounder run --source ./contracts --build-root . --sandbox-image flounder-sandbox:ton
 ```
 
-Host execution is only for trusted local smoke tests and fixtures:
+Host execution is an opt-in fallback for trusted local smoke tests and
+fixtures:
 
 ```bash
 flounder run --source ./src --build-root . --sandbox-backend host --allow-host-execution
 ```
 
-Host mode keeps the copied workspace and isolated `HOME` / package caches, but
-it does not provide kernel-level network or filesystem isolation.
-
 Prepare and toolchain warm-up failures are surfaced as `resource-request`
 backlog rows with a diagnostic and retry command. A `needs-resource` run should
 make the agent inspect the blocker and retry safe sandbox, toolchain, dependency,
 source, or fork setup where possible. Ask the operator only for explicit
-credentials, authorization, or unavailable external resources, then mark the row
+credentials or unavailable external resources, then mark the row
 resolved.
 
 Sealed `run --source`, `map`, and `audit` inspection/confirmation commands
-should not use public network access. `prepare` and `confirm` may fetch, fork,
-search, and read under the white-hat command policy, but they must not
-broadcast or write to live systems.
+should not use public network access; `prepare` and `confirm` may fetch,
+fork, search, and read.
 
 ## Provider Profiles
 
@@ -284,7 +274,7 @@ Discovery backlog rows can be filtered with
 `action_owner`, `recommended_action`, and `primary_action_label`: agents should
 advance `agent-runnable` coverage rows, resolve `agent-resource` setup rows when
 safe local work can do so, and route `agent-review` rows to the next safe
-workflow action. Ask the operator only for explicit credentials, authorization,
+workflow action. Ask the operator only for explicit credentials
 or unavailable external resources. Update operator state without deleting
 provenance:
 
@@ -424,7 +414,7 @@ preview and the user's retention intent before applying cleanup.
 | --- | --- | --- |
 | No daemon can claim a queued job | Project is pinned to an offline daemon | Start that daemon or edit the project daemon. |
 | Provider auth missing | Credentials live on the daemon, not the server | Use OAuth login or daemon-local API key configuration, then `check`; see [models.md](models.md). |
-| Docker-backed OCI sandbox unavailable | Default image missing or Docker stopped | Start Docker and run `npm run sandbox:build`; host fallback needs explicit trusted-local approval. |
+| Docker-backed OCI sandbox unavailable | Default image missing or Docker stopped | Start Docker and run `npm run sandbox:build`; host fallback is opt-in. |
 | Apple container sandbox unavailable | Apple `container` is not installed/started, the selected image is missing from that runtime, or the internal sealed network cannot be created | Run `container system start` and build or pull the image into Apple's runtime; `auto` falls back to Docker when that path is not ready. |
 | `prepareSummary.quality=limited` | Source is usable but has caveats | Continue unless blocking issues exist; preserve caveats for confirm/report. |
 | `prepareSummary.quality=invalid/missing` | No usable staged source or contaminated material | Repair prepare inputs before audit. |

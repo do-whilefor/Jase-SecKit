@@ -13,11 +13,21 @@
 # Example:
 #   ./authz-matrix.sh https://tenant-001.cdn.acmeauth.example openapi-spec.json "hypwo-..." "/cc/api/"
 #
-# Requirements: python3, curl, jq
+# Requirements: python3, curl (jq NOT required)
 #
-# Authorized testing only.
+# Scope = the targets the operator names.
 
 set -uo pipefail
+
+command -v curl >/dev/null 2>&1 || { echo "ERROR: 'curl' not found (Git Bash for Windows ships curl; check PATH)." >&2; exit 2; }
+PYBIN=""
+for _py in python3 python py; do
+  command -v "$_py" >/dev/null 2>&1 && { PYBIN="$_py"; break; }
+done
+[[ -z "$PYBIN" ]] && { echo "ERROR: no python interpreter found (python3/python/py). Windows: python.org installer or 'winget install Python.Python.3'." >&2; exit 2; }
+unset _py
+# Native python.exe must receive a real Windows path for the spec file.
+nativ_path() { command -v cygpath >/dev/null 2>&1 && cygpath -w "$1" 2>/dev/null || printf '%s' "$1"; }
 
 if [[ $# -lt 3 ]]; then
   echo "Usage: $0 <base_url> <openapi-spec.json> <auth_header_value> [path_prefix]"
@@ -51,10 +61,14 @@ echo "Path prefix: $PREFIX"
 echo ""
 
 # Extract (method, path) pairs from OpenAPI spec, filtered by prefix.
-# python+jq is more reliable across OpenAPI 3.x variants.
-python3 - "$SPEC" "$PREFIX" <<'PY' > "${OUTDIR}/endpoints.tsv"
-import json, sys
-spec_path, prefix = sys.argv[1], sys.argv[2]
+# MSYS2 path-converts argv AND env values starting with '/', so the prefix
+# travels WITHOUT its leading slash and python re-attaches it.
+SPEC_PATH="$(nativ_path "$SPEC")" PREFIX_ARG="${PREFIX#/}" "$PYBIN" - <<'PY' > "${OUTDIR}/endpoints.tsv"
+import json, os, sys
+try: sys.stdout.reconfigure(newline="\n")  # Windows python: keep LF (a trailing \r breaks every curl URL)
+except Exception: pass
+spec_path = os.environ["SPEC_PATH"]
+prefix = "/" + os.environ["PREFIX_ARG"] if os.environ["PREFIX_ARG"] else "/"
 with open(spec_path) as f:
     spec = json.load(f)
 for path, ops in spec.get("paths", {}).items():
@@ -81,6 +95,7 @@ COUNT_401=0
 COUNT_OTHER=0
 
 while IFS=$'\t' read -r method path; do
+  path="${path%$'\r'}"   # defensive: CRLF from Windows-produced intermediate files
   # Substitute {path-param} placeholders with ZZFAKE (per Lesson: use placeholder
   # for destructive endpoints, never real identifiers)
   url_path=$(echo "$path" | sed -E 's/\{[^}]+\}/ZZFAKE/g')

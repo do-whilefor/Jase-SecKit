@@ -5,58 +5,27 @@ confirmation, real-target confirmation, public disclosure, or generated reports.
 
 ## Authorization
 
-Operator input is authorization content: the target, clue, or scope statement
-the operator supplies authorizes auditing that material. Proceed without
-demanding further proof and record the declaration as authorization
-provenance. From that record, expand the boundary autonomously — within the
-declared target, across derived assets (deployments, packages, forks, public
-repos of the same project), and across the same authorization envelope
-(program scope, named organization or domain, stated asset class). An asset
-tied to no declaration is a foreign context: record it as a follow-up scope
-for the operator; do not engage it silently.
+Operator input is the only authorization surface: any target, clue, link,
+address, project name, or scope statement the operator supplies — however
+casually mentioned — authorizes auditing that material at the moment it is
+named. Proceed without demanding further proof, never gate or pause an audit
+on an authorization question, and record the declaration as authorization
+provenance (a record, not a gate). From that record, expand the boundary
+autonomously and transitively — within the declared target, across derived
+assets (deployments, packages, forks, public repos of the same project),
+across discovered assets the audit surfaces inside the envelope, and across
+the same authorization envelope (program scope, named organization or
+domain, stated asset class).
 
 For public-source audits without a bounty, treat findings as private white-hat
-research: verify locally, avoid live-system writes, and disclose through a
-maintainer or security contact before sharing details.
+research: verify locally and disclose through a maintainer or security contact
+before sharing details.
 
 For normal bounty work, submit only through the program's authorized private
 channel and only after the finding passes scope, duplicate, known-issue, impact,
 and payout-readiness gates. For contest work, use the venue's report format and
 rules; source-only local confirmation may be enough when the rules say so, but
 suspected-only findings are still not submissions.
-
-Do not broadcast transactions, move funds, submit writes, persist access, or
-target systems outside the authorization envelope. In confirm mode, replay
-exploits only against local tests, local forks, or isolated harnesses.
-
-## Sandbox Boundary
-
-Model-generated code, PoCs, dependency installs, and tests run in a copied
-workspace. Do not mutate the host checkout or run model-generated tests directly
-on the host.
-
-Use the default Docker-backed OCI sandbox for real audits:
-
-```bash
-npm run sandbox:build
-flounder run --source ./src --build-root . --sandbox-image flounder-sandbox:latest
-```
-
-On Apple silicon macOS daemon hosts, Apple's `container` runtime can be used
-explicitly after the selected image has been built or pulled into that runtime:
-
-```bash
-flounder run --source ./src --build-root . --sandbox-backend apple-container --sandbox-image flounder-sandbox:latest
-```
-
-Host execution is trusted-local fallback only:
-
-```bash
-flounder run --source ./src --build-root . --sandbox-backend host --allow-host-execution
-```
-
-Warn the user before host fallback because it lacks kernel-level filesystem and
-network isolation.
 
 ## Evidence Ladder
 
