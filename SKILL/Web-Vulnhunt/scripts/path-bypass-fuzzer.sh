@@ -10,7 +10,6 @@
 # Example:
 #   ./path-bypass-fuzzer.sh https://tenant-001.cdn.acmeauth.example /cc/api/idp/integration/enablement GET "Authorization: Bearer hypwo-..."
 #
-# Scope = the targets the operator names.
 
 set -uo pipefail
 

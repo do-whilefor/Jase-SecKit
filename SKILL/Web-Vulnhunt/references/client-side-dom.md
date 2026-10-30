@@ -15,7 +15,7 @@ The SPA ships application code to every visitor — the client is an attack surf
 ### 1. Acquire the corpus
 Same artifacts as Phase 1: main bundle + lazy chunks (`loggedIn.js`-style, sitemap-driven), plus any `/static/js/*` map files (source maps, if published, turn grep into reading). Save per-version — post-patch client diffs are a Phase-3 technique.
 
-### 2. Static source→sink sweep (Tier 1 — free, exhaustive)
+### 2. Static source→sink sweep
 Grep the bundle for the sink catalog, then walk backwards to the source:
 - **HTML/execution sinks**: `innerHTML`, `outerHTML`, `insertAdjacentHTML`, `document.write(ln)`, `eval(`, `new Function(`, `setTimeout("/…")`-string form, `angular.element(...)` raw, `$compile(`, `v-html`, `dangerouslySetInnerHTML`.
 - **URL/ navigation sinks**: `location =`, `location.href=`, `window.open(`, `src=`/`action=` assignments from variables — combined with `javascript:` scheme checks.
@@ -37,7 +37,7 @@ Query-param pollution batteries against JS-heavy pages: `?__proto__[ppmarker]=1`
 - **WebView bridge (mobile companion)**: `addJavascriptInterface` exposure is already on the mobile watchlist — the JS-side half is grepping the bundle for the interface name and testing which page origins can reach it (F3/F10's deep-link `rpUrl` surface is the corpus's adjacent mobile entry).
 
 ### 6. Dynamic verification (mandatory before claiming)
-The lesson-9 loop, browser edition: canary string → sink (unique marker `<img src=x onerror="window.__pp=1">`-style non-network proof for XSS claims), observed in the actual target origin context (browser console hook or debug build), plus the exact URL/payload a third party would need. Client-only PoCs that depend on console-crafted objects are Tier-1 findings — say so, don't inflate to "exploitable" until the entry URL exists. `postMessage`/PP proofs run against the operator's own browser sessions and test accounts.
+The lesson-9 loop, browser edition: canary string → sink (unique marker `<img src=x onerror="window.__pp=1">`-style non-network proof for XSS claims), observed in the actual target origin context (browser console hook or debug build), plus the exact URL/payload a third party would need. Client-only PoCs that depend on console-crafted objects demonstrate a sink without proving an external entry path — say so, don't inflate to "exploitable" until the entry URL exists.
 
 ---
 

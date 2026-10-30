@@ -1,6 +1,6 @@
 # Flounder command and API reference
 
-Read the root `SKILL.md` first. This file is for exact command, daemon,
+Read [SKILL.md](../SKILL.md) first. This file is for exact command, daemon,
 provider, API, budget, output, and pi extension details.
 
 ## Contents
@@ -34,7 +34,7 @@ provider, API, budget, output, and pi extension details.
 ```bash
 flounder ui                 # dashboard at http://127.0.0.1:4500 plus co-located daemon
 flounder ui --no-daemon     # control plane only
-flounder ui --maintainer    # explicitly enable maintainer-only Harness source-improvement surfaces
+flounder ui --maintainer    # Harness source-improvement UI and API
 flounder server daemon-token mint [name]
 flounder daemon start --server http://<server>:4500 --token <token>
 flounder daemon provider list
@@ -89,8 +89,8 @@ CLI naming convention:
 | `flounder group start <uuid\|name> [--parallel <n>]` | Start/resume bounded group work through the existing daemon queue |
 | `flounder group status\|pause\|cancel\|report <uuid\|name>` | Inspect/control group state or regenerate its persisted evidence report |
 | `flounder group retry <work-item-id>` | Retry a blocked item after setup repair while retaining immutable prior attempt evidence |
-| `flounder experiment create --name <name> --baseline <group> [--candidate <group>] --editable-file <paths...>` | Maintainer mode only: mine verifier-grounded failures and create a bounded Flounder source candidate proposal |
-| `flounder experiment status\|attach\|proposal\|evaluate\|brief <uuid\|name>` | Maintainer mode only: inspect/refine a proposal, attach a paired candidate, apply the deterministic promotion gate, or export the candidate brief |
+| `flounder experiment create --name <name> --baseline <group> [--candidate <group>] --editable-file <paths...>` | Mine verifier-grounded failures and create a bounded Flounder source candidate proposal |
+| `flounder experiment status\|attach\|proposal\|evaluate\|brief <uuid\|name>` | Inspect/refine a proposal, attach a paired candidate, calculate the deterministic Evaluation verdict, or export the candidate brief |
 | `flounder history import-run --target <name> --run <dir>` | Import an existing run directory into tracked history |
 
 ## Materials
@@ -108,7 +108,7 @@ CLI naming convention:
 
 Set `config.engagement.kind` on dashboard/API projects when reportability
 rules matter; the semantics of `standard`, `bug-bounty`, and
-`bug-bounty-contest` are defined in [product.md](product.md). Contest
+`bug-bounty-contest` are defined in [Engagement Profiles](product.md#engagement-profiles). Contest
 strategy fields:
 
 ```json
@@ -172,14 +172,14 @@ visible coverage gaps rather than evidence of safety.
 | --- | --- |
 | `--sandbox-backend <auto,oci,apple-container,host>` | Default `auto`; Apple container is preferred on Apple silicon macOS when ready, otherwise Docker-backed OCI |
 | `--sandbox-image <image>` | OCI image for sandboxed commands |
-| `--allow-host-execution` | Opt-in host fallback |
+| `--allow-host-execution` | Host-backend execution flag, paired with `--sandbox-backend host` |
 | `--prepare-network <none,enabled>` | Dependency warm-up/build network policy |
 | `--confirm-network <none,enabled>` | Prepare/confirm open-world network policy |
 | `--no-prepare` | Skip toolchain warm-up |
 | `--prepare-timeout-ms <n>` | Warm-up timeout |
 
-Real execution-confirming audits use a sandbox engine plus a built or pulled
-sandbox image. Default `auto` prefers Apple's `container` runtime on Apple
+Sandboxed execution uses a runtime plus a built or pulled sandbox image.
+Default `auto` prefers Apple's `container` runtime on Apple
 silicon macOS when the selected image and sealed network are ready, then falls
 back to Docker-backed OCI — the standard path on Linux and Windows daemon
 hosts (install/start Docker, then `npm run sandbox:build`). Use
@@ -203,8 +203,7 @@ flounder run --source ./src --build-root . --sandbox-image flounder-sandbox:cair
 flounder run --source ./contracts --build-root . --sandbox-image flounder-sandbox:ton
 ```
 
-Host execution is an opt-in fallback for trusted local smoke tests and
-fixtures:
+Host-backend command syntax:
 
 ```bash
 flounder run --source ./src --build-root . --sandbox-backend host --allow-host-execution
@@ -213,13 +212,11 @@ flounder run --source ./src --build-root . --sandbox-backend host --allow-host-e
 Prepare and toolchain warm-up failures are surfaced as `resource-request`
 backlog rows with a diagnostic and retry command. A `needs-resource` run should
 make the agent inspect the blocker and retry safe sandbox, toolchain, dependency,
-source, or fork setup where possible. Ask the operator only for explicit
-credentials or unavailable external resources, then mark the row
-resolved.
+source, or fork setup where possible, then mark handled rows resolved.
 
-Sealed `run --source`, `map`, and `audit` inspection/confirmation commands
-should not use public network access; `prepare` and `confirm` may fetch,
-fork, search, and read.
+Sealed `run --source`, `map`, and `audit` use isolated inspection and confirmation
+workspaces. Prepare and Confirm support fetching, forking, searching, and
+reading external material under their network configuration.
 
 ## Provider Profiles
 
@@ -274,9 +271,7 @@ Discovery backlog rows can be filtered with
 `action_owner`, `recommended_action`, and `primary_action_label`: agents should
 advance `agent-runnable` coverage rows, resolve `agent-resource` setup rows when
 safe local work can do so, and route `agent-review` rows to the next safe
-workflow action. Ask the operator only for explicit credentials
-or unavailable external resources. Update operator state without deleting
-provenance:
+workflow action. Update operator state without deleting provenance:
 
 ```bash
 curl -X PATCH http://127.0.0.1:4500/api/backlog/<id> \
@@ -401,12 +396,10 @@ flounder storage compact
 flounder storage compact --apply
 ```
 
-`clean` previews by default. Applying it removes a terminal project's local
-artifacts, history, and configured workspace while preserving database records;
-those retained rows do not restore deleted PoCs or transcripts. Active work is
-refused. `compact` only removes paired per-command inspection copies from
-terminal runs, retaining reports, findings, PoCs, and transcripts. Review the
-preview and the user's retention intent before applying cleanup.
+`clean` previews by default. `--apply` removes a terminal project's local
+artifacts, history, and configured workspace while preserving database records.
+`compact` removes paired per-command inspection copies from terminal runs,
+retaining reports, findings, PoCs, and transcripts.
 
 ## Troubleshooting
 
@@ -414,11 +407,11 @@ preview and the user's retention intent before applying cleanup.
 | --- | --- | --- |
 | No daemon can claim a queued job | Project is pinned to an offline daemon | Start that daemon or edit the project daemon. |
 | Provider auth missing | Credentials live on the daemon, not the server | Use OAuth login or daemon-local API key configuration, then `check`; see [models.md](models.md). |
-| Docker-backed OCI sandbox unavailable | Default image missing or Docker stopped | Start Docker and run `npm run sandbox:build`; host fallback is opt-in. |
+| Docker-backed OCI sandbox unavailable | Default image missing or Docker stopped | Start Docker and run `npm run sandbox:build`. |
 | Apple container sandbox unavailable | Apple `container` is not installed/started, the selected image is missing from that runtime, or the internal sealed network cannot be created | Run `container system start` and build or pull the image into Apple's runtime; `auto` falls back to Docker when that path is not ready. |
-| `prepareSummary.quality=limited` | Source is usable but has caveats | Continue unless blocking issues exist; preserve caveats for confirm/report. |
+| `prepareSummary.quality=limited` | Source is usable but has caveats | Inspect `auditReady` and `blockingIssues`; preserve caveats for confirm/report. |
 | `prepareSummary.quality=invalid/missing` | No usable staged source or contaminated material | Repair prepare inputs before audit. |
-| Verify rejects selected findings for material drift | New Prepare changed the current material boundary | Re-select current findings or pass the explicit expert override only after checking drift. |
-| Confirm returns `not-reproduced` | PoC was not attacker-real on the real target, or environment is incomplete | Treat as not submission-ready unless the user approves more reproduction work. |
+| Verify reports material drift | New Prepare changed the current material boundary | Compare material fingerprints and re-select findings matching the current prepared source. |
+| Confirm returns `not-reproduced` | PoC was not attacker-real on the real target, or environment is incomplete | Record the failed reproduction and diagnose target mismatch or environment limitations. |
 | Report action says no findings are missing reports | All reportable rows already have formal reports, or selected rows are not reproduced/confirmed | Use `flounder report --project <uuid|name> --all` to regenerate existing reports, select eligible findings, or inspect Active/Ignored tracking filters. |
-| Node native crash during repo tooling | Unsupported Node version | Use Node 24 LTS from `.nvmrc` / `.node-version`. |
+| Node native crash during repo tooling | Unsupported Node version | Use Node 24 LTS from the Flounder source checkout's `.nvmrc` / `.node-version`. |

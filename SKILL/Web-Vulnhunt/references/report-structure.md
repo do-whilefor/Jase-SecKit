@@ -158,7 +158,6 @@ Absolute paths to local evidence files (screenshots, captured responses, Frida s
 - **Don't inflate severity.** Strip the 4 inflation patterns before scoring.
 - **Don't claim exploitability without dynamic verification** for mobile findings.
 - **Don't omit the escalation attempts section.** Dead ends are honesty, not weakness.
-- **Don't use real customer identifiers in PoCs.** Use placeholders or test-tenant values.
 - **Don't credit downstream chains in CVSS.** Score the direct impact of THIS vuln.
 - **Don't conflate "info leak" with "prerequisite for ATO".** F12 enables F13 but scores 5.3, not 9.8.
 
@@ -196,12 +195,10 @@ For findings that benefit from a demo (F22 was demonstrated via video), produce 
 ```
 
 The recording script should:
-- Use a TARGET variable at the top (default to the operator-designated target or a test tenant)
+- Use a TARGET variable at the top
 - Run each segment as a clear block with a header
 - Pause for narration between segments
 - End with a closing card showing CVSS, CWE, and severity
-- Use placeholder attacker hosts (webhook.site URLs, not real attacker domains)
-- Demonstrate PoCs against a test tenant or the operator-designated target; sanitize real customer identifiers and third-party data before the report leaves local control
 
 ---
 
@@ -216,7 +213,6 @@ Write a chain report (`report-CHAIN-<topic>.md`) **in addition to** the individu
 Do NOT write a chain report when:
 - The "chain" is just "finding A makes finding B slightly easier" with no qualitative severity change
 - One of the findings is already Critical on its own (F13 + anything is still just F13)
-- The chain requires a Tier-3 step (state-changing use with real values) to actually exploit (document the chain as "future work" in the master report instead)
 
 ### Chain report structure
 
@@ -267,8 +263,8 @@ Do NOT write a chain report when:
 1. **Inventory**: list every finding with its CVSS, preconditions, and "what it gives the attacker" (a credential, a primitive, an oracle, a state change).
 2. **Output-input matching**: for each finding's output, scan for another finding whose input it satisfies. F8 outputs a bearer → which findings accept a bearer? F12 outputs credential IDs → which findings need a target credential?
 3. **Precondition collapse**: when finding A's output satisfies finding B's precondition, the chain's *effective* precondition is the union minus the now-satisfied ones. F8 + F5 collapses PR:L (F8's install-token requirement) + PR:N (F5's endpoint) → effectively PR:N if the install token is itself unauthenticated-mintable, otherwise PR:L. This collapsed precondition is what the chain CVSS uses.
-4. **Tier check**: confirm every step of the synthesized chain respects the credential Tier framework (Stages 1-4 mandated; Stage 5 narrative always allowed; Tier-3 steps use placeholder targets).
-5. **Honest blockage documentation**: when a chain step is blocked by an unresolvable dependency (hardware authenticator, OSINT API access, Tier-3 placeholder boundary), do NOT omit it — document it as the chain's boundary. A documented "would-be Critical, blocked at dependency X" is more credible than an unstated one.
+4. **Evidence check**: map each chain step to the response, state change, or dependency that establishes it.
+5. **Honest blockage documentation**: when a chain step is blocked by an unresolvable dependency (hardware authenticator, OSINT API access), do NOT omit it — document it as the chain's boundary. A documented "would-be Critical, blocked at dependency X" is more credible than an unstated one.
 
 ### The reporting discipline
 
@@ -279,4 +275,3 @@ A chain report is a **force multiplier**, not a substitute for individual report
 Skipping the chain report leaves value on the table; skipping the individual reports risks the program closing only one component and leaving the chain re-armsable.
 
 ---
-

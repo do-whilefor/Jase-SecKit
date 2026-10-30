@@ -11,8 +11,6 @@
 #   tenants.txt / paths.txt: one entry per line (or comma-separated inline).
 #
 # Output: matrix TSV (tenant × path → status/size/hash) + OUTLIER/SHARED flags.
-# Scope = the targets the operator names — run the ownership pass (ethics §2)
-# on the tenant list BEFORE pointing this at anything (read-only GETs, paced).
 
 set -uo pipefail
 command -v curl >/dev/null 2>&1 || { echo "ERROR: 'curl' not found (Git Bash for Windows ships curl; check PATH)." >&2; exit 2; }

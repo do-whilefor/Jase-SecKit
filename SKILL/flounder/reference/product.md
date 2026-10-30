@@ -60,16 +60,16 @@ do not change the model-owned audit strategy.
 
 - `standard`: default operator-declared review.
 - `bug-bounty`: normal bounty work. Keep real-target Confirm in the path when a
-  live target exists, and gate reports on official scope, evidence, and mandatory submission
-  terms. Record private duplicate and reward uncertainty separately.
+  live target exists. Record official scope, execution evidence, submission
+  terms, and private duplicate and reward uncertainty separately.
 - `bug-bounty-contest`: time-limited contest work. Favor short
-  verify/refute/report batches, allow source-only local confirmation when venue
-  rules permit skipping real-target confirmation, and append-map novel scopes
-  when the current inventory is exhausted.
+  verify/refute/report batches, describe the venue's source-only or real-target
+  evidence model, and append-map novel scopes when the current inventory is
+  exhausted.
 
 Contest strategy can include `batchScopes`, `digConcurrency`,
 `skipRealTargetConfirm`, and `appendMapWhenExhausted`. The project view should
-surface stop-review signals such as elapsed review window, exhausted inventory,
+surface review metrics such as elapsed review window, exhausted inventory,
 recent low-yield scope batches, duplicate rate, report backlog, and open
 resource requests.
 
@@ -115,9 +115,8 @@ scopes. The API and dashboard classify each row as `agent-runnable`,
 `agent-resource`, or `agent-review`. Treat all open rows as an agent-owned queue:
 coverage rows continue, append-map, or prioritize scopes; setup rows retry safe
 toolchain, sandbox, dependency, source, or auth setup where possible; routing
-rows ask the agent to inspect and choose the next safe workflow action. Ask the
-operator only for explicit credentials or unavailable external
-resources. Mark non-actionable backlog rows `ignored`; mark handled blockers
+rows ask the agent to inspect and choose the next workflow action. Mark
+non-actionable backlog rows `ignored`; mark handled blockers
 `resolved`; keep unresolved coverage rows `open`.
 
 Resource requests can be model-authored or product-owned. Prepare and toolchain
@@ -164,11 +163,13 @@ Default local state lives under `~/.flounder`:
 - `agent/auth.json`: daemon-local provider auth.
 
 Per-run and per-confirm artifact filenames are enumerated in
-[commands.md](commands.md) Outputs.
+[Outputs](commands.md#outputs).
 
 ## Evidence Boundary And Submission Advice
 
 The four-axis separation — mandatory program compliance, technical evidence
 boundary, submission advice, reward/duplicate adjudication risk — and its
-rules are defined in [safety.md](safety.md). They govern confirm decisions
-and report eligibility on the product surfaces.
+model is defined in
+[Evidence Boundary And Submission Advice](safety.md#evidence-boundary-and-submission-advice).
+The product surfaces display confirm
+decisions and report eligibility using those separate axes.

@@ -1,18 +1,16 @@
 #!/usr/bin/env bash
-# ratelimit-probe.sh — Bounded rate-limit characterization for one endpoint.
-# Step-up schedule with a hard request cap: this is a bounded experiment that
-# characterizes the limit, not load testing (DoS is out of toolkit, ethics §3).
+# ratelimit-probe.sh — Rate-limit characterization for one endpoint.
+# Step-up schedule records response codes, delay, and limit headers.
 #
 # Usage:
 #   ./ratelimit-probe.sh <url> [method] [--max N] [--curl-args ...]
-#     --max N   hard request cap (default 30, do not raise)
+#     --max N   request count (default 30)
 #
 # Records per request: index, delay, status, and any limit headers seen
 # (X-RateLimit-*, Retry-After, 429). Verdict:
 #   LIMITED@k    first 429/limit signal at request k (+ which header)
-#   UNLIMITED    no limit signal within the bounded cap (that's a finding: F24 pattern)
+#   UNLIMITED    no limit signal within the sample (F24 pattern)
 #
-# Scope = the targets the operator names.
 
 set -uo pipefail
 [[ $# -lt 1 ]] && { grep -E "^#   (./ratelimit|\-\-)" "$0" | sed 's/^#   //'; exit 1; }
@@ -26,7 +24,7 @@ while [[ $# -gt 0 ]]; do
     *) EXTRA+=("$1"); shift ;;
   esac
 done
-[[ $MAX -gt 30 ]] && { echo "Cap refused: 30 requests max (bounded experiment, not load testing)."; exit 1; }
+[[ $MAX -gt 30 ]] && { echo "ERROR: --max exceeds the supported value (30)."; exit 1; }
 
 echo "=== ratelimit-probe ==="
 echo "$METHOD $URL   cap=$MAX"
@@ -50,5 +48,5 @@ echo ""
 if [[ "$FIRST_429" != 0 ]]; then
   echo "VERDICT: LIMITED — first 429 at request #$FIRST_429. Counting behavior characterized; factor into race/limit-overdraw hypotheses (references/race-conditions.md)."
 else
-  echo "VERDICT: UNLIMITED within the $MAX-request bounded cap — a finding candidate (F24 pattern). Confirm with a fresh session/IP before claiming; record negative-control result."
+  echo "VERDICT: UNLIMITED within the $MAX-request sample — a finding candidate (F24 pattern). Re-test with a fresh session/IP and record the negative control."
 fi

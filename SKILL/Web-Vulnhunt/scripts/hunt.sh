@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # hunt.sh — Hypothesis-priority scheduler. Wraps the ledger: `next` pulls the
 # highest-value OPEN hypothesis and prints its working brief (recipe pointer,
-# hygiene caps, matched tooling) so a session always continues at max value
+# matched tooling) so a session always continues at max value
 # instead of noodling on whatever was last touched.
 #
 # Usage:
@@ -10,7 +10,6 @@
 #   ./hunt.sh status [ledger]      # backlog counts by status
 #
 # Options pass through: ./hunt.sh next -f path/to/ledger.tsv
-# Scope = the targets the operator names.
 
 set -uo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

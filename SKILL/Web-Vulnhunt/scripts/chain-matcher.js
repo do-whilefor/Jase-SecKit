@@ -26,9 +26,7 @@
  * pair, +1 band bump when A collapses B's only precondition) and the honest
  * boundaries (findings whose preconditions nothing satisfies).
  *
- * Pure Node stdlib. Scope = the targets the operator names. Hygiene rules:
- * references/ethics-and-roe.md — a matched chain is a report candidate, not a
- * license: Tier rules still govern what you do with the access it grants.
+ * Pure Node stdlib.
  */
 'use strict';
 const fs = require('fs');
@@ -81,7 +79,6 @@ lines.push('## Unsatisfied preconditions (honest boundaries — document as futu
 orphans.forEach((f) => lines.push(`- ${f.id}: needs ${ (f.preconditions || []).join(', ') } — nothing in the inventory supplies it`));
 lines.push('');
 lines.push('Composite-severity hints are a floor for the chain narrative, not a score: run the actual chain CVSS through scripts/cvss31-calculator.js with the collapsed-precondition vector (report-structure.md step 3).');
-lines.push('Tier check before writing: state-changing steps use placeholder targets (SKILL.md Integrity discipline).');
 const report = lines.join('\n');
 
 if (out) { fs.writeFileSync(out, report + '\n'); console.error('Wrote ' + out); }

@@ -17,7 +17,6 @@
 #   ./hunt-ledger.sh export-json                   # ledger as JSON (for chain-matcher.js etc.)
 #
 # Options: -f <ledger-file> to use a non-default ledger path.
-# Scope = the targets the operator names.
 
 set -uo pipefail
 
@@ -115,7 +114,6 @@ case "$cmd" in
     echo "Recipe:         $(recipe_for "$class")"
     echo "On start:       $0 update $id --status testing"
     echo "On resolve:     $0 update $id --status confirmed|killed --result \"...\" --evidence \"...\""
-    echo "Hygiene:        bounded volume (~20-30 req/hypothesis), negative control before any oracle claim, Tier-3 paths use placeholder targets."
     ;;
 
   list)

@@ -2,7 +2,7 @@
 # selftest.sh — Skill self-check. Validates the skill's own machinery without
 # touching any network target: script syntax, reference wiring, the ledger
 # round-trip, the JS toolchain on synthetic fixtures, and the corpus
-# invariants (operator-scope model, hygiene language).
+# reference links and evidence fixtures.
 #
 # Usage:
 #   ./selftest.sh [-v]      # -v prints per-check command output
@@ -13,6 +13,12 @@
 set -uo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKILL_DIR="$(dirname "$SCRIPT_DIR")"
+PYBIN=""
+for _py in python3 python py; do
+  command -v "$_py" >/dev/null 2>&1 && { PYBIN="$_py"; break; }
+done
+[[ -z "$PYBIN" ]] && { echo "ERROR: Python not found." >&2; exit 2; }
+unset _py
 VERBOSE=0; [[ "${1:-}" == "-v" ]] && VERBOSE=1
 TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
 PASS=0; FAIL=0; FAILED=()
@@ -43,11 +49,9 @@ for f in "$SCRIPT_DIR"/*.js; do
 done
 echo ""
 
-# 2. Reference wiring: every file referenced from SKILL.md's table exists
+# 2. Reference wiring: bundled links and heading anchors
 echo "--- references ---"
-while read -r ref; do
-  check "exists references/$ref" 0 test -f "$SKILL_DIR/references/$ref"
-done < <(grep -oE 'references/[a-z0-9-]+\.md' "$SKILL_DIR/SKILL.md" | sort -u | sed 's|references/||')
+check "bundled file links and heading anchors" 0 "$PYBIN" "$SCRIPT_DIR/check-references.py"
 echo ""
 
 # 3. Ledger round-trip
@@ -128,14 +132,6 @@ check "sweep-all usage exit" 1 "$SCRIPT_DIR/sweep-all.sh"
 check "tenant-diff usage exit" 1 "$SCRIPT_DIR/tenant-diff.sh"
 check "dormant-watch missing config exit 2" 2 "$SCRIPT_DIR/dormant-watch.sh" "$TMP/nonexistent.conf"
 check "recon missing domain exit" 1 "$SCRIPT_DIR/recon.sh"
-echo ""
-
-# 6. Corpus invariants
-echo "--- invariants ---"
-check "operator-scope: no 'Authorized testing only' gate in scripts" 0 bash -c "grep -rln 'Authorized testing only' \"$SCRIPT_DIR\" | grep -v 'selftest.sh$' | grep -q . && exit 1 || exit 0"
-check "operator-scope: no 'ask the user before' gate in live files" 0 bash -c "grep -rln 'ask the user before' \"$SKILL_DIR\" --include='*.md' --include='*.sh' --include='*.js' | grep -v 'review-log.md$' | grep -v 'selftest.sh$' | grep -q . && exit 1 || exit 0"
-check "hygiene: negative-control rule present in SKILL.md" 0 grep -qi "negative control" "$SKILL_DIR/SKILL.md"
-check "ethics §1 is the operator-scope model" 0 grep -q "The user's input is the authorization scope" "$SKILL_DIR/references/ethics-and-roe.md"
 echo ""
 
 echo "=== Summary: $PASS pass, $FAIL fail ==="

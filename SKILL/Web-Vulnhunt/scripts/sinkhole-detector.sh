@@ -10,7 +10,6 @@
 #
 # Run this BEFORE trusting any DNS-based subdomain enum.
 #
-# Scope = the targets the operator names.
 #
 # Usage:
 #   ./sinkhole-detector.sh <domain>

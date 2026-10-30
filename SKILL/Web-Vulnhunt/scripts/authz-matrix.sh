@@ -15,7 +15,6 @@
 #
 # Requirements: python3, curl (jq NOT required)
 #
-# Scope = the targets the operator names.
 
 set -uo pipefail
 
@@ -96,8 +95,7 @@ COUNT_OTHER=0
 
 while IFS=$'\t' read -r method path; do
   path="${path%$'\r'}"   # defensive: CRLF from Windows-produced intermediate files
-  # Substitute {path-param} placeholders with ZZFAKE (per Lesson: use placeholder
-  # for destructive endpoints, never real identifiers)
+  # Substitute OpenAPI path parameters before the request.
   url_path=$(echo "$path" | sed -E 's/\{[^}]+\}/ZZFAKE/g')
   url="${BASE_URL}${url_path}"
 

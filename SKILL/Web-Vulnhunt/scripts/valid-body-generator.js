@@ -9,15 +9,12 @@
  * Usage:
  *   node valid-body-generator.js <openapi.json> <path> <method> [--out FILE] [--placeholder] [--fill-optional]
  *
- *   --placeholder     ZZFAKE-style values for identifier-ish fields (Tier-3 rule:
- *                     state-changing probes never carry real identifiers), while
- *                     still honoring enum/format/pattern so validation passes.
+ *   --placeholder     generate ZZFAKE-style values while honoring enum/format/pattern
  *   --fill-optional   include optional properties too (default: required only)
  *
  * Pure Node stdlib. Handles local $ref, allOf merge, oneOf/anyOf (first branch),
  * enum, format (email/date/date-time/uuid/uri/ipv4/hostname), min/max constraints.
  *
- * Scope = the targets the operator names. Hygiene rules: references/ethics-and-roe.md.
  */
 'use strict';
 const fs = require('fs');

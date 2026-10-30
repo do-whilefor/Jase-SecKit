@@ -2,9 +2,7 @@
 /**
  * body-mutator.js — Request-body mutation for hypothesis-driven probing.
  * Takes a real (or valid-body-generator-produced) JSON body and emits named
- * mutant profiles. Pairs with sweep-all.sh / authz-matrix.sh re-tests and the
- * Tier-3 placeholder rule: identifier-ish fields get placeholder-substituted,
- * never real values.
+ * mutant profiles. Pairs with sweep-all.sh / authz-matrix.sh re-tests.
  *
  * Usage:
  *   node body-mutator.js <body.json> [--profiles all|p1,p2,...] [--out-dir DIR] [--cap N]
@@ -14,7 +12,7 @@
  *   proto-pollution  __proto__ / constructor.prototype marker keys (server-side PP probe)
  *   unicode-control  NUL, overlong-UTF8-ish, RTL marks appended to string values
  *   oversized        10_000-char strings (boundary / parser-path probes)
- *   placeholder-swap identifier-ish fields → ZZFAKE / nobody@ / 0-prefixed (Tier-3)
+ *   placeholder-swap identifier-ish fields → ZZFAKE / nobody@ / 0-prefixed
  *   format-break     email/date/uri-shaped values → schema-valid-shaped garbage (validation differential)
  *   deep-nest        128-deep object (depth-limit probes)
  *   dup-keys         duplicate the first key with a conflicting value (parser-disagreement probe)
@@ -23,8 +21,8 @@
  *   json-escapes     all "/" escaped as \u002f (serialized-form checks miss the decoded slash)
  *
  * Output: <out-dir>/body.<profile>.<i>.json + manifest.tsv (file → profile → mutation note).
- * Pure Node stdlib. Scope = the targets the operator names. Hygiene rules:
- * references/ethics-and-roe.md — mutants are probes, one hypothesis per mutant.
+ * Pure Node stdlib.
+ * One hypothesis per mutant makes the resulting differential interpretable.
  */
 'use strict';
 const fs = require('fs');
@@ -92,7 +90,7 @@ const profiles = {
       else if (/^[0-9a-f-]{36}$/i.test(v)) p[k] = '00000000-0000-0000-0000-000000000000';
       else if (IDENT_KEYS.test(k)) p[k] = `ZZFAKE${rand()}`;
     });
-    emit('placeholder-swap.0', m, 'identifiers → ZZFAKE/nobody/0-UUID (Tier-3)');
+    emit('placeholder-swap.0', m, 'identifiers → ZZFAKE/nobody/0-UUID');
   },
   'format-break': (b) => {
     const m = clone(b);

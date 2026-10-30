@@ -5,9 +5,6 @@
 # script periodically re-checks each primitive's liveness fingerprint and
 # alerts on drift — the "re-arms instantly if any future gap appears" tripwire.
 #
-# STRICTLY read-only: this script only ever issues GET. It refuses configs
-# that mention non-GET methods (a watch that mutates state is not a watch).
-#
 # Usage:
 #   ./dormant-watch.sh <watch.conf> [--log dormant-watch.tsv] [--once]
 # watch.conf line format:
@@ -23,7 +20,6 @@
 # DRIFT=ok | DRIFTED (hash/status/size moved vs previous run) | EXPIRED (TTL)
 #
 # Exit: 0 = all stable, 1 = drift/expiry detected, 2 = config error.
-# Scope = the targets the operator names.
 
 set -uo pipefail
 command -v curl >/dev/null 2>&1 || { echo "ERROR: 'curl' not found (Git Bash for Windows ships curl; check PATH)." >&2; exit 2; }
@@ -45,9 +41,9 @@ while [[ $# -gt 0 ]]; do
 done
 [[ -z "$CONF" || ! -f "$CONF" ]] && { grep -E "^#   (./dormant|NAME\|)" "$0" | sed 's/^#   //'; exit 2; }
 
-# Read-only enforcement: refuse any config line carrying a non-GET method verb.
+# Validate the supported configuration format.
 if grep -inE '(POST|PUT|PATCH|DELETE)[[:space:]]*https?://|\|https?://.*(POST|PUT|PATCH|DELETE)' "$CONF" >/dev/null; then
-  echo "REFUSED: watch URLs must be plain GET endpoints (read-only monitor)."; exit 2
+  echo "ERROR: unsupported method in watch configuration."; exit 2
 fi
 
 TS=$(date -u +"%Y-%m-%dT%H:%MZ")

@@ -13,11 +13,8 @@
 #   <out>/divergent.txt    cells where the deformation changed the verdict
 #   stdout                 divergence summary — fire real payloads ONLY at these (§O8 step 4)
 #
-# Profiles (§O9): default pacing suits PRODUCTION. On operator-controlled infra
-# run with --delay-ms 0 (full throttle). Read-only by construction: GET / OPTIONS /
-# HEAD / unknown verbs only.
+# Request delay is configured with --delay-ms.
 #
-# Scope = the targets the operator names.
 
 set -uo pipefail
 command -v curl >/dev/null 2>&1 || { echo "ERROR: 'curl' not found." >&2; exit 2; }

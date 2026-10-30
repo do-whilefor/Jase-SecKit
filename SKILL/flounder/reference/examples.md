@@ -1,6 +1,6 @@
 # Flounder examples
 
-Read the root `SKILL.md` first. These examples show common audit paths.
+Read [SKILL.md](../SKILL.md) first. These examples show common audit paths.
 
 ## Contents
 
@@ -69,9 +69,9 @@ flounder confirm ~/.flounder/evm-audit-<timestamp> \
 
 ## Open-World Public-Source Audit
 
-Use this when the user permits Flounder to collect public context, official
-docs, deployment facts, and bounty scope when available. Add source paths when
-you already have a checkout; the scenario is defined by the allowed open-world
+Use this to collect public context, official docs, deployment facts, and bounty
+scope when available. Add source paths when
+you already have a checkout; the scenario is defined by the open-world
 context, not by whether source was pre-supplied or whether a bounty exists.
 
 ```bash
@@ -98,22 +98,22 @@ flounder ui
 # phases for local proof, then Confirm for locally confirmed findings.
 ```
 
-Submit only findings that pass scope, duplicate, known-issue, impact,
-payout-readiness, and white-hat disclosure gates.
+For each finding, collect scope, duplicate, known-issue, impact, and
+payout-readiness evidence alongside its technical reproduction package.
 
 ## Bug Bounty Contest
 
 Use this for a time-limited audit contest. Create the project with
 `config.engagement.kind="bug-bounty-contest"` and a fast-settle strategy
 (`batchScopes`, `digConcurrency`, `skipRealTargetConfirm`,
-`appendMapWhenExhausted` — exact JSON in [commands.md](commands.md)
-Engagement Config).
+`appendMapWhenExhausted` — exact JSON in
+[Engagement Config](commands.md#engagement-config)).
 
 Settle existing candidates through verify/refute and report before opening the
 next scope batch. Track duplicates against already submitted issues and local
 findings before submitting a new report. When the mapped inventory is
 exhausted, append-map novel scopes instead of remapping so prior scope status,
-submitted findings, and duplicate links survive. Watch the stop-review signals:
+submitted findings, and duplicate links survive. Track review metrics:
 elapsed review window, exhausted inventory, recent low-yield batches,
 duplicate rate, report backlog, and open resource requests.
 

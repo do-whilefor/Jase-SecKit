@@ -31,7 +31,7 @@ Spec formula sanity check for F22:
 
 **Codified rule.** Score against FIRST.org 3.1 spec, never against narrative. Run a "precondition reality check" on every finding: is PR truly None (or did the attacker need a prior credential)? Is UI truly None (or must a victim click/scan)? Is AC truly Low (or does the attacker need an intermediary position)? Does the finding credit only *direct* C/I/A, or does it count "prerequisite for another vuln" (CVSS does NOT credit the latter — F12, the highest-impact info leak because it's a direct prerequisite for F13, still scores 5.3 because it only leaks C:L directly).
 
-See `cvss-scoring-methodology.md` and `scripts/cvss31-calculator.js`.
+See [cvss-scoring-methodology.md](cvss-scoring-methodology.md) and [cvss31-calculator.js](../scripts/cvss31-calculator.js).
 
 ---
 
@@ -51,30 +51,30 @@ See `cvss-scoring-methodology.md` and `scripts/cvss31-calculator.js`.
 **Codified rule.** When a vendor reports a patch, never assume closure. Standard sequence:
 1. Mint a fresh credential via any still-live persistence primitive to prove the auth surface itself wasn't touched.
 2. Re-run every original PoC and record before/after status codes.
-3. Use a deliberately-nonexistent target value (`ZZFAKE` provider) for destructive endpoints to prove zero state change.
+3. Separate route/controller reachability from the observed state transition in the evidence.
 4. Attempt 20+ path-normalization bypass variants.
 5. Distinguish SPA-fallback (200 + `text/html`) from controller reach (200 + JSON data).
 6. Infer the patch mechanism (path filter vs annotation) from response uniformity.
 
-See `scripts/patch-verify.sh`.
+See [patch-verify.sh](../scripts/patch-verify.sh).
 
 ---
 
 ## LESSON 4 — Scope Verification: Demo/Sample vs Production
 
 **Concrete example.** The user flagged the scope problem twice:
-1. `demo.acmeauth.example` runs the AcmeAuth "Sample Bank sample app" at `/sample/*`. F15 (user enumeration via FIDO2 attestation) was discovered there but severity downgraded: "Demo environment, so business impact is limited" and "Scope-out per user (SampleApp)."
+1. `demo.acmeauth.example` runs the AcmeAuth "Sample Bank sample app" at `/sample/*`. F15 (user enumeration via FIDO2 attestation) was discovered there but severity downgraded: "Demo environment, so business impact is limited".
 2. `sampleapp.dev.acmeauth.example` is the AcmeAuth-owned sample app on v11.5.0 master branch. Deep-probed as a *differential* target (newest version, not production v11.3.0). DNS in this environment returns RFC 2544 sinkhole addresses for every `*.cdn.acmeauth.example` query, so only hosts confirmed by CT logs + HTTP-probe were treated as real.
 
-The 7 confirmed live AcmeAuth-owned CC tenants (in-scope) vs the ~140 customer `vault-*` tenants (out-of-scope) are distinguished by: AcmeAuth-owned = `*.cdn.acmeauth.example` test tenants (`tenant-001`, `pentesting`, `pentesting2`, `tenant-002`, `crowd`, `tenant-demo`, `demobank`) + AcmeAuth corp `*.acmeauth.example` (`portal`, `sampleapp.dev`, `demo`, `enhancements`); customer-named = recognizable brand names or `vault-*` prefix.
+The 7 confirmed live AcmeAuth-owned CC tenants (vendor-owned) vs the ~140 customer `vault-*` tenants (third-party-owned) are distinguished by: AcmeAuth-owned = `*.cdn.acmeauth.example` test tenants (`tenant-001`, `pentesting`, `pentesting2`, `tenant-002`, `crowd`, `tenant-demo`, `demobank`) + AcmeAuth corp `*.acmeauth.example` (`portal`, `sampleapp.dev`, `demo`, `enhancements`); customer-named = recognizable brand names or `vault-*` prefix.
 
-**Codified rule.** Before testing any host, classify it: (a) production (real bounty value); (b) demo/sample (test value only — cap report framing at informational); (c) third-party customer production (a different owner than the named target — verify aim before probing, ethics §2). Distinguish by CT-log source, DNS resolution reality (not sinkhole artifacts), build/version fingerprint (`/info`), and naming convention (`sampleapp.*`, `demo.*`, `*dev*` = AcmeAuth-owned demo; `vault-*`, customer brand names = customer tenant). Do not count demo-host findings in the production severity totals.
+**Codified rule.** Classify production, demo/sample, and third-party ownership using CT-log provenance, real DNS behavior, build/version fingerprints (`/info`), and naming patterns. Keep environment context separate from the technical finding and explain demonstrated impact.
 
 ---
 
 ## LESSON 5 — Third-Party Asset Identification (Customer-Named Tenants)
 
-**Concrete example.** `SESSION3-FINAL-ASSESSMENT.md` "What I Refused to Do (Ethics)" explicitly refused the verifier's directive to perform F8 install-token lateral movement on customer tenants. Customer-named tenants detected via CT logs:
+**Concrete example.** CT logs revealed customer-named tenants beneath the vendor domain:
 
 - `<customer>.acmeauth.example` (Charles <customer>), `<customer>-qa.acmeauth.example`
 - `<customer>.acmeauth.example`, `<customer>-dev/-uat/-retail/-rds-test/-verint`
@@ -88,9 +88,9 @@ The 7 confirmed live AcmeAuth-owned CC tenants (in-scope) vs the ~140 customer `
 - `<customer>.acmeauth.example`, `<customer>.acmeauth.example`, `<customer>.acmeauth.example`
 - ~140 `vault-<customer>.<aws-account-id>.acmeauth.example` hosts (not publicly resolvable; AWS account IDs embedded in hostname: `<AWS-ACCOUNT-ID>`, `<AWS-ACCOUNT-ID>`, `<AWS-ACCOUNT-ID>`, etc.)
 
-The `*.acmeauth.example` / `*.cdn.acmeauth.example` wildcard in HackerOne policy does NOT extend to accessing customer data/systems. F8 install tokens are tenant-bound (verified: tenant-001 token → `portal.acmeauth.example` returns 401 "Cannot find hypws-41"), so cross-tenant lateral movement was both technically blocked and ethically refused.
+F8 install tokens are tenant-bound: tenant-001 token → `portal.acmeauth.example` returned 401 "Cannot find hypws-41". This is direct evidence of token isolation across tenants.
 
-**Codified rule.** Identify tenant ownership before active probing: recognizable brand names, `vault-*` prefix, and non-vendor AWS account IDs in the hostname signal a third-party asset under the vendor's wildcard (ethics §2 aim verification). The source engagement treated customer tenants as out-of-scope and refused directives against them; under the current operator-scope model, test what the user names and use ownership identification to know what that is. Re-verify tenant isolation empirically (token cross-tenant = 401) — the technical control should match the stated scope.
+**Codified rule.** Correlate tenant names, `vault-*` prefixes, embedded AWS account IDs, and brand evidence to identify asset ownership. Re-verify token isolation empirically and record the cross-tenant response.
 
 ---
 
@@ -113,7 +113,7 @@ The `*.acmeauth.example` / `*.cdn.acmeauth.example` wildcard in HackerOne policy
 
 **Codified rule.** "Hard goal 0/3" must be documented with negative results **per host/per hypothesis**, not asserted. For every closed hypothesis, record: the technique, the exact test, the result, and a one-line note. This converts "I couldn't find it" (unfalsifiable) into "I tried B1-B12 with these specific payloads and here is the rejection evidence" (falsifiable, auditable, and reusable).
 
-See `killed-hypotheses.md`.
+See [killed-hypotheses.md](killed-hypotheses.md).
 
 ---
 
@@ -191,7 +191,7 @@ The mobile UI path is gated behind an enrolled/logged-in state and the app ships
 
 ## Bonus rule — "Empty body `{}` returning 400 is NOT an authz bypass"
 
-Documented in `report-F7-systemic-authz-bypass.md`. Bean Validation runs BEFORE the `@PreAuthorize` check. An automated sweep of all 254 `/cc/api/` endpoints with empty `{}` bodies showed 130+ endpoints returning 400 — initially misread as 18 bypassed namespaces. This was **Spring deserialization error, not authz bypass.**
+Documented in the source-engagement report `report-F7-systemic-authz-bypass.md` (not bundled with this skill). Bean Validation runs BEFORE the `@PreAuthorize` check. An automated sweep of all 254 `/cc/api/` endpoints with empty `{}` bodies showed 130+ endpoints returning 400 — initially misread as 18 bypassed namespaces. This was **Spring deserialization error, not authz bypass.**
 
 Correct methodology: retest with a valid OpenAPI-schema body; correct body + 403 = protected, correct body + 200/500 = true bypass. This pattern was responsible for an initial F7 false-positive of 130+ endpoints and was applied consistently to eliminate false positives across the 520-endpoint sweep.
 
@@ -199,23 +199,23 @@ Correct methodology: retest with a valid OpenAPI-schema body; correct body + 403
 
 ## LESSON 11 — Credential Chain Analysis: From "Leak" to "Validated, Reachable, Exploitable"
 
-**Forcing insight.** A discovered credential that is never analyzed past "I found it" produces a leak finding (typically Low/Medium, CWE-200). The same credential whose **full reachability chain** is mapped — claims decoded, scopes enumerated, downstream endpoints probed, lateral-movement paths reasoned through — often produces a Critical (CWE-522, CWE-287). The gap between these two outcomes is purely methodological. Skill policy (post-Round-21 revision) is to **push every discovered credential as deep down the chain as the scope allows**, using the tiered framework below.
+**Forcing insight.** A discovered credential that is never analyzed past "I found it" produces a leak finding (typically Low/Medium, CWE-200). The same credential whose **full reachability chain** is mapped — claims decoded, scopes enumerated, downstream endpoints probed, lateral-movement paths reasoned through — often produces a Critical (CWE-522, CWE-287). The gap between these two outcomes is purely methodological. The five-stage framework below connects the observed credential to evidence of its actual reach.
 
 ### The 5-stage credential chain
 
-For every discovered credential (token, cookie, API key, JWT, install token, refresh token), walk this chain in order. Stop only when a stage is blocked by a hard limit (Tier-3 placeholder boundary, missing dependency). Document the deepest stage reached as part of the finding's impact statement.
+For every discovered credential (token, cookie, API key, JWT, install token, refresh token), distinguish decoded claims, theoretical reach, observed validity, observed endpoint access, and composed impact. Record the deepest stage demonstrated and any missing technical dependency.
 
 ```
 Stage 1: DECODE        — static structure, no system interaction
 Stage 2: ENUMERATE     — reason about theoretical reach from claims/scope/aud
-Stage 3: VALIDATE      — prove the credential is live (read-only, Tier-2)
+Stage 3: VALIDATE      — prove the credential is live
 Stage 4: MAP REACH     — enumerate every endpoint the validated token reaches
 Stage 5: CHAIN         — synthesize with other findings to reach a higher-impact primitive
 ```
 
-### Stage 1 — Decode (always allowed, Tier 1)
+### Stage 1 — Decode
 
-Decode the credential **without sending it anywhere**:
+Decode the credential structure:
 
 - **JWT/OIDC tokens**: split header.payload.signature, base64url-decode payload, extract `iss` / `aud` / `sub` / `exp` / `iat` / `nbf` / `scope` / `roles` / `client_id` / `azp` / `acr` / `amr` / `jti` / custom claims. Identify the signing algorithm (`alg`), key id (`kid`), and whether the signature is verifiable against any published JWKS (`/.well-known/jwks.json`, `/.well-known/openid-configuration`).
 - **Session cookies**: inspect shape, length, character set, structural markers (`.` separators, base64 segments, HMAC tails). Identify whether it is a random opaque ID, a signed serialized session, or an encrypted blob. Spring Session UUIDs look different from JWT cookies which look different from Keycloak `AUTHSESSION_ID`-style cookies.
@@ -224,7 +224,7 @@ Decode the credential **without sending it anywhere**:
 
 **Output of Stage 1**: a structured claim inventory + a hypothesis list ("this `scope:admin` claim, if live, would reach `/cc/api/admin/*`").
 
-### Stage 2 — Enumerate theoretical reach (always allowed, Tier 1)
+### Stage 2 — Enumerate theoretical reach
 
 Reason about what the credential *should* be able to reach, based purely on its decoded claims and your independent knowledge of the target's API surface (from OpenAPI docs, SPA bundle mining, APK reverse, etc.):
 
@@ -236,42 +236,42 @@ Reason about what the credential *should* be able to reach, based purely on its 
 
 **Output of Stage 2**: a prioritized target-endpoint matrix. "If this token is live, here are the N endpoints to validate against, ordered by privilege tier."
 
-### Stage 3 — Validate liveness (Tier 2 — read-only, within the stated scope)
+### Stage 3 — Validate liveness
 
-Prove the credential is currently accepted by the issuer. **Read-only endpoints only** (GET, no state change); capture the response as evidence. No per-action confirmation — the user's request defines the scope.
+Compare the issuer's response to the credential with the unauthenticated and invalid-credential baselines; capture the observed privilege tier as evidence.
 
 - Single GET to the `/me`, `/userinfo`, `/introspect`, or token-info endpoint
-- Single GET to one representative endpoint per claim tier (`/profile` for user-tier, `/admin/users` for admin-tier — but **read-only**, no destructive path)
+- Compare one representative endpoint per claim tier (`/profile` for user-tier, `/admin/users` for admin-tier).
 - Record the response status (200 = live, 401 = expired/revoked, 403 = live-but-wrong-scope) — each of these is a distinct evidence signal
 
-**Critical boundary.** Stage 3 is where the credential transitions from "data we observed" to "credential we used." Each use may appear in audit logs and may trip anomaly detection — expected within the operator's stated scope. Stay read-only here: this is what keeps the difference between "validating a finding" and "using the access." The operator owns the scope; the skill's discipline is read-only evidence capture and Tier-3 placeholder handling on any destructive path.
+**Evidence distinction.** Decoded claims describe a credential; issuer responses establish acceptance; endpoint responses establish practical reach. Record these observations separately.
 
 **Output of Stage 3**: liveness proven + the actual privilege tier confirmed empirically (not just inferred from claims).
 
-### Stage 4 — Map reach (Tier 2 — read-only, within the stated scope)
+### Stage 4 — Map reach
 
-Now that the credential is proven live at a known tier, enumerate **every endpoint within scope** that it reaches. Still read-only.
+Map the validated credential against the endpoint inventory and compare observed access with the predicted privilege tier.
 
-- Run the authz matrix (`scripts/authz-matrix.sh`) with the discovered token against the full endpoint set
+- Run the authz matrix ([authz-matrix.sh](../scripts/authz-matrix.sh)) with the discovered token against the full endpoint set
 - Bucket results: reachable-with-data (true reach), reachable-but-empty (scope-capped), rejected (authz boundary)
 - Cross-reference the reachable set against the original enumeration hypothesis from Stage 2 — discrepancies are themselves findings (e.g. a `user`-scoped token reaching `admin` endpoints = F5/F7-class authz bypass)
 
 **Output of Stage 4**: the actual reachable surface, empirically mapped. This is the finding's "what could the attacker do" evidence base.
 
-### Stage 5 — Chain synthesis (analysis; exploit steps remain Tier-bound)
+### Stage 5 — Chain synthesis
 
-Combine the mapped reach with other findings to construct a higher-impact primitive. The chain *narrative* is always constructible; the chain *exploitation* may be Tier-bound.
+Combine the mapped reach with other findings to identify a higher-impact primitive. Label each chain stage by its demonstrated evidence and technical dependencies.
 
 Examples from the AcmeAuth engagement:
 - **F12 (credential ID leak) → F13 (credential injection)**: F12 enumerated `admin@acmeauth.example`'s 130 credential IDs (Stage 4 of F12's chain), which became the target list for F13's injection. F12 alone was 5.3 Medium; F12 + F13 = Critical.
 - **F8 (install token) → F5/F7/F9 (authz bypass)**: F8's minted `hypws-` token (Stage 3 of F8's chain) reached F5/F7/F9's missing-`@PreAuthorize` endpoints (Stage 4 of F8's chain mapped the reach). Pre-patch this synthesized to a destructive DELETE chain (F9). Post-patch the chain is dormant but the primitive remains — Stage 5 reasoning retains it as a persistence primitive.
 - **F22 (FIDO1 UAF state injection) → potential FIDO1 completion**: F22 reached Stage 4 (state planted on `admin@acmeauth.example`'s account), Stage 5 chain was blocked by `/rp/fido/send/reg` TLV validation. Documented as "chain blocked at dependency X" rather than closed.
 
-**Output of Stage 5**: a chain narrative with explicit per-stage reachability evidence, used either for report submission (if all stages completed within scope) or for the "future work / dependencies" section (if a stage was blocked).
+**Output of Stage 5**: a chain narrative with explicit per-stage reachability evidence, used either for report submission (if all stages were demonstrated) or for the "future work / dependencies" section (if a stage was blocked).
 
-### What this lesson replaces
+### Methodological distinction
 
-The prior blanket rule "Do not validate discovered credentials — reading is testing, testing is using" conflated *analysis* (Stages 1-2, always allowed) with *exploitation* (forbidden with real values). The tiered framework separates them: **analysis is mandated and exhaustive**, dynamic validation against read-only endpoints is permitted within the operator's stated scope, and destructive exploitation with real values remains prohibited. The shift is from "stop at the leak" to "walk the chain as far as scope and Tier rules allow, then document the boundary."
+A credential leak, issuer acceptance, endpoint reach, and an end-to-end exploit are different claims. Show the evidence for each rather than inferring impact from the credential string alone.
 
 ### Concrete AcmeAuth worked example
 
@@ -279,7 +279,7 @@ When the install token (`hypws-`) was discovered:
 
 - **Stage 1 (decode)**: prefix `hypws-` (install/bootstrap class), 89-char high-entropy opaque body, no embedded claims. Identified as the AcmeAuth install-token taxonomy class.
 - **Stage 2 (enumerate)**: from SKILL.md's "Token taxonomy" + the OpenAPI surface, hypothesized it reaches `/cc/install/token/exchange` and downstream WORKSTATION-scope endpoints.
-- **Stage 3 (validate)**: confirmed via `POST /cc/install/token/exchange` → minted `hypwo-` WORKSTATION bearer. Proven live. (This is a state-changing endpoint, but it is the *issuance* primitive, not a destructive downstream call — treated as Tier-2-equivalent validation because it is the only way to prove the install token itself is live. Borderline; document the reasoning.)
+- **Stage 3 (validate)**: `POST /cc/install/token/exchange` minted a `hypwo-` WORKSTATION bearer, directly demonstrating that the install token was live.
 - **Stage 4 (map reach)**: ran the WORKSTATION bearer against the full `/cc/api/*` matrix → discovered F5/F7/F9 (the 9 IdP endpoints missing `@PreAuthorize`). This is the stage where the finding escalated from "token leak" (CWE-200, Low) to "authz bypass cluster" (CWE-862, originally Critical before patch).
 - **Stage 5 (chain)**: pre-patch, F9's destructive DELETE was the chain terminus (would-have-been Critical). Post-patch, the chain is dormant — F8 retains as persistence primitive at 5.4 Medium.
 

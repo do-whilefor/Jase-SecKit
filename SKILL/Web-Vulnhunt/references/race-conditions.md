@@ -34,7 +34,7 @@ The skill of the class is arrival-time precision, not volume:
 A 200×N means nothing; the exploit is the **end state**: re-fetch balance/redemption count/role and diff against the serial baseline. Response bodies during the race are noise (half may be 500s from the collision — sometimes itself evidence of the window).
 
 ### 5. Escalation framing
-A confirmed race is a finding candidate, not a license — what you do with the duplicated access is still Tier-bound (read-only verification vs placeholder-target demonstration). CVSS note: exploitability is AC:H-adjacent only if timing is genuinely fragile; a reproducible single-packet win with state proof is usually AC:L. Do not credit "hypothetical mass exploitation by many attackers" (narrative impact — Pattern 4 in `cvss-scoring-methodology.md`).
+CVSS note: exploitability is AC:H-adjacent only if timing is genuinely fragile; a reproducible single-packet win with state proof is usually AC:L. Do not credit "hypothetical mass exploitation by many attackers" (narrative impact — Pattern 4 in [cvss-scoring-methodology.md](cvss-scoring-methodology.md)).
 
 ---
 

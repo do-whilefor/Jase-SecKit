@@ -30,8 +30,8 @@ store API keys.
 
 ### OAuth providers
 
-For a provider that supports OAuth, run login and complete the displayed browser
-or device-code flow. For example:
+For a provider that supports OAuth, `login` displays a browser or device-code
+flow. For example:
 
 ```sh
 flounder daemon provider login openai-codex
@@ -70,8 +70,7 @@ flounder ui
 `flounder daemon start --server <server-url> --token <daemon-token>` with the key
 in that process's environment. Restart an existing daemon after changing its
 environment. A successful check in a different shell does not update a running
-daemon. Keep API keys out of chat messages, provider profiles, committed files,
-and command output.
+daemon.
 
 ### Existing pi credentials
 
@@ -92,7 +91,7 @@ the intended daemon on the project. Check any per-phase overrides too: each
 provider used by prepare, map, dig, or confirm needs credentials on the executor.
 
 Run the intended audit and inspect its activity for provider errors. If you only
-want to validate access, use a small authorized local fixture and explicitly
+want to validate access, use a small local fixture and
 bounded coverage/model turns; starting a normal audit can consume paid usage.
 Report credential checks and actual model-call results separately.
 
@@ -131,5 +130,5 @@ lower thinking level; the operator may override it. **Set default** makes a
 profile the local default for new projects, evaluations, and API/CLI launches
 that omit an explicit model; **Use product default** restores the packaged
 fallback without changing existing projects. For the exact stored fields and
-default-profile management API, see the Provider Profiles section in
-[commands.md](commands.md).
+default-profile management API, see
+[Provider Profiles](commands.md#provider-profiles).

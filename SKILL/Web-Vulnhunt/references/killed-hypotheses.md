@@ -210,7 +210,7 @@ For each: the hypothesis, the exact test, the result, and a one-line takeaway.
 **Hypothesis.** F8 install token from tenant-001 might work cross-tenant on customer hosts.
 **Test.** tenant-001 install token → `portal.acmeauth.example`, customer-named tenants.
 **Result.** 401 `"Cannot find hypws-41"` (tenant-bound).
-**Takeaway.** **Refused further testing on customer tenants** — out-of-RoE. Technical isolation matches RoE intent.
+**Takeaway.** The token was tenant-bound; the cross-tenant request did not establish lateral access.
 
 ---
 

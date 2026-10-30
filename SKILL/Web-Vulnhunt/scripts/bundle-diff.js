@@ -15,8 +15,7 @@
  *   - absolute hostnames  ( https://host... literals )
  *   - semver-ish markers  ( v11.3.0 style build/version strings )
  *
- * Pure Node stdlib (https + fs). Scope = the targets the operator names.
- * Hygiene rules: references/ethics-and-roe.md.
+ * Pure Node stdlib (https + fs).
  */
 'use strict';
 const fs = require('fs');

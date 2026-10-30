@@ -12,7 +12,6 @@
 # Usage: this is a template — copy and edit per engagement. The structure is
 # the load-bearing part; the specifics depend on what you're verifying.
 #
-# Scope = the targets the operator names.
 
 set -uo pipefail
 
@@ -47,7 +46,7 @@ INSTALL_URL_FMT="https://%s/rp/token/endpoint/exchange/installtoken"
 INSTALL_BODY='{"wsinstallToken":{"token":"'"$INSTALL_TOKEN"'","machineId":"retest","rpAppId":"AcmeAuthDefaultWorkstationApplication"}}'
 
 # Patched endpoints to re-verify. Each line: METHOD|PATH|description
-# Use ZZFAKE for any path-param placeholder (never real identifiers).
+# Substitute path-parameter placeholders for reachability comparison.
 ENDPOINTS=(
   "GET|/cc/api/acmeauth/idp/integrations/configured|F5 keycloakSecret leak"
   "GET|/cc/api/idp/integration/enablement?rpAppId=ZZFAKE|F7 enablement read"

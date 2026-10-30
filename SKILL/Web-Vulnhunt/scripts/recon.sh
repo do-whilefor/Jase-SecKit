@@ -11,9 +11,6 @@
 # Outputs in --out (default: recon-<domain>/):
 #   hosts-all.txt hosts-live.txt vault-tenants.txt aws-accounts.txt surface-summary.txt
 #
-# Scope = the targets the operator names. Ownership pass (ethics §2): ambiguous
-# tenant names go through the vendor customer list / brand search / CT SAN list
-# before active probing.
 
 set -uo pipefail
 command -v curl >/dev/null 2>&1 || { echo "ERROR: 'curl' not found (Git Bash for Windows ships curl; check PATH)." >&2; exit 2; }
@@ -83,7 +80,7 @@ for line in open(sys.argv[1], encoding="utf-8"):
         print(f"{m.group(1)}\t{m.group(2)}")
 PY
 VTS=$(wc -l < "$OUT/vault-tenants.txt")
-echo "[VAULT] $VTS vault-<customer>.<aws-account> entries (third-party assets — ownership pass before probing, ethics §2)."
+echo "[VAULT] $VTS vault-<customer>.<aws-account> entries (tenant ownership candidates)."
 
 # 4. Cloud error-leak pass (S3/CloudFront AccessDenied → STS ARN)
 : > "$OUT/aws-accounts.txt"

@@ -19,7 +19,6 @@
 #   NO-ORACLE        identical responses — the "differential" was an artifact
 #   WEAK-SIGNAL      differs on exactly one axis with small margin — re-test before claiming
 #
-# Scope = the targets the operator names.
 
 set -uo pipefail
 command -v curl >/dev/null 2>&1 || { echo "ERROR: 'curl' not found (Git Bash for Windows ships curl; check PATH)." >&2; exit 2; }

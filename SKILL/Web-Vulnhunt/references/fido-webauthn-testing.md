@@ -107,7 +107,7 @@ print(subprocess.run(["curl","-s","-X","POST","-H","Content-Type: application/js
 
 ### rpAppId binding (the ATO blocker)
 
-F13's injected credential was persisted under `rpAppId:"AcmeAuthDefaultApplication"` (hardcoded default). Attempts to mass-assign `rpAppId:"controlCenterAdmin"` (the CC-admin rpAppId) in the result body were silently ignored — the server uses the rpAppId from the original attestation/options challenge, not the result. This is why F13 is Critical (strict 9.1; original submission scored 9.8 with A:H — see `cvss-scoring-methodology.md` for the strict re-scoring to A:N) for credential-injection but cannot escalate to CC-admin ATO.
+F13's injected credential was persisted under `rpAppId:"AcmeAuthDefaultApplication"` (hardcoded default). Attempts to mass-assign `rpAppId:"controlCenterAdmin"` (the CC-admin rpAppId) in the result body were silently ignored — the server uses the rpAppId from the original attestation/options challenge, not the result. This is why F13 is Critical (strict 9.1; original submission scored 9.8 with A:H — see [cvss-scoring-methodology.md](cvss-scoring-methodology.md) for the strict re-scoring to A:N) for credential-injection but cannot escalate to CC-admin ATO.
 
 ### Tenant-toggle detection (who is patched)
 
@@ -254,7 +254,7 @@ The AcmeAuth Android APK (`com.acmeauth.one`) reveals the FIDO endpoints via:
 - `AcmeAuthApiEndpoints.java` (1669 lines) — 47 RP + Device-API paths, including all FIDO1 endpoints
 - `RetrofitGenerator.java` (853 lines) — SSL-pin logic, with the documented gap (attacker-supplied `rpUrl` bypasses pinning if it doesn't match known host substrings)
 
-Mobile-led FIDO attacks require dynamic verification via Frida (see `methodology-lessons.md` Lesson 9). The closed-loop pattern:
+Mobile-led FIDO attacks require dynamic verification via Frida (see [methodology-lessons.md](methodology-lessons.md) Lesson 9). The closed-loop pattern:
 1. Set up webhook.site receiver
 2. Hook `okhttp3.Request$Builder.url` in-process
 3. Invoke the vulnerable method directly via Frida (bypass UI auth gate)

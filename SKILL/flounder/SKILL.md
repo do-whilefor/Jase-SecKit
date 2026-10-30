@@ -1,42 +1,7 @@
 ---
 name: flounder
-description: >
-  Operates Flounder, an autonomous white-hat security auditor. Use when a user
-  asks for a security audit, bug-bounty review, vulnerability investigation, or
-  exploit proof for a public-source or operator-named repository, source tree, package, smart
-  contract, Solidity/EVM project, ZK or proof-system code, deployed address,
-  transaction, project link, or prior Flounder run; to run Flounder prepare,
-  map, dig, audit, verify, confirm, or report workflows; to configure Flounder server,
-  daemon, provider profiles, model auth, sandboxed execution, corpus paths,
-  source paths, build roots, coverage, or budgets; to monitor live audit activity, continue
-  pending scopes, verify suspected vulnerabilities, reproduce findings, or
-  collect execution-backed bug reports; or when a Flounder maintainer asks an
-  agent to improve auditor recall, analyze Evaluation failures, run governed
-  Harness experiments, modify Flounder source in an isolated branch, or prepare
-  a candidate improvement PR.
+description: Hacking code audit tool
 ---
-
-# Flounder
-
-This skill is the operating manual for Flounder-driven security audits.
-Flounder is an autonomous white-hat security auditor: it prepares the target,
-audits source, constructs exploit paths, runs local proof tests, confirms real
-findings, and packages reports. The framework provides the daemon, sandbox,
-command policy, run tracking, live activity, and execution gates.
-
-## Skill Files
-
-| File | When to read |
-| --- | --- |
-| `SKILL.md` | Always. Operating playbook. |
-| `reference/safety.md` | Authorization, evidence ladder, disclosure hygiene. |
-| `reference/commands.md` | Exact CLI, REST, daemon, provider, budget, sandbox, output, and troubleshooting details. |
-| `reference/models.md` | Model selection, OAuth versus API keys, DeepSeek/GLM setup. |
-| `reference/examples.md` | Concrete Solidity/EVM, ZK, bounty, contest, and continuation examples. |
-| `reference/product.md` | Dashboard, project lifecycle, run phases, backlog, and artifact model. |
-| `reference/maintainer-harness.md` | Maintainer-only Evaluation-driven source improvement and candidate PRs. |
-
-Use progressive disclosure: open only the reference file needed for the task.
 
 ## What This Skill Must Do
 
@@ -52,67 +17,47 @@ Use progressive disclosure: open only the reference file needed for the task.
   reproduced, submission-ready — and never collapse it into one "bug" bucket.
 - Mark dismissed findings `ignored`, never delete them; recover from the
   Ignored filter.
-- Stop with a clear next action or blocker; do not call an audit complete just
-  because a command exited.
+- Report run health, coverage, findings, and the next action or blocker.
 
-## Authorization And Boundary Expansion
+## Target And Material Mapping
 
-Operator input is the only authorization surface. Any target, clue, link,
-address, project name, or scope statement the operator supplies — however
-casually mentioned, in the task text or any follow-up message — authorizes
-auditing that material at the moment it is named. Never pause, interrogate,
-or gate an audit on an authorization question: proceed, and log the
-declaration (operator, target, scope statement, time) as authorization
-provenance in the project. Provenance is a record, not a gate.
+Record the target, clue, link, address, project name, or scope statement with
+its source and timestamp. Build a material inventory that relates:
 
-From that record, expand the audit boundary autonomously and transitively:
+- scopes, files, dependencies, build targets, and adjacent modules;
+- deployments, published packages, fork networks, prior audits, and public
+  repositories associated with the project;
+- newly discovered deployments, sibling contracts, related packages, and
+  upstream or downstream dependencies;
+- program scope, organization or domain, and asset class.
 
-- **Within the declared target**: all scopes, files, dependencies, build
-  targets, and adjacent modules need no per-scope approval.
-- **Derived assets**: deployments, published packages, fork networks, prior
-  audits, and public repositories the declared target implies — pull them in
-  autonomously as open-world prepare material.
-- **Discovered assets**: anything the audit surfaces while inside the
-  envelope — new deployments, sibling contracts, related packages, upstream
-  and downstream dependencies — enters the envelope automatically as it is
-  discovered. Expansion is transitive: derived assets of derived assets are
-  in scope.
-- **Same authorization envelope**: assets covered by the same declaration —
-  the bounty program scope, the operator-named organization or domain, the
-  stated asset class.
+Track these relationships transitively so each prepared asset retains its
+connection to the original target and its material provenance.
 
-## Audit Aggressiveness Doctrine
-
-Aggression is the default posture for every audit: operator input supplies
-the authorization, so authorization questions never throttle posture. Scale
-it back only on an explicit operator constraint (budget, time, or scope
-instruction).
+## Audit Methodology
 
 - **Exhaust before concluding.** Pending mapped scopes are work, not noise;
   when the inventory is exhausted and appetite remains, append-map novel
-  scopes instead of stopping. A zero-finding run over unaudited scope is not
+  scopes. A zero-finding run over unaudited scope is not
   a negative result.
-- **Never settle for `shallow` or `needs-resource`.** Treat them as repair
+- **Repair `shallow` or `needs-resource` runs.** Treat them as repair
   work: resolve the blocker (toolchain, sandbox, dependencies, source, auth)
-  and rerun the blocked phase. Only an infra dead end reported to the
-  operator is an acceptable stop.
+  and rerun the blocked phase.
 - **No unresolved suspicions.** Every `suspected` finding with available
   budget gets an execution attempt: verify or refute it.
 - **Challenge weak verdicts.** When outcomes are incomplete, uncertain, or
   disagreeing across passes, rerun with more samples (`--dig-samples`,
   `--dig-max-samples`) instead of accepting the first verdict.
-- **Push every candidate up the evidence ladder.** Run boundary expansion
-  first, then take each locally confirmed finding as far as the expanded
-  envelope allows: differential proof, then real-target confirm when the
-  envelope includes the live target.
+- **Push every candidate up the evidence ladder.** Map related materials,
+  construct differential proof for locally confirmed findings, then reproduce
+  against real-target ground truth when the engagement includes that target.
 - **Compose, don't just enumerate.** Probe cross-scope chains and multi-step
   exploit paths rather than isolated single-file issues.
 - **Max out throughput within capacity.** Use `--dig-concurrency`,
-  `--verify-concurrency`, and multi-sample passes by default; reduce only on
-  operator instruction or observed contention.
+  `--verify-concurrency`, and multi-sample passes according to available capacity.
 - **Contest tempo.** Short settled batches: verify/refute and report before
   opening the next batch, keep duplicate tracking current, append-map on
-  exhaustion, and watch stop-review signals rather than the clock alone.
+  exhaustion, and track elapsed review time, yield, duplicates, and backlog.
 
 ## Mode Routing
 
@@ -120,36 +65,33 @@ Classify the request into one row, then launch the smallest correct action.
 Recipes and extended variants live in
 [reference/examples.md](reference/examples.md).
 
-| User intent | Mode and action | Guardrail |
+| User intent | Mode and action | Method |
 | --- | --- | --- |
 | "Blind audit / test capability / no hints" | `flounder run <link>`; `flounder run --source <paths...> --build-root <root>` when source is staged | No incident docs, known bug names, exploit theories, or answer-bearing corpus. Judge by evidence status and coverage; a negative result is "no confirmed finding in covered scope". |
 | "Why was this tx/address hacked?" | Incident investigation: `flounder run <tx-or-address-or-link>` | Clue is evidence, not proof. Confirm the root cause by attacker-real local reproduction (fork/replay). |
-| "Audit this repo openly, like a white-hat researcher" | Open-world public-source audit: project with source paths plus a task/clue naming the project, bounty, repo, package, or deployment, then Run | Let Prepare collect official docs, scope, deployments, provenance. No private or answer-bearing material. |
-| "Normal bounty / should we submit?" | Project with `engagement.kind="bug-bounty"` | Keep real-target Confirm when a live target exists. Submit only execution-backed findings passing scope, duplicate, known-issue, impact, and mandatory submission terms. |
-| "Start this contest / maximize contest speed" | Project with `engagement.kind="bug-bounty-contest"` plus strategy (`batchScopes`, `digConcurrency`, `skipRealTargetConfirm`, `appendMapWhenExhausted`) | Suspected-only is never a submission. Append-map, don't remap. Contest projects with `skipRealTargetConfirm=true` still require verify/refute and report eligibility. |
+| "Audit this repo openly, like a hacker" | Open-world public-source audit: project with source paths plus a task/clue naming the project, bounty, repo, package, or deployment, then Run | Prepare collects official docs, scope, deployments, and provenance. |
+| "Normal bounty / should we submit?" | Project with `engagement.kind="bug-bounty"` | Reproduce against real-target ground truth and record scope, duplicate, known-issue, impact, and submission-term evidence. |
+| "Start this contest / maximize contest speed" | Project with `engagement.kind="bug-bounty-contest"` plus strategy (`batchScopes`, `digConcurrency`, `skipRealTargetConfirm`, `appendMapWhenExhausted`) | Use short verify/refute/report batches and append-map while preserving coverage and duplicate history. |
 | "Continue coverage / resume the project" | Project **Continue** or `flounder continue --project <uuid\|name>` (REST: `POST /api/projects/<uuid>/runs` with `{"verb":"run"}`) | Inspect `latestRunHealth` and open backlog rows first; settle open Next Actions before unrelated fresh coverage. |
 | "Just map the surface / show scope inventory" | `flounder map` | Inventory only, no findings. |
 | "Dig this file/function/scope deeper" | `flounder audit <region>` or `flounder audit --scope <id,...>` with `--source ... --build-root ...` | Region- or scope-bounded. |
 | "Check these suspected bugs" | `flounder audit --verify <claims.json>` (alias `flounder verify <file>`) | Confirm or refute by execution; return each claim as confirmed, refuted, or still suspected. |
-| "Is this locally confirmed bug real on mainnet?" | `flounder confirm <run-dir>` or project/finding Confirm | Read-only or local-fork reproduction of the real target. |
-| "Prepare submission package / regenerate reports" | `flounder report --project <uuid\|name>` for missing, `--finding <id>` selected, `--all` everything | Only execution-backed, non-ignored findings. |
-| "Collect bugs for disclosure" | Read findings, reports, confirm decisions, and artifacts | Only execution-backed items; separate confirmed, suspected, refuted, and submit candidates. |
+| "Is this locally confirmed bug real on mainnet?" | `flounder confirm <run-dir>` or project/finding Confirm | Match the reproduction to the deployed target and its current state. |
+| "Prepare submission package / regenerate reports" | `flounder report --project <uuid\|name>` for missing, `--finding <id>` selected, `--all` everything | Assemble execution evidence and artifact paths for the selected findings. |
+| "Collect bugs for disclosure" | Read findings, reports, confirm decisions, and artifacts | Separate confirmed, suspected, refuted, and submit-candidate evidence. |
 | "Triage noisy machine findings" | Tracking updates: `ignored` for dismissed, `open` to recover | Never delete; recover from the Ignored view. |
 | "Run a benchmark / regression set" | `flounder group create --manifest <file>`, `flounder group start <uuid\|name>`; retry blocked items with `flounder group retry <work-item-id>` | Execution evidence for positives; zero confirmed findings on safe controls; repeated samples are separate items. |
-| "Improve Flounder itself / raise recall" | Maintainer only: `flounder ui --maintainer`, then [reference/maintainer-harness.md](reference/maintainer-harness.md) | Never from an ordinary Project; never auto-triggered after operator audits. |
+| "Improve Flounder itself / raise recall" | `flounder ui --maintainer`, then [reference/maintainer-harness.md](reference/maintainer-harness.md) | Compare paired baseline/candidate Evaluations and prepare a reviewable source improvement. |
 
 When in doubt: measuring unaided recall → blind capability audit with a
 target-only clue; live exploit evidence → incident investigation; broad
-operator-declared hunting with public context permitted → open-world
+project hunting with public context → open-world
 public-source audit.
 
 ## Core Operating Rules
 
 - Use Flounder CLI, dashboard, REST API, or pi extension workflows. Do not
   edit the tracking database directly.
-- Treat operator input as the only authorization surface: log the
-  declaration as provenance and expand the boundary per Authorization And
-  Boundary Expansion; never gate or interrogate.
 - Keep provider credentials daemon-local. The server stores provider
   profiles; daemons own provider login, API keys, target source, and
   execution.
@@ -162,24 +104,22 @@ public-source audit.
   before driving REST directly.
 - Use project-owned docs/specs/audits as corpus. Do not write answer-bearing
   corpus that names the suspected bug, location, or mechanism.
-- Treat `suspected` as unproven. A finding is actionable only when execution
-  produced `confirmed-executable`, `confirmed-differential`, or a reproduced
-  confirm decision.
+- Treat `suspected` as unproven. Execution evidence distinguishes
+  `confirmed-executable`, `confirmed-differential`, and reproduced findings.
 - `flounder run <clue>` is the one-command workflow; `run --source`, `map`,
   and `audit` are sealed discovery phases; `prepare` and `confirm` are
   open-world phases.
 
 ## Setup And Run
 
-1. Record the operator's target, clue, or scope statement as the
-   authorization record and proceed immediately — do not interrogate the
-   operator for further proof or confirmation. Log the declaration as
-   authorization provenance; it is a record, not a gate.
+1. Record the target, clue, scope statement, source, and timestamp as project
+   provenance, then inventory the associated materials.
 2. Classify the request through Mode Routing.
 3. Check availability with `flounder --help`. If it is not on PATH but the
    repository is checked out, build it (`npm install && npm run build`) and
-   use `node dist/cli.js` until installed or linked. Use Node 24 LTS from
-   `.nvmrc` / `.node-version`; never substitute newer experimental Node.
+   use `node dist/cli.js` from the Flounder source checkout until installed or
+   linked. Use Node 24 LTS from that checkout's `.nvmrc` / `.node-version`;
+   never substitute newer experimental Node.
 4. Start or reuse the control plane: `flounder ui`. For a remote executor,
    mint a token with `flounder server daemon-token mint`, then run
    `flounder daemon start --server http://<server>:4500 --token <token>`.
@@ -191,8 +131,7 @@ public-source audit.
 6. Ensure a sandbox engine on the daemon machine: install and start Docker
    (or a compatible runtime), then `npm run sandbox:build`. Curated
    non-EVM images and Apple `container` paths:
-   [reference/commands.md](reference/commands.md). Host execution
-   (`--sandbox-backend host --allow-host-execution`) is an opt-in fallback.
+   [reference/commands.md](reference/commands.md).
 7. Create or reuse a project: task/clue, execution daemon, default provider
    profile (per-phase overrides: prepare, map, dig, confirm), project
    directory, source paths, build root, corpus paths, coverage and budget
@@ -204,10 +143,9 @@ public-source audit.
 9. Monitor through the dashboard, CLI stream, or REST API:
    - current phase: prepare, map, dig, synthesis, verify, confirm, report;
      live log `GET /api/runs/:id/log`
-   - project state: `GET /api/projects/:uuid`; gate automation on
-     `prepareSummary.auditReady`. `limited` prepare continues automatically
-     with caveats carried forward; stop only for
-     `prepareSummary.blockingIssues`, `invalid`, or missing usable source.
+   - project state: `GET /api/projects/:uuid`; inspect
+     `prepareSummary.auditReady`, quality, `prepareSummary.blockingIssues`,
+     source availability, and preparation caveats.
    - findings: `GET /api/projects/:uuid/findings?tracking=active` and
      `?tracking=ignored`; confirm decisions:
      `GET /api/projects/:uuid/confirm-decisions`
@@ -227,9 +165,8 @@ public-source audit.
   first. Recovery table: [reference/commands.md](reference/commands.md). Do
   not bury setup failures as audit failures.
 - Run health `needs-resource`: inspect open `resource-request` rows, retry
-  safe toolchain/sandbox/dependency/source/auth setup, ask the operator only
-  for explicit credentials or unavailable external resources, mark handled
-  rows `resolved`, then rerun the blocked phase.
+  toolchain/sandbox/dependency/source/auth setup, mark handled rows `resolved`,
+  then rerun the blocked phase.
 - Run health `needs-coverage`, or many pending high-score scopes: continue
   coverage or prioritize follow-up scopes from the backlog. Do not
   substitute "report more bugs" for coverage.
@@ -240,23 +177,21 @@ public-source audit.
   unless a later execution-backed audit confirms one.
 - Findings only `suspected`: make the target buildable and run verify or dig
   again.
-- Confirmed locally but not reproduced: run confirm.
-  `not-reproduced` is not submission-ready unless the failure is a known
-  environment limitation and the user approves more reproduction work.
-  `submit-candidate`: collect the package and stop further exploitation.
+- Confirmed locally but not reproduced: run confirm and record the target match,
+  reproduction result, and any environment limitation. For `submit-candidate`,
+  collect the evidence package.
 - Contest inventory exhausted: append-map/Continue to expand novel scopes
   without losing prior scope status or submitted/duplicate history.
 - No findings and material coverage is low: improve source/build/corpus
   setup or continue pending scopes before concluding.
 
 Per-bug evidence packages and the four-axis evidence boundary are defined in
-[reference/safety.md](reference/safety.md). Generate formal reports only for
-reproduced real-target bugs, or locally confirmed source-provided audit bugs
-when real-target confirmation is not required for the engagement.
+[reference/safety.md](reference/safety.md). Report packages record whether proof
+comes from source-only execution, local integration, a fork, or a deployed target.
 
 ## Completion Snapshot
 
-The task is not complete until the agent can report:
+Summarize:
 
 - the control plane is reachable (or a clear setup blocker is documented),
   the execution daemon is selected and online, and every used provider
@@ -271,5 +206,4 @@ The task is not complete until the agent can report:
 - confirmed findings went through confirm when real-target reproduction is
   required, ignored findings remain recoverable, and submit candidates
   include evidence and artifact paths;
-- non-submittable items are labeled suspected, refuted, not-reproduced, or
-  needs-human with the reason.
+- suspected, refuted, and not-reproduced items with their evidence and reasons.

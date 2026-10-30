@@ -41,7 +41,7 @@ DELETE /cc/api/idp/Integration/ZZFAKE?rpAppId=cc       -> 405 Method Not Allowed
 
 ## 2. Path-filter bypass ladder (ordered)
 
-See `bypass-catalogue.md` §A for the full table and `scripts/path-bypass-fuzzer.sh` for the parameterized version. Recommended order:
+See [bypass-catalogue.md](bypass-catalogue.md) §A for the full table and [path-bypass-fuzzer.sh](../scripts/path-bypass-fuzzer.sh) for the parameterized version. Recommended order:
 
 1. **Path confusion headers** — `X-Original-URL`, `X-Rewrite-URL`, `X-Forwarded-For`, `X-Real-IP`, `X-Forwarded-Host`, `Forwarded`, `X-Original-Host`, `X-Host`, `X-Forwarded-Prefix`
 2. **Suffix tricks** — `.json`, `.html`
@@ -89,7 +89,7 @@ for p in d['paths']:
     print(r, p)" | sort | uniq -c
 ```
 
-See `scripts/authz-matrix.sh`.
+See [authz-matrix.sh](../scripts/authz-matrix.sh).
 
 ### Token-type verification (differentiate auth-fail from scope-fail)
 
@@ -119,7 +119,7 @@ After finding one bypassed endpoint, sweep **all methods** of that controller na
 
 ## 4. FIDO2 / WebAuthn testing patterns
 
-See `fido-webauthn-testing.md` for full flows and CBOR PoC. Summary:
+See [fido-webauthn-testing.md](fido-webauthn-testing.md) for full flows and CBOR PoC. Summary:
 
 ```
 POST /fido2/attestation/options   # issues WebAuthn reg challenge for ANY username, leaks excludeCredentials
@@ -194,7 +194,7 @@ curl -s -b admin.jar -X POST "https://tenant-001.cdn.acmeauth.example/cc/basic/m
 
 ## 6. FIDO1 UAF testing
 
-See `fido-webauthn-testing.md` §FIDO1. Summary:
+See [fido-webauthn-testing.md](fido-webauthn-testing.md) §FIDO1. Summary:
 
 ```bash
 # op=Reg — issues a real FIDO1 challenge bound to attacker-supplied username, echoes sessionId verbatim
@@ -384,7 +384,7 @@ curl -sk -X POST https://verify.acmeauth.example/api/send-code \
 
 ## 9. Host-header injection (when does it actually work?)
 
-See `bypass-catalogue.md` §B for the full table. Key point:
+See [bypass-catalogue.md](bypass-catalogue.md) §B for the full table. Key point:
 
 ```bash
 # Baseline:

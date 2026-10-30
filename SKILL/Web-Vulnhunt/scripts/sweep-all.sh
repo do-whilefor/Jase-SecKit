@@ -8,8 +8,8 @@
 #   ./sweep-all.sh <base_url> <openapi-spec.json> [auth_header] [options]
 #     --prefix /cc/api        only paths starting with this prefix (default /)
 #     --delay-ms 300          pacing between requests (default 300)
-#     --max-requests 1000     hard volume cap (bounded hygiene; do not raise casually)
-#     --state-changing        ALSO probe POST/PUT/PATCH/DELETE (placeholder bodies only)
+#     --max-requests 1000     request count limit
+#     --state-changing        include POST/PUT/PATCH/DELETE
 #     --ledger                append anomalies as hypotheses via hunt-ledger.sh
 #     --out-dir DIR           results dir (default: sweep-<host>-<ts>)
 #
@@ -27,9 +27,7 @@
 #   A4 state-changing endpoint reachable with NO auth header (unauth-write candidate)
 #   A5 run marker reflected in body                  (URL-accepting-field / SSRF sink shortlist)
 #
-# Scope = the targets the operator names —
-# state-changing probes ALWAYS use placeholder bodies (Tier-3 rule), bounded volume,
-# negative control included below. DoS is out of toolkit.
+# A negative control is included below.
 
 set -uo pipefail
 command -v curl >/dev/null 2>&1 || { echo "ERROR: 'curl' not found (Git Bash for Windows ships curl; check PATH)." >&2; exit 2; }
@@ -201,7 +199,7 @@ while IFS=$'\t' read -r method path; do
   path="${path%$'\r'}"   # defensive: CRLF from Windows-produced intermediate files
   [[ -z "$method" || -z "$path" ]] && continue
   COUNT=$((COUNT+1)); [[ $COUNT -gt $MAX_REQ ]] && { echo "Volume cap reached ($MAX_REQ) — stopping."; break; }
-  # State-changing methods only under the explicit flag; always placeholder bodies (Tier-3).
+  # Select the enabled method group.
   if [[ "$method" =~ ^(POST|PUT|PATCH|DELETE)$ ]]; then
     if [[ "$STATE_CHANGING" != 1 ]]; then continue; fi
     if [[ -z "${BODY_FOR["$method $path"]:-}" ]]; then BODY_FOR["$method $path"]=$(gen_body "$method" "$path"); fi

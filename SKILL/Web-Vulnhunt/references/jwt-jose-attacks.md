@@ -1,6 +1,6 @@
 # JWT / JOSE Attack Battery — alg, kid, jku/x5u, Claim Confusion, Replay
 
-The corpus has the token *inventory* half of this class fully mapped (see the Token taxonomy table in SKILL.md and `http-auth-filter-testing.md` §token-taxonomy) — what this file adds is the **attack battery** that turns a captured token inventory into testable hypotheses. Three corpus artifacts already point straight into it: F7's token-type verification, F5's `keycloakSecret` leak, and the C2/C4 `jwksUrl` SSRF sinks.
+The corpus has the token *inventory* half of this class fully mapped (see the Token taxonomy table in SKILL.md and [http-auth-filter-testing.md](http-auth-filter-testing.md) §token-taxonomy) — what this file adds is the **attack battery** that turns a captured token inventory into testable hypotheses. Three corpus artifacts already point straight into it: F7's token-type verification, F5's `keycloakSecret` leak, and the C2/C4 `jwksUrl` SSRF sinks.
 
 ---
 
@@ -12,7 +12,7 @@ A JWT is trust delegated to crypto plus a parser. Every attack below is either (
 
 ## Generic recipe
 
-### 0. Inventory first (Tier 1 — free)
+### 0. Inventory first
 Decode every captured token (header/payload/signature split, base64url) *without sending anything*: `alg`, `kid`, `jku`, `x5u`, `jwk`, `iss`, `aud`, `azp`, `scope`/`roles`, `exp`/`iat`/`nbf`, custom claims. Build the claim inventory + hypothesis list (Lesson 11 Stage 1-2 — this is mandated analysis, and where most chain value lives). Note which components *consume* which claim (SPA bundle, mobile APK, API 401/403 envelopes) — claim confusion needs two consumers that disagree.
 
 ### 1. alg attacks (the classics, cheap to run)
@@ -24,11 +24,11 @@ Decode every captured token (header/payload/signature split, base64url) *without
 If `kid` flows into a lookup — path (`kid: "../../dev/null"`), SQLi (`kid: "x' UNION SELECT 'secret'--"`), or command substitution in some libraries — the verifier's key choice is attacker-steered. Probe with marker kids first (error-message differentials reveal the lookup backend), then land the injection that points verification at a key you control (e.g. an empty file, a known HMAC value). Record the lookup-backend fingerprint from the error envelope.
 
 ### 3. jku / x5u / jwk header → the corpus already has these sinks
-If the header carries a URL (`jku`, `x5u`) and the verifier fetches it, that's an **SSRF with a crypto payoff**: point it at your webhook.site receiver (prove fetch + UA fingerprint, two-sided evidence per Lesson 9), then serve a JWKS you hold the private key for → full forgery. Cross-reference the Phase-1 URL-accepting-field sweep: the C2/C4 `jwksUrl` sinks are exactly this bug surfaced through a *body field* instead of a header — if the target validates JWTs with a key fetched from a tenant-controllable URL, forgery + SSRF compose into one chain (report the chain per `report-structure.md` §synthesis).
+If the header carries a URL (`jku`, `x5u`) and the verifier fetches it, that's an **SSRF with a crypto payoff**: point it at your webhook.site receiver (prove fetch + UA fingerprint, two-sided evidence per Lesson 9), then serve a JWKS you hold the private key for → full forgery. Cross-reference the Phase-1 URL-accepting-field sweep: the C2/C4 `jwksUrl` sinks are exactly this bug surfaced through a *body field* instead of a header — if the target validates JWTs with a key fetched from a tenant-controllable URL, forgery + SSRF compose into one chain (report the chain per [report-structure.md](report-structure.md) §synthesis).
 
 ### 4. Claim confusion
 - Duplicate/conflicting claims: two `iss`, two `scope`, JSON type juggling (`"scope":"admin"` vs `"scope":["admin"]` vs `"scope":{"0":"admin"}`) — send both orderings, diff the authorization decision. Any behavioral flip = two parsers disagreeing.
-- Audience/issuer substitution: token minted for service A (`aud: service-a`) replayed against service B that only checks signature, not `aud`. The corpus's own taxonomy is the test bed: `hypws-` (install) vs `hypwo-` (WORKSTATION) cross-acceptance was *exactly* this test in F7 — both accepted at the IdP endpoints, random UUID rejected. Run the same matrix across every token type × every endpoint class (`scripts/authz-matrix.sh`).
+- Audience/issuer substitution: token minted for service A (`aud: service-a`) replayed against service B that only checks signature, not `aud`. The corpus's own taxonomy is the test bed: `hypws-` (install) vs `hypwo-` (WORKSTATION) cross-acceptance was *exactly* this test in F7 — both accepted at the IdP endpoints, random UUID rejected. Run the same matrix across every token type × every endpoint class ([authz-matrix.sh](../scripts/authz-matrix.sh)).
 - Role/scope inflation by *omission*: some verifiers treat missing claims as deny, others as allow — strip claims one at a time and diff.
 
 ### 5. Replay windows
@@ -41,4 +41,4 @@ If the header carries a URL (`jku`, `x5u`) and the verifier fetches it, that's a
 
 ## Instance
 
-**Corpus (all real):** (1) **F7 token-type matrix** — `hypws-` and `hypwo-` both accepted at the 9 missing-`@PreAuthorize` endpoints, random UUID → 401: claim-confusion §4 with the authz matrix as the harness. (2) **F5 `keycloakSecret` plaintext read** — a leaked realm signing secret; if Keycloak-issued tokens on that realm are HMAC-verified anywhere, §1's forgery is unlocked by Tier-1 material alone. (3) **C2/C4 `jwksUrl` SSRF** — verifier-side key fetching from attacker URLs; §3's full chain (fetch proof → self-hosted JWKS → forged token → Tier-2 read-only validation) is the composition to attempt first on any target that re-exposes this shape. (4) **Magic-link `secondsValid`** — §5's lifetime-control probe, already confirmed as a documented required field.
+**Corpus (all real):** (1) **F7 token-type matrix** — `hypws-` and `hypwo-` both accepted at the 9 missing-`@PreAuthorize` endpoints, random UUID → 401: claim-confusion §4 with the authz matrix as the harness. (2) **F5 `keycloakSecret` plaintext read** — a leaked realm signing secret; if Keycloak-issued tokens on that realm are HMAC-verified anywhere, §1's forgery is unlocked by decoded material alone. (3) **C2/C4 `jwksUrl` SSRF** — verifier-side key fetching from attacker URLs; §3's full chain (fetch proof → self-hosted JWKS → forged token → issuer-acceptance validation) is the composition to attempt first on any target that re-exposes this shape. (4) **Magic-link `secondsValid`** — §5's lifetime-control probe, already confirmed as a documented required field.
