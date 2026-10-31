@@ -1,0 +1,17 @@
+{
+  "id": "kb054",
+  "title": "比赛高频 CVE 二代清单（2024-2026）",
+  "description": "近年攻防赛常客与国产面板套件",
+  "detail": "高频：GitLab CVE-2023-7028 密码重置接管；Confluence CVE-2023-22527 模板注入；OFBiz 未授权反序列化；JumpServer 会话 RCE。国产面板：若依 RuoYi（定时任务 RCE）、JeecgBoot（Freemarker SSTI）、XXL-Job（默认 token executor RCE）。打法：先认产品（404 页/静态资源特征）→ 标准利用链 → 要登录的先试默认口令 admin/admin123/ruoyi123。",
+  "commands": [
+    "curl -s -o /dev/null -w %{http_code} http://T/xxl-job-admin/",
+    "curl -s -o /dev/null -w %{http_code} http://T/jeecg-boot/"
+  ],
+  "tags": [
+    "cve",
+    "panel",
+    "chinese"
+  ],
+  "source": "实战沉淀",
+  "created_at": "2026-10-16T23:58:00Z"
+}

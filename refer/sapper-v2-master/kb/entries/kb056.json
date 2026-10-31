@@ -1,0 +1,16 @@
+{
+  "id": "kb056",
+  "title": "靶机不出网的 RCE 后利用",
+  "description": "JNDI 失效、无回连时怎么把数据带出来",
+  "detail": "1 时间盲注：命令位放 sleep，用响应延迟当 oracle 逐字符读文件（判断脚本自己写，一位一请求）。2 写到 web 根：靶机自带 httpd 时 cat /flag 到站点目录再 curl 127.0.0.1 读。3 借应用回显：找应用自身的回显参数（ping 回显、搜索结果页）夹带命令输出。4 header 差分：输出长度写进 Content-Length 差分判断。5 全失效时：把执行变成任意读——find / -name '*flag*' 的结果分片写进应用日志再读日志。核心：不依赖出网把数据带出来。",
+  "commands": [
+    "cat /flag > /var/www/html/f.txt 2>/dev/null; curl -s http://127.0.0.1/f.txt",
+    "find / -name '*flag*' -not -path '/proc/*' 2>/dev/null | head -20"
+  ],
+  "tags": [
+    "post-exploit",
+    "blind"
+  ],
+  "source": "审计补强",
+  "created_at": "2026-10-17T00:25:00Z"
+}

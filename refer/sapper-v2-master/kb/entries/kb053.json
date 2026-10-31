@@ -1,0 +1,16 @@
+{
+  "id": "kb053",
+  "title": "nuclei 高效打法",
+  "description": "把镜像内几千个模板当武器库用",
+  "detail": "1 全量快扫：nuclei -u T -severity critical,high -c 50。2 定向：-tags log4j/spring 等。3 离线无模板升级，用内置版。4 防打崩：-rl 20 限速 + 排除 dos/fuzz 类。5 命中立刻 sapper fact 记录 -k vuln -d cve=xxx。靶机崩=零分，宁可慢。",
+  "commands": [
+    "nuclei -u http://T -severity critical,high -rl 20 -c 30",
+    "nuclei -u http://T -tags exposure,misconfig -rl 20"
+  ],
+  "tags": [
+    "nuclei",
+    "scan"
+  ],
+  "source": "实战沉淀",
+  "created_at": "2026-10-16T23:58:00Z"
+}

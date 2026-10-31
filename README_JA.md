@@ -81,13 +81,12 @@ Prompt は段階的な導引として使うのが適しています。グロー�
 Jase-SecKit/
 ├── SKILL/
 │   ├── Web-Vulnhunt/                # 自律 Web ペネトレーション、状態ファイル、動的検証ワークフロー
-│   ├── Webounty-main/               # Web バグバウンティ自動化 Skill
 │   ├── flounder/                    # コード監査 Skill
 │   └── src-report/                  # 脆弱性レポート作成 Skill
 ├── refer/
 │   ├── ARTEX-main/                  # ARTEX 参考プロジェクト
 │   ├── Cairn-main/                  # Cairn 参考プロジェクト
-│   └── PwnMesh-main/                # PwnMesh 参考プロジェクト
+│   └── sapper-v2-master/            # sapper-v2 マルチエージェント自律ペネトレーション参考プロジェクト
 ├── 约束文件/ (制約ファイル/)
 │   ├── AGENTS.md                    # 中国語グローバル Agent 制約
 │   ├── CLAUDE.md                    # 英語グローバル Agent 制約

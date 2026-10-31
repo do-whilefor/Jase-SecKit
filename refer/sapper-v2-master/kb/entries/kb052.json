@@ -1,0 +1,16 @@
+{
+  "id": "kb052",
+  "title": "版本指纹方法论",
+  "description": "一切 CVE 打击的前置：先把版本钉死",
+  "detail": "顺序：1 响应头/cookie 名（X-Powered-By、JSESSIONID、PHPSESSID、think_var）2 favicon hash 3 报错页堆栈 4 /actuator /package.json /composer.json /.git/HEAD 5 whatweb。钉死版本→查 kb050→没有就 nuclei 全模板（限速）。版本未知时不要盲打 payload。",
+  "commands": [
+    "whatweb http://T",
+    "curl -sI http://T | head -20"
+  ],
+  "tags": [
+    "recon",
+    "fingerprint"
+  ],
+  "source": "实战沉淀",
+  "created_at": "2026-10-16T23:58:00Z"
+}

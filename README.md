@@ -81,13 +81,12 @@ Prompt 更适合作为阶段性引导。可结合全局约束文件使用，在�
 Jase-SecKit/
 ├── SKILL/
 │   ├── Web-Vulnhunt/                # 自主 Web 渗透测试、状态文件与动态验证工作流
-│   ├── Webounty-main/               # Web 漏洞赏金自动化测试 Skill
 │   ├── flounder/                    # 代码审计 Skill
 │   └── src-report/                  # 漏洞报告撰写 Skill
 ├── refer/
 │   ├── ARTEX-main/                  # ARTEX 参考项目
 │   ├── Cairn-main/                  # Cairn 参考项目
-│   └── PwnMesh-main/                # PwnMesh 参考项目
+│   └── sapper-v2-master/            # sapper-v2 多 Agent 自主渗透参考项目
 ├── 约束文件/
 │   ├── AGENTS.md                    # 中文全局 Agent 约束
 │   ├── CLAUDE.md                    # 英文全局 Agent 约束

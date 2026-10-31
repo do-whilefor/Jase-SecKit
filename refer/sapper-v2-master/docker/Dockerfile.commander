@@ -1,0 +1,53 @@
+# Commander-architecture variant: base tmux toolchain plus the commander
+# units (worker.sh / watchdog.sh / SKILL.md) and an entrypoint that boots the
+# AI commander TUI in tmux window 0 and the watchdog guardian behind it.
+#
+# Build:  docker build -f docker/Dockerfile.commander -t sapper-agent:commander .
+#         (requires sapper-agent:tmux to exist locally; context = repo root)
+FROM sapper-agent:tmux
+
+USER root
+# Arsenal layer (mounted here instead of the base image so the base stays cached):
+# stego/forensics, pwn, DB clients, wordlists kept, crypto stack. Compiled extras
+# are fault-tolerant (stdlib+sympy covers most crypto without them).
+# env -u: the docker daemon injects a 7890 proxy into build containers; routing
+# the TUNA mirror (domestic) through it is the 260KB/s crawl — go DIRECT.
+RUN env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY \
+    apt-get update && env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY \
+    apt-get install -y --no-install-recommends \
+        binwalk steghide exiftool redis-tools default-mysql-client postgresql-client \
+        gdb checksec libgmp-dev libmpfr-dev \
+    && rm -rf /var/lib/apt/lists/* \
+    && pip3 install --no-cache-dir --break-system-packages pycryptodome sympy ROPgadget \
+    && (pip3 install --no-cache-dir --break-system-packages ropper \
+        || echo "WARN: ropper skipped (py3.12 build issue) - ROPgadget covers it") \
+    && (pip3 install --no-cache-dir --break-system-packages gmpy2 z3-solver \
+        || echo "WARN: gmpy2/z3 unavailable - continuing")
+
+# Codex CLI harness for --engine codex workers (experimental tier, SKILL 4.9).
+# PINNED to 0.42.0: >=0.163 dropped wire_api="chat" (DeepSeek only speaks the
+# OpenAI chat wire) — upgrading codex breaks every --engine codex worker.
+# npm flags copied from the base image's claude-code install (Kali npm blocks
+# native postinstall scripts without --allow-scripts).
+RUN npm install -g @openai/codex@0.42.0 --allow-scripts --omit=dev 2>/dev/null || \
+    npm install -g @openai/codex@0.42.0 2>/dev/null || echo "WARN: codex install failed (claude-only mode)"
+COPY docker/commander/ /opt/sapper/docker/commander/
+# kb overlay: this image's kb/ is FRESHER than the base image's (field entries
+# added late) — copy it over so commanders see the latest knowledge
+COPY kb/ /opt/sapper/kb/
+# codex provider config (chat wire for DeepSeek) into the agent user's home
+RUN mkdir -p /home/agent/.codex \
+    && cp /opt/sapper/docker/commander/codex-home/config.toml /home/agent/.codex/config.toml \
+    && chown -R agent:agent /home/agent/.codex
+RUN chmod +x /opt/sapper/docker/commander/worker.sh \
+             /opt/sapper/docker/commander/watchdog.sh \
+             /opt/sapper/docker/commander/entrypoint.sh \
+    && chown -R agent:agent /opt/sapper/docker/commander
+USER agent
+
+# factory default: the commander brain is the SMART tier; console env overrides
+# this. Prevents environment drift (a flash SAPPER_MODEL silently neuters
+# every --general escalation).
+ENV SAPPER_MODEL=glm-5.3[1m]
+
+ENTRYPOINT ["/opt/sapper/docker/commander/entrypoint.sh"]

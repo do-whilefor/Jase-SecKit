@@ -1,0 +1,16 @@
+{
+  "id": "kb051",
+  "title": "反序列化利用速查",
+  "description": "Java/PHP/Python 序列化特征的标准流程",
+  "detail": "Java：特征 Cookie rememberMe、rmi、jmx、Base64 长 blob；链优先 ysoserial（无则换路）。PHP：unserialize 入口（O:NN: 开头）→ phar 触发 → destruct 文件写 gadget。Python：pickle blob → reduce RCE。原则：先找入口再找链；nuclei tags=deserialization 辅助定位。",
+  "commands": [
+    "curl -s http://T/ --cookie rememberMe=1 -o /dev/null -w %{http_code}",
+    "echo O:8:22stdClass22:0:{} | base64 -w0"
+  ],
+  "tags": [
+    "deser",
+    "rce"
+  ],
+  "source": "实战沉淀",
+  "created_at": "2026-10-16T23:58:00Z"
+}

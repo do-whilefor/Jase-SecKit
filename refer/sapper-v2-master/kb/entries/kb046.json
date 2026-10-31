@@ -1,0 +1,18 @@
+{
+  "id": "kb046",
+  "title": "ComfyUI 漏洞组合拳",
+  "description": "ComfyUI 实例的已知攻击面清单",
+  "detail": "按优先级：1) /upload/image 任意上传 + 路径穿越写 webshell（老版本）。2) API /api/... 的未授权访问（管理接口直接读 workflow 泄露 prompt/模型）。3) 自定义节点 RCE（gguf/load_image 等节点的路径参数读任意文件：file=../../flag）。4) manager 插件安装接口。5) 若 /history 或 /queue 可读，翻历史 prompt 找内嵌 flag/密钥。先 curl /system_stats 拿版本再定打法。",
+  "commands": [
+    "curl -s http:8188/system_stats",
+    "curl -s 'http://T/upload/image' -F 'image=@sh.php;filename=../../x.php'"
+  ],
+  "tags": [
+    "comfyui",
+    "ai",
+    "rce",
+    "unauth"
+  ],
+  "source": "实战/BCTF2026 测试",
+  "created_at": "2026-10-16T22:30:00Z"
+}

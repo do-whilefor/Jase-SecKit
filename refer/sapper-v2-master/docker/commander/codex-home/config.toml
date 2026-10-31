@@ -1,0 +1,16 @@
+# Codex CLI shared provider config (SKILL 4.9 --engine codex workers).
+# DeepSeek only speaks the OpenAI *chat* wire, not the responses API codex
+# defaults to — without wire_api="chat" every codex call 400s.
+# Per-run selection: `codex --profile ds` / `--profile ds-local` loads the
+# matching <profile>.config.toml (codex >= 0.163 scheme).
+[model_providers.deepseek]
+name = "deepseek"
+base_url = "https://api.deepseek.com/v1"
+wire_api = "chat"
+env_key = "DEEPSEEK_API_KEY"
+
+[model_providers.deepseek-local]
+name = "deepseek-local"
+base_url = "https://api.deepseek.com/v1"
+wire_api = "chat"
+env_key = "DEEPSEEK_API_KEY"

@@ -1,0 +1,17 @@
+{
+  "id": "kb048",
+  "title": "LDAP 服务攻击面",
+  "description": "遇到 LDAP(389/636) 的题怎么打",
+  "detail": "1) 匿名绑定探测：ldapsearch -x -H ldap://T -b ''（rootDSE 拿 namingContexts）。2) 匿名 dump 全树找账号/描述里的密码。3) 有凭据则喷洒：其他服务（SSH/web 登录）复用。4) 注入：若 web 表单拼 LDAP 过滤器，用 * ) (uid=* 等过滤注入（绕过登录常见：uid=*)(|(&))。5) 回调型（JNDI 注入）通常是 Java 题。注意：本机起 LDAP 服务调试时用 nohup 前台方式，容器里后台服务会被回收。",
+  "commands": [
+    "ldapsearch -x -H ldap://T -b '' namingContexts",
+    "ldapsearch -x -H ldap://T -b 'dc=x,dc=y'"
+  ],
+  "tags": [
+    "ldap",
+    "enum",
+    "injection"
+  ],
+  "source": "实战/BCTF2026 测试",
+  "created_at": "2026-10-16T22:30:00Z"
+}

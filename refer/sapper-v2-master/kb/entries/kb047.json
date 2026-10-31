@@ -1,0 +1,17 @@
+{
+  "id": "kb047",
+  "title": "initcode/代码注入类靶机",
+  "description": "运行用户提交代码的靶机通用思路",
+  "detail": "特征：平台运行你提交的脚本/初始代码。打法：1) 提交的代码里直接 import os/subprocess 读环境变量与文件（flag 常在 env 或工作目录）。2) 沙箱禁 import 时：f-string/格式化字符串读全局、__import__ 绕过、builtins 链。3) 网络回连（若出网）：curl 外带到自己监听端口。4) 检查执行身份的 crontab/历史/邻居进程。注意：先探测能 import 什么再写利用。",
+  "commands": [
+    "print(open('/flag').read())",
+    "__import__('os').environ"
+  ],
+  "tags": [
+    "codeexec",
+    "sandbox",
+    "misc"
+  ],
+  "source": "实战/BCTF2026 测试",
+  "created_at": "2026-10-16T22:30:00Z"
+}

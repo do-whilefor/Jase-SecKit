@@ -1,0 +1,17 @@
+{
+  "id": "kb045",
+  "title": "vm2/JS 沙箱逃逸套路",
+  "description": "JS 沙箱题通用打法：版本先行，再选逃逸",
+  "detail": "1) 先确认沙箱实现与版本（vm2? isolated-vm? quickjs?）：找 package.json、报错堆栈、/proc、源码泄露。2) vm2：<3.9.19 用 CVE-2023-37466/30547（Proxy handler 法）；先 `require` 探测是否可达。3) 无 require 时用 this/constructor 链：`.constructor.constructor('return process')().mainModule.require('child_process').execSync('...')`。4) quickjs/自研 eval 沙箱：试 Function 构造、原型链污染逃逸。5) 命令回显走 console.log/异常通道。原则：版本号决定 payload，别盲打。",
+  "commands": [
+    "grep -r 'vm2\\|isolated-vm' /app 2>/dev/null || curl -s http://T/package.json",
+    "cat /proc/self/cmdline | tr '\\0' ' '"
+  ],
+  "tags": [
+    "sandbox",
+    "js",
+    "rce"
+  ],
+  "source": "实战/BCTF2026 测试",
+  "created_at": "2026-10-16T22:30:00Z"
+}
